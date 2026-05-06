@@ -1,0 +1,17 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app
+        - database/seeders
+
+    level: 6
+
+    ignoreErrors:
+        # Filament generics
+        - '#Call to an undefined method Filament\\Forms\\Components\\Component::#'
+        - '#Parameter \#1 \$value of method Illuminate\\Database\\Eloquent\\Builder#'
+
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
