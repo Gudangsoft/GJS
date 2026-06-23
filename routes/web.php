@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Auth\OrcidController;
+use App\Http\Controllers\GalleyController;
+use App\Http\Controllers\JournalOaiController;
 use App\Http\Controllers\OaiPmhController;
 use App\Http\Controllers\SitemapController;
 use App\Livewire\Author\Dashboard;
@@ -22,10 +24,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', JournalIndex::class)->name('home');
 
 Route::prefix('journals/{journal:slug}')->name('journals.')->group(function () {
-    Route::get('/',                 JournalHome::class)->name('home');
-    Route::get('/issues',           IssueArchive::class)->name('issues');
-    Route::get('/issues/{issue}',   IssueToc::class)->name('issues.show');
-    Route::get('/articles/{article}', ArticleDetail::class)->name('articles.show');
+    Route::get('/',                                         JournalHome::class)->name('home');
+    Route::get('/issues',                                   IssueArchive::class)->name('issues');
+    Route::get('/issues/{issue}',                           IssueToc::class)->name('issues.show');
+    Route::get('/articles/{article}',                       ArticleDetail::class)->name('articles.show');
+    Route::get('/articles/{article}/galley/{galley}',       GalleyController::class)->name('articles.galley');
+    Route::get('/oai',                                      JournalOaiController::class)->name('oai');
 });
 
 // ─── Author Area ─────────────────────────────────────────────────────────────
@@ -64,3 +68,7 @@ Route::get('/auth/orcid/callback', [OrcidController::class, 'callback'])->name('
 // ─── Protocol & Discovery ────────────────────────────────────────────────────
 Route::get('/oai',         OaiPmhController::class)->name('oai');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+Route::get('/robots.txt', function () {
+    $content = view('robots')->render();
+    return response($content, 200, ['Content-Type' => 'text/plain']);
+})->name('robots');

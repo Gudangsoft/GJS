@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\Journal;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Http\RedirectResponse;
 
 class OaiPmhController extends Controller
 {
@@ -18,9 +19,21 @@ class OaiPmhController extends Controller
         $this->repositoryName = config('app.name') . ' OAI Repository';
     }
 
-    public function __invoke(Request $request): Response
+    public function forJournal(Journal $journal): static
+    {
+        $this->baseUrl        = url("/journals/{$journal->slug}/oai");
+        $this->repositoryName = $journal->name . ' OAI Repository';
+        return $this;
+    }
+
+    public function __invoke(Request $request): Response|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $verb = $request->input('verb', '');
+
+        // No verb → show human-readable HTML info page
+        if ($verb === '') {
+            return $this->infoPage();
+        }
 
         $xml = match ($verb) {
             'Identify'            => $this->identify($request),
@@ -35,6 +48,26 @@ class OaiPmhController extends Controller
         return response($xml, 200, [
             'Content-Type'  => 'text/xml; charset=utf-8',
             'Cache-Control' => 'no-cache',
+        ]);
+    }
+
+    private function infoPage(): \Illuminate\Contracts\View\View
+    {
+        $journals      = Journal::where('status', 'active')->where('enabled', true)
+                            ->select(['id', 'slug', 'name', 'issn_online', 'issn_print', 'publisher'])
+                            ->orderBy('name')
+                            ->get();
+
+        $articleCount  = Article::whereNotNull('date_published')->count();
+        $earliest      = Article::orderBy('date_published')->value('date_published');
+
+        return view('oai.index', [
+            'baseUrl'         => $this->baseUrl,
+            'repositoryName'  => $this->repositoryName,
+            'adminEmail'      => config('mail.from.address', 'admin@' . (parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost')),
+            'earliestDate'    => $earliest ? \Carbon\Carbon::parse($earliest)->toDateString() : now()->toDateString(),
+            'journals'        => $journals,
+            'articleCount'    => $articleCount,
         ]);
     }
 
@@ -130,7 +163,7 @@ XML)->implode("\n");
         }
 
         $setSpec = $request->input('set');
-        $query   = $this->articlesQuery($setSpec)->with(['submission.contributors', 'journal', 'section']);
+        $query   = $this->articlesQuery($setSpec)->with(['submission.contributors', 'journal', 'section', 'galleys.file']);
 
         $records = $query->get()->map(fn ($a) => $this->buildRecord($a))->implode("\n");
 
@@ -152,7 +185,7 @@ XML)->implode("\n");
 
         // identifier format: oai:{host}:article:{id}
         $id = (int) (explode(':', $identifier)[3] ?? 0);
-        $article = Article::with(['submission.contributors', 'journal', 'section'])
+        $article = Article::with(['submission.contributors', 'journal', 'section', 'galleys.file'])
             ->find($id);
 
         if (!$article) {
@@ -184,6 +217,7 @@ XML)->implode("\n");
         $keywords    = collect($sub->keywords ?? [])->map(fn ($k) => "<dc:subject>{$this->esc($k)}</dc:subject>")->implode("\n");
         $doiLink     = $article->doi ? "<dc:identifier>https://doi.org/{$this->esc($article->doi)}</dc:identifier>" : '';
         $urlId       = "<dc:identifier>" . url("/journals/{$journal?->slug}/articles/{$article->id}") . "</dc:identifier>";
+        $formats     = $article->galleys->map(fn ($g) => "<dc:format>{$this->esc($g->file?->mime_type ?? 'application/pdf')}</dc:format>")->implode("\n");
 
         return <<<XML
         <record>
@@ -208,6 +242,7 @@ XML)->implode("\n");
                     <dc:source>{$this->esc($journal?->name ?? '')}</dc:source>
                     {$doiLink}
                     {$urlId}
+                    {$formats}
                     <dc:rights>Copyright (c) authors. Open access under CC BY 4.0.</dc:rights>
                 </oai_dc:dc>
             </metadata>

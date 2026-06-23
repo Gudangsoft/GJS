@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Article;
 use App\Models\Submission;
+use App\Observers\ArticleObserver;
 use App\Observers\SubmissionObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
@@ -41,5 +43,6 @@ class AppServiceProvider extends ServiceProvider
 
         // Model observers
         Submission::observe(SubmissionObserver::class);
+        Article::observe(ArticleObserver::class);
     }
 }

@@ -1,4 +1,58 @@
 @push('head')
+{{-- Canonical URL --}}
+<link rel="canonical" href="{{ route('journals.articles.show', [$journal->slug, $article->id]) }}">
+
+{{-- Open Graph --}}
+<meta property="og:type" content="article">
+<meta property="og:title" content="{{ $article->submission->title }}">
+<meta property="og:description" content="{{ Str::limit($article->submission->abstract, 200) }}">
+<meta property="og:url" content="{{ route('journals.articles.show', [$journal->slug, $article->id]) }}">
+<meta property="og:site_name" content="{{ $journal->name }}">
+@if($article->date_published)
+<meta property="article:published_time" content="{{ $article->date_published->toIso8601String() }}">
+@endif
+
+{{-- JSON-LD ScholarlyArticle (schema.org) --}}
+<script type="application/ld+json">
+{
+    "@@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "headline": {{ json_encode($article->submission->title) }},
+    @if($article->submission->abstract)
+    "description": {{ json_encode(Str::limit($article->submission->abstract, 500)) }},
+    "abstract": {{ json_encode($article->submission->abstract) }},
+    @endif
+    "url": {{ json_encode(route('journals.articles.show', [$journal->slug, $article->id])) }},
+    @if($article->doi)
+    "identifier": {{ json_encode('https://doi.org/' . $article->doi) }},
+    @endif
+    @if($article->date_published)
+    "datePublished": {{ json_encode($article->date_published->toDateString()) }},
+    @endif
+    "inLanguage": {{ json_encode($article->submission->locale ?? 'id') }},
+    "author": [
+        @foreach($article->submission->contributors as $i => $contributor)
+        {
+            "@type": "Person",
+            "name": {{ json_encode($contributor->full_name) }}
+            @if($contributor->affiliation),"affiliation": {"@type": "Organization", "name": {{ json_encode($contributor->affiliation) }}}@endif
+            @if($contributor->orcid),"identifier": {{ json_encode('https://orcid.org/' . $contributor->orcid) }}@endif
+        }{{ !$loop->last ? ',' : '' }}
+        @endforeach
+    ],
+    "isPartOf": {
+        "@type": "Periodical",
+        "name": {{ json_encode($journal->name) }}
+        @if($journal->issn_online),"issn": {{ json_encode($journal->issn_online) }}@elseif($journal->issn_print),"issn": {{ json_encode($journal->issn_print) }}@endif
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": {{ json_encode($journal->publisher ?? $journal->name) }}
+    },
+    "license": "https://creativecommons.org/licenses/by/4.0/"
+}
+</script>
+
 {{-- Google Scholar / Highwire citation meta tags --}}
 <meta name="citation_title" content="{{ $article->submission->title }}">
 @foreach($article->submission->contributors as $contributor)
@@ -41,9 +95,10 @@
 @endforeach
 @endif
 <meta name="citation_language" content="{{ $article->submission->locale ?? 'id' }}">
-@foreach($article->galleys as $galley)
+<meta name="citation_abstract_html_url" content="{{ route('journals.articles.show', [$journal->slug, $article->id]) }}">
+@foreach($this->approvedGalleys as $galley)
 @if(str_contains(strtolower($galley->label), 'pdf'))
-<meta name="citation_pdf_url" content="{{ url('/journals/' . $journal->slug . '/articles/' . $article->id . '/galley/' . $galley->id) }}">
+<meta name="citation_pdf_url" content="{{ route('journals.articles.galley', [$journal->slug, $article->id, $galley->id]) }}">
 @endif
 @endforeach
 @endpush
@@ -146,21 +201,32 @@
         <div class="space-y-5">
 
             {{-- Download buttons --}}
-            @if($article->galleys->isNotEmpty())
+            @if($this->approvedGalleys->isNotEmpty())
             <div class="bg-white rounded-xl border border-slate-200 p-5">
                 <h3 class="text-sm font-semibold text-slate-700 mb-3">Unduh Artikel</h3>
                 <div class="space-y-2">
-                    @foreach($article->galleys as $galley)
-                    <a href="#"
-                       class="flex items-center gap-3 w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    @foreach($this->approvedGalleys as $galley)
+                    @php $hasFile = !empty($galley->remote_url) || !empty($galley->submission_file_id); @endphp
+                    @if($hasFile)
+                    <a href="{{ route('journals.articles.galley', [$journal->slug, $article->id, $galley->id]) }}"
+                       class="flex items-center gap-3 w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium text-sm transition-colors">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                         </svg>
-                        Unduh {{ $galley->label }}
+                        <span>Unduh {{ $galley->label }}</span>
                         @if($galley->views > 0)
-                        <span class="ml-auto text-blue-200 text-xs">{{ number_format($galley->views) }}</span>
+                        <span class="ml-auto opacity-70 text-xs font-normal">{{ number_format($galley->views) }}×</span>
                         @endif
                     </a>
+                    @else
+                    <div class="flex items-center gap-3 w-full px-4 py-3 rounded-lg bg-slate-100 border border-slate-200 border-dashed text-slate-400 text-sm cursor-not-allowed">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        <span>{{ $galley->label }}</span>
+                        <span class="ml-auto text-xs bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full">Segera Hadir</span>
+                    </div>
+                    @endif
                     @endforeach
                 </div>
             </div>

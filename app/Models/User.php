@@ -26,7 +26,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'salutation', 'first_name', 'last_name', 'email', 'password',
         'orcid', 'affiliation', 'country', 'avatar', 'bio', 'url', 'phone',
         'locale', 'mailing_address', 'is_disabled',
-        'last_login_at', 'last_login_ip',
+        'last_login_at', 'last_login_ip', 'email_verified_at',
     ];
 
     protected $hidden = [

@@ -48,25 +48,18 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->brandName('GJS')
             ->favicon(asset('favicon.ico'))
-            ->sidebarCollapsibleOnDesktop()
-            ->sidebarWidth('16rem')
             ->globalSearch(true)
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->navigationGroups([
                 NavigationGroup::make('Naskah')
-                    ->icon('heroicon-o-inbox-arrow-down')
                     ->collapsed(false),
                 NavigationGroup::make('Penerbitan')
-                    ->icon('heroicon-o-newspaper')
                     ->collapsed(false),
                 NavigationGroup::make('Pengguna & Peran')
-                    ->icon('heroicon-o-users')
                     ->collapsed(false),
                 NavigationGroup::make('Pengaturan')
-                    ->icon('heroicon-o-cog-6-tooth')
                     ->collapsed(true),
                 NavigationGroup::make('Administrasi Situs')
-                    ->icon('heroicon-o-server-stack')
                     ->collapsed(true),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')

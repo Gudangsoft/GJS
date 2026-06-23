@@ -5,6 +5,7 @@ namespace App\Livewire\Reader;
 use App\Jobs\IncrementArticleViews;
 use App\Models\Article;
 use App\Models\Journal;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -21,11 +22,19 @@ class ArticleDetail extends Component
         $this->article = $article->load([
             'submission.contributors',
             'issue',
-            'galleys',
             'section',
         ]);
 
         IncrementArticleViews::dispatch($article->id);
+    }
+
+    #[Computed]
+    public function approvedGalleys()
+    {
+        return $this->article->galleys()
+            ->where('is_approved', true)
+            ->orderBy('sequence')
+            ->get();
     }
 
     public function render()
