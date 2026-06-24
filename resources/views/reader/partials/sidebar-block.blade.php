@@ -373,6 +373,325 @@
         <p class="text-xs text-slate-400 italic">Fokus & ruang lingkup belum diisi.</p>
         @endif
 
+    {{-- ── current_issue ──────────────────────────────────────────────── --}}
+    @elseif($block->type === 'current_issue')
+    @php
+        $ci = \App\Models\Issue::where('journal_id', $journal->id)
+            ->where('published', true)
+            ->orderByDesc('current')->orderByDesc('date_published')
+            ->first();
+        $ciArticles = $ci && $block->setting('show_toc_preview', true)
+            ? \App\Models\Article::with('submission')
+                ->where('issue_id', $ci->id)
+                ->orderBy('sequence')
+                ->take((int)($block->setting('max_articles', 5)))
+                ->get()
+            : collect();
+    @endphp
+    @if($ci)
+        @if($block->setting('show_cover', true) && $ci->cover_image)
+        <div class="mb-3 rounded-xl overflow-hidden">
+            <img src="{{ Storage::disk('public')->url($ci->cover_image) }}"
+                 alt="{{ $ci->cover_image_alt_text ?? $ci->title }}"
+                 class="w-full object-cover max-h-52">
+        </div>
+        @endif
+        <p class="text-xs font-bold text-blue-700 mb-1">
+            @if($ci->show_volume && $ci->volume) Vol. {{ $ci->volume }} @endif
+            @if($ci->show_number && $ci->number) No. {{ $ci->number }} @endif
+            @if($ci->show_year && $ci->year) ({{ $ci->year }}) @endif
+        </p>
+        @if($ci->show_title && $ci->title)
+        <p class="text-sm font-semibold text-slate-700 mb-2">{{ $ci->title }}</p>
+        @endif
+        @if($ciArticles->isNotEmpty())
+        <ul class="space-y-2 mb-3">
+            @foreach($ciArticles as $ca)
+            <li class="border-l-2 border-blue-200 pl-2">
+                <a href="{{ route('journals.articles.show', [$journal->slug, $ca->id]) }}"
+                   class="text-xs text-slate-700 hover:text-blue-600 leading-snug block">
+                   {{ Str::limit($ca->submission->title ?? '', 70) }}
+                </a>
+            </li>
+            @endforeach
+        </ul>
+        @endif
+        <a href="{{ route('journals.issues.show', [$journal->slug, $ci->id]) }}"
+           class="block text-center text-xs font-semibold py-2 rounded-lg transition-colors"
+           style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;"
+           onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">
+            Lihat Terbitan Lengkap →
+        </a>
+    @else
+        <p class="text-xs text-slate-400 italic">Belum ada terbitan yang dipublikasikan.</p>
+    @endif
+
+    {{-- ── most_read ────────────────────────────────────────────────────── --}}
+    @elseif($block->type === 'most_read')
+    @php
+        $metric   = $block->setting('metric', 'views');
+        $mrCount  = max(1, (int)$block->setting('count', 5));
+        $mrColumn = in_array($metric, ['downloads','views']) ? $metric : 'views';
+        $topArts  = \App\Models\Article::with('submission')
+            ->where('journal_id', $journal->id)
+            ->orderByDesc($mrColumn)
+            ->take($mrCount)
+            ->get();
+    @endphp
+    @if($topArts->isNotEmpty())
+    <ol class="space-y-3">
+        @foreach($topArts as $idx => $ta)
+        <li class="flex gap-2.5">
+            <span class="shrink-0 w-5 h-5 rounded-full text-xs font-black flex items-center justify-center mt-0.5"
+                  style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;">{{ $idx+1 }}</span>
+            <div class="flex-1 min-w-0">
+                <a href="{{ route('journals.articles.show', [$journal->slug, $ta->id]) }}"
+                   class="text-xs text-slate-700 hover:text-amber-700 leading-snug block font-medium">
+                   {{ Str::limit($ta->submission->title ?? '', 65) }}
+                </a>
+                <p class="text-xs text-slate-400 mt-0.5">
+                    @if($mrColumn === 'views') {{ number_format($ta->views) }} tayangan
+                    @else {{ number_format($ta->downloads) }} unduhan @endif
+                </p>
+            </div>
+        </li>
+        @endforeach
+    </ol>
+    @else
+    <p class="text-xs text-slate-400 italic">Belum ada data artikel.</p>
+    @endif
+
+    {{-- ── recent_articles ─────────────────────────────────────────────── --}}
+    @elseif($block->type === 'recent_articles')
+    @php
+        $raCount = max(1, (int)$block->setting('count', 5));
+        $recent  = \App\Models\Article::with('submission')
+            ->where('journal_id', $journal->id)
+            ->whereNotNull('date_published')
+            ->orderByDesc('date_published')
+            ->take($raCount)
+            ->get();
+    @endphp
+    @if($recent->isNotEmpty())
+    <ul class="space-y-3">
+        @foreach($recent as $ra)
+        <li>
+            <a href="{{ route('journals.articles.show', [$journal->slug, $ra->id]) }}"
+               class="text-xs text-slate-700 hover:text-cyan-700 leading-snug block font-medium">
+               {{ Str::limit($ra->submission->title ?? '', 70) }}
+            </a>
+            @if($ra->date_published)
+            <p class="text-xs text-slate-400 mt-0.5">{{ \Carbon\Carbon::parse($ra->date_published)->translatedFormat('d M Y') }}</p>
+            @endif
+        </li>
+        @endforeach
+    </ul>
+    @else
+    <p class="text-xs text-slate-400 italic">Belum ada artikel yang diterbitkan.</p>
+    @endif
+
+    {{-- ── keyword_cloud ───────────────────────────────────────────────── --}}
+    @elseif($block->type === 'keyword_cloud')
+    @php
+        $maxKw = max(10, (int)$block->setting('max_keywords', 30));
+        $kwRaw = \App\Models\Submission::whereHas('article', fn($q) => $q->where('journal_id', $journal->id))
+            ->whereNotNull('keywords')
+            ->pluck('keywords');
+        $kwCounts = collect();
+        foreach ($kwRaw as $kwArr) {
+            foreach ((array)$kwArr as $kw) {
+                $k = mb_strtolower(trim($kw));
+                if ($k) $kwCounts[$k] = ($kwCounts[$k] ?? 0) + 1;
+            }
+        }
+        $kwCounts = $kwCounts->sortDesc()->take($maxKw);
+        $maxCount = $kwCounts->max() ?: 1;
+    @endphp
+    @if($kwCounts->isNotEmpty())
+    <div class="flex flex-wrap gap-1.5">
+        @foreach($kwCounts as $kw => $cnt)
+        @php
+            $size   = 10 + round(($cnt / $maxCount) * 5);
+            $weight = $cnt >= ($maxCount * .6) ? '700' : '500';
+            $alpha  = 0.5 + round(($cnt / $maxCount) * 0.5, 2);
+        @endphp
+        <a href="{{ route('journals.home', $journal->slug) }}?kw={{ urlencode($kw) }}"
+           class="inline-block rounded-full px-2.5 py-1 transition-opacity hover:opacity-80"
+           style="font-size:{{ $size }}px;font-weight:{{ $weight }};background:rgba(109,40,217,{{ round($alpha*0.15,2) }});color:rgba(109,40,217,{{ round(0.6+$alpha*0.4,2) }});border:1px solid rgba(109,40,217,{{ round($alpha*0.25,2) }});">
+            {{ $kw }}
+        </a>
+        @endforeach
+    </div>
+    @else
+    <p class="text-xs text-slate-400 italic">Belum ada kata kunci tersedia.</p>
+    @endif
+
+    {{-- ── announcements_list ──────────────────────────────────────────── --}}
+    @elseif($block->type === 'announcements_list')
+    @php
+        $alCount = max(1, (int)$block->setting('count', 3));
+        $annList = \App\Models\Announcement::where('journal_id', $journal->id)
+            ->where(fn($q) => $q->whereNull('date_expire')->orWhere('date_expire', '>=', now()))
+            ->orderByDesc('date_posted')
+            ->take($alCount)
+            ->get();
+    @endphp
+    @if($annList->isNotEmpty())
+    <ul class="space-y-3">
+        @foreach($annList as $ann)
+        <li class="border-b border-slate-50 pb-3 last:border-0 last:pb-0">
+            <a href="{{ route('journals.home', $journal->slug) }}#ann-{{ $ann->id }}"
+               class="text-xs font-semibold text-slate-700 hover:text-teal-700 leading-snug block">
+               {{ Str::limit($ann->title, 65) }}
+            </a>
+            @if($block->setting('show_date', true) && $ann->date_posted)
+            <p class="text-xs text-slate-400 mt-0.5">{{ \Carbon\Carbon::parse($ann->date_posted)->translatedFormat('d M Y') }}</p>
+            @endif
+            @if($ann->description_short)
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">{{ Str::limit(strip_tags($ann->description_short), 80) }}</p>
+            @endif
+        </li>
+        @endforeach
+    </ul>
+    @else
+    <p class="text-xs text-slate-400 italic">Belum ada pengumuman.</p>
+    @endif
+
+    {{-- ── open_access ──────────────────────────────────────────────────── --}}
+    @elseif($block->type === 'open_access')
+    @php
+        $license   = $block->setting('license', $journal->license_type ?? 'cc_by');
+        $ccMap = [
+            'cc_by'       => ['label'=>'CC BY 4.0',       'icon'=>'🅭🅯',     'color'=>'#15803d', 'url'=>'https://creativecommons.org/licenses/by/4.0/'],
+            'cc_by_nc'    => ['label'=>'CC BY-NC 4.0',    'icon'=>'🅭🅯🅮',  'color'=>'#0369a1', 'url'=>'https://creativecommons.org/licenses/by-nc/4.0/'],
+            'cc_by_nc_nd' => ['label'=>'CC BY-NC-ND 4.0', 'icon'=>'🅭🅯🅮⊝', 'color'=>'#7c3aed','url'=>'https://creativecommons.org/licenses/by-nc-nd/4.0/'],
+            'cc_by_nc_sa' => ['label'=>'CC BY-NC-SA 4.0', 'icon'=>'🅭🅯🅮🄎', 'color'=>'#b45309','url'=>'https://creativecommons.org/licenses/by-nc-sa/4.0/'],
+            'cc_by_sa'    => ['label'=>'CC BY-SA 4.0',    'icon'=>'🅭🄎',     'color'=>'#0f766e', 'url'=>'https://creativecommons.org/licenses/by-sa/4.0/'],
+        ];
+        $cc = $ccMap[$license] ?? $ccMap['cc_by'];
+        $stmt = $block->setting('custom_statement') ?: $journal->open_access_statement
+            ?: 'Jurnal ini adalah jurnal akses terbuka yang memungkinkan semua konten tersedia secara gratis kepada pengguna. Pengguna diizinkan untuk membaca, mengunduh, menyalin, mendistribusikan, mencetak, mencari, atau menautkan ke teks lengkap artikel.';
+    @endphp
+    <a href="{{ $cc['url'] }}" target="_blank" rel="noopener"
+       class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl mb-3 transition-colors"
+       style="background:{{ $cc['color'] }}12;border:1px solid {{ $cc['color'] }}30;"
+       onmouseover="this.style.background='{{ $cc['color'] }}20'" onmouseout="this.style.background='{{ $cc['color'] }}12'">
+        <span class="text-2xl leading-none">©</span>
+        <div>
+            <p class="text-xs font-bold" style="color:{{ $cc['color'] }};">Open Access</p>
+            <p class="text-xs" style="color:{{ $cc['color'] }}80;">{{ $cc['label'] }}</p>
+        </div>
+    </a>
+    @if($block->setting('show_statement', true))
+    <p class="text-xs text-slate-500 leading-relaxed">{{ Str::limit(strip_tags($stmt), 200) }}</p>
+    @endif
+
+    {{-- ── peer_review ──────────────────────────────────────────────────── --}}
+    @elseif($block->type === 'peer_review')
+    @php
+        $reviewModes = [
+            'single_blind' => 'Single Blind',
+            'double_blind' => 'Double Blind',
+            'triple_blind' => 'Triple Blind',
+            'open'         => 'Open Review',
+        ];
+        $modeName = $reviewModes[$journal->review_mode ?? ''] ?? $journal->review_mode;
+        $weeks    = $journal->num_weeks_per_review ?? null;
+    @endphp
+    <div class="space-y-3">
+        @if($block->setting('show_mode', true) && $modeName)
+        <div class="flex items-center gap-2.5 p-2.5 rounded-lg" style="background:#eff6ff;">
+            <svg class="w-5 h-5 text-blue-600 shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div>
+                <p class="text-xs text-blue-500 font-semibold uppercase tracking-wide">Sistem Review</p>
+                <p class="text-sm font-bold text-blue-800">{{ $modeName }}</p>
+            </div>
+        </div>
+        @endif
+        @if($block->setting('show_duration', true) && $weeks)
+        <div class="flex items-center gap-2.5 p-2.5 rounded-lg" style="background:#f0fdf4;">
+            <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div>
+                <p class="text-xs text-green-500 font-semibold uppercase tracking-wide">Durasi Review</p>
+                <p class="text-sm font-bold text-green-800">{{ $weeks }} Minggu</p>
+            </div>
+        </div>
+        @endif
+        @if($block->setting('custom_text'))
+        <p class="text-xs text-slate-500 leading-relaxed">{{ $block->setting('custom_text') }}</p>
+        @endif
+    </div>
+
+    {{-- ── social_links ────────────────────────────────────────────────── --}}
+    @elseif($block->type === 'social_links')
+    @php
+        $socials = [
+            ['key'=>'url_twitter',   'label'=>'Twitter / X', 'color'=>'#000000',
+             'icon'=>'<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.741l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>'],
+            ['key'=>'url_facebook',  'label'=>'Facebook',    'color'=>'#1877f2',
+             'icon'=>'<path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>'],
+            ['key'=>'url_instagram', 'label'=>'Instagram',   'color'=>'#e1306c',
+             'icon'=>'<path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>'],
+            ['key'=>'url_youtube',   'label'=>'YouTube',     'color'=>'#ff0000',
+             'icon'=>'<path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/>'],
+            ['key'=>'url_linkedin',  'label'=>'LinkedIn',    'color'=>'#0a66c2',
+             'icon'=>'<path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>'],
+            ['key'=>'url_telegram',  'label'=>'Telegram',    'color'=>'#2CA5E0',
+             'icon'=>'<path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>'],
+        ];
+        $activeSocials = array_filter($socials, fn($s) => !empty(trim($block->setting($s['key']) ?? '')));
+    @endphp
+    @if(!empty($activeSocials))
+    <div class="flex flex-wrap gap-2">
+        @foreach($activeSocials as $s)
+        <a href="{{ $block->setting($s['key']) }}" target="_blank" rel="noopener"
+           title="{{ $s['label'] }}"
+           class="w-9 h-9 rounded-xl flex items-center justify-center transition-transform hover:scale-110 hover:shadow-md"
+           style="background:{{ $s['color'] }}18;border:1px solid {{ $s['color'] }}30;">
+            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="{{ $s['color'] }}">{!! $s['icon'] !!}</svg>
+        </a>
+        @endforeach
+    </div>
+    @else
+    <p class="text-xs text-slate-400 italic">Belum ada link media sosial yang dikonfigurasi.</p>
+    @endif
+
+    {{-- ── preservation ────────────────────────────────────────────────── --}}
+    @elseif($block->type === 'preservation')
+    @php
+        $badges = [
+            ['key'=>'show_lockss',   'url_key'=>'url_lockss',   'label'=>'LOCKSS',    'desc'=>'Lots of Copies Keep Stuff Safe',    'color'=>'#1d4ed8'],
+            ['key'=>'show_pkp_pn',   'url_key'=>null,            'label'=>'PKP PN',    'desc'=>'PKP Preservation Network',         'color'=>'#7c3aed'],
+            ['key'=>'show_portico',  'url_key'=>'url_portico',  'label'=>'Portico',    'desc'=>'Digital Preservation Service',      'color'=>'#0891b2'],
+            ['key'=>'show_clockss',  'url_key'=>null,            'label'=>'CLOCKSS',   'desc'=>'Controlled Lots of Copies',         'color'=>'#0f766e'],
+            ['key'=>'show_cope',     'url_key'=>'url_cope',     'label'=>'COPE',       'desc'=>'Committee on Publication Ethics',   'color'=>'#b45309'],
+            ['key'=>'show_crossref', 'url_key'=>null,            'label'=>'CrossRef',  'desc'=>'DOI Registration Agency',          'color'=>'#15803d'],
+            ['key'=>'show_mendeley', 'url_key'=>null,            'label'=>'Mendeley',  'desc'=>'Reference Manager',                'color'=>'#dc2626'],
+        ];
+        $activeBadges = array_filter($badges, fn($b) => $block->setting($b['key'], false));
+    @endphp
+    @if(!empty($activeBadges))
+    <div class="space-y-2">
+        @foreach($activeBadges as $b)
+        @php $bUrl = $b['url_key'] ? $block->setting($b['url_key']) : null; @endphp
+        <div class="{{ $bUrl ? '' : '' }}">
+            @if($bUrl)<a href="{{ $bUrl }}" target="_blank" rel="noopener">@endif
+            <div class="flex items-center gap-2 px-2.5 py-2 rounded-lg transition-colors {{ $bUrl ? 'hover:opacity-80' : '' }}"
+                 style="background:{{ $b['color'] }}10;border:1px solid {{ $b['color'] }}25;">
+                <div class="w-2 h-2 rounded-full shrink-0" style="background:{{ $b['color'] }};"></div>
+                <div>
+                    <p class="text-xs font-bold" style="color:{{ $b['color'] }};">{{ $b['label'] }}</p>
+                    <p class="text-xs text-slate-400">{{ $b['desc'] }}</p>
+                </div>
+            </div>
+            @if($bUrl)</a>@endif
+        </div>
+        @endforeach
+    </div>
+    @else
+    <p class="text-xs text-slate-400 italic">Belum ada layanan pengarsipan yang diaktifkan.</p>
+    @endif
+
     {{-- ── custom_html ─────────────────────────────────────────────────── --}}
     @elseif($block->type === 'custom_html')
         @if($block->setting('html'))
