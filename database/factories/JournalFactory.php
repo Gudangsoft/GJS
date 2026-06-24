@@ -63,7 +63,7 @@ class JournalFactory extends Factory
         $slug  = Str::slug($data['abbrev'] ?? $name);
 
         return [
-            'slug'            => $slug.'-'.Str::random(4),
+            'slug'            => $slug,
             'name'            => $name,
             'name_abbrev'     => $data['abbrev'],
             'description'     => fake()->paragraph(3),

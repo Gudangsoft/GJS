@@ -44,8 +44,25 @@ class GalleyController extends Controller
         $filename = $file->original_file_name
             ?? 'galley-' . $galley->id . '.' . pathinfo($file->stored_file_name, PATHINFO_EXTENSION);
 
+        $mimeType   = $file->mime_type ?? 'application/octet-stream';
+        $isPdf      = str_contains($mimeType, 'pdf');
+        $forceDownload = request()->boolean('dl');
+
+        // PDF without ?dl=1 → serve inline so the browser viewer page can embed it
+        if ($isPdf && !$forceDownload) {
+            return response(
+                Storage::disk('public')->get($file->path),
+                200,
+                [
+                    'Content-Type'        => 'application/pdf',
+                    'Content-Disposition' => 'inline; filename="' . $filename . '"',
+                    'Cache-Control'       => 'private, max-age=3600',
+                ]
+            );
+        }
+
         return Storage::disk('public')->download($file->path, $filename, [
-            'Content-Type' => $file->mime_type ?? 'application/octet-stream',
+            'Content-Type' => $mimeType,
         ]);
     }
 }

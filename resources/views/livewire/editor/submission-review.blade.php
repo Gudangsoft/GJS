@@ -86,7 +86,7 @@
                     <div class="flex gap-3">
                         <dt class="text-sm font-semibold w-28 shrink-0 mt-0.5" style="color:#94a3b8;">Kata Kunci</dt>
                         <dd class="flex flex-wrap gap-1.5">
-                            @foreach(explode(',', $submission->keywords) as $kw)
+                            @foreach(is_array($submission->keywords) ? $submission->keywords : explode(',', $submission->keywords ?? '') as $kw)
                             <span class="text-xs px-2 py-0.5 rounded-full" style="background:#f1f5f9;color:#475569;">{{ trim($kw) }}</span>
                             @endforeach
                         </dd>

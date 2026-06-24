@@ -85,6 +85,7 @@
                     Pengumuman
                 </a>
                 @endif
+
                 @if($journal->focus_scope || $journal->about_journal)
                 <a href="#tentang"
                    class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors">
@@ -103,23 +104,54 @@
         {{-- ── MAIN AREA (left 2/3) ──────────────────────────────────────── --}}
         <div class="lg:col-span-2">
 
-            {{-- Announcements (if any) --}}
-            @if($announcements->isNotEmpty())
-            <div id="pengumuman" class="mb-8">
-                <h2 class="text-base font-black text-slate-800 uppercase tracking-wider pb-2 mb-4"
-                    style="border-bottom:2px solid #1e40af;">
-                    Pengumuman
-                </h2>
-                <div class="space-y-4">
-                    @foreach($announcements->take(2) as $ann)
-                    <div class="border border-slate-200 rounded-xl p-5 bg-white">
-                        <h3 class="font-bold text-slate-900 mb-1">{{ $ann->title }}</h3>
-                        <p class="text-xs text-slate-400 mb-2">{{ $ann->date_posted?->format('d F Y') }}</p>
-                        @if($ann->description_short)
-                        <p class="text-sm text-slate-600 leading-relaxed">{{ Str::limit($ann->description_short, 250) }}</p>
+            {{-- About Journal — compact collapsible above issue TOC --}}
+            @if($journal->focus_scope || $journal->about_journal)
+            <div id="tentang"
+                 class="mb-6 bg-white border border-slate-200 rounded-xl overflow-hidden"
+                 x-data="{ open: window.location.hash === '#tentang' }">
+                <button @click="open = !open"
+                        class="w-full flex items-center justify-between px-5 py-3.5 text-left transition-colors hover:bg-slate-50">
+                    <div class="flex items-center gap-2.5">
+                        <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/>
+                        </svg>
+                        <span class="text-sm font-bold text-slate-700">Tentang Jurnal</span>
+                        @if($journal->focus_scope)
+                        <span class="hidden sm:inline text-xs text-slate-400 font-normal truncate max-w-xs">
+                            — {{ Str::limit(strip_tags($journal->focus_scope), 60) }}
+                        </span>
                         @endif
                     </div>
-                    @endforeach
+                    <svg class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200"
+                         :class="open ? 'rotate-180' : ''"
+                         fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div x-show="open"
+                     x-transition:enter="transition ease-out duration-150"
+                     x-transition:enter-start="opacity-0 -translate-y-1"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-100"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 -translate-y-1"
+                     x-cloak
+                     class="px-5 pb-5 border-t border-slate-100">
+                    @if($journal->focus_scope)
+                    <div class="mt-4">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Fokus dan Ruang Lingkup</p>
+                        <div class="text-sm text-slate-600 leading-relaxed prose prose-sm max-w-none">
+                            {!! $journal->focus_scope !!}
+                        </div>
+                    </div>
+                    @endif
+                    @if($journal->about_journal)
+                    <div class="mt-4 {{ $journal->focus_scope ? 'pt-4 border-t border-slate-100' : '' }}">
+                        <div class="text-sm text-slate-600 leading-relaxed prose prose-sm max-w-none">
+                            {!! $journal->about_journal !!}
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
             @endif
@@ -229,28 +261,41 @@
             </div>
             @endif
 
-            {{-- About section --}}
-            @if($journal->focus_scope || $journal->about_journal)
-            <div id="tentang" class="mt-8">
-                <h2 class="text-base font-black text-slate-800 uppercase tracking-wider pb-2 mb-4"
+            {{-- Announcements — below articles so they don't push down primary content --}}
+            @if($announcements->isNotEmpty())
+            <div id="pengumuman" class="mt-8">
+                <h2 class="text-base font-black text-slate-800 uppercase tracking-wider pb-2 mb-5"
                     style="border-bottom:2px solid #1e40af;">
-                    Tentang Jurnal
+                    Pengumuman
                 </h2>
-                @if($journal->focus_scope)
-                <div class="mb-4">
-                    <h3 class="text-sm font-bold text-slate-700 mb-2">Fokus dan Ruang Lingkup</h3>
-                    <div class="text-sm text-slate-600 leading-relaxed">
-                        {!! $journal->focus_scope !!}
+                <div class="grid gap-4 sm:grid-cols-2">
+                    @foreach($announcements as $ann)
+                    <div class="bg-white border border-slate-200 rounded-xl p-5 flex gap-4 hover:border-blue-200 hover:shadow-sm transition-all group">
+                        <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                             style="background:#eff6ff;">
+                            <svg class="w-4.5 h-4.5 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 010 3.46"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-bold text-slate-900 text-sm leading-snug mb-1 group-hover:text-blue-700 transition-colors">
+                                {{ $ann->title }}
+                            </h3>
+                            <p class="text-xs text-slate-400 mb-2">
+                                {{ $ann->date_posted?->format('d F Y') }}
+                            </p>
+                            @if($ann->description_short)
+                            <p class="text-sm text-slate-600 leading-relaxed line-clamp-3">
+                                {{ Str::limit(strip_tags($ann->description_short), 180) }}
+                            </p>
+                            @endif
+                        </div>
                     </div>
+                    @endforeach
                 </div>
-                @endif
-                @if($journal->about_journal)
-                <div class="text-sm text-slate-600 leading-relaxed">
-                    {!! $journal->about_journal !!}
-                </div>
-                @endif
             </div>
             @endif
+
         </div>
 
         {{-- ── SIDEBAR (right 1/3) ──────────────────────────────────────── --}}
@@ -391,15 +436,24 @@
 
             {{-- Announcements sidebar --}}
             @if($announcements->isNotEmpty())
-            <div id="pengumuman" class="bg-white border border-slate-200 rounded-xl overflow-hidden">
-                <div class="px-4 py-3" style="background:#1e40af;">
+            <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                <div class="px-4 py-3 flex items-center justify-between" style="background:#1e40af;">
                     <p class="text-xs font-bold text-white uppercase tracking-widest">Pengumuman</p>
+                    <a href="#pengumuman"
+                       class="text-xs text-blue-200 hover:text-white transition-colors font-medium">
+                        Lihat semua ↓
+                    </a>
                 </div>
                 <div class="divide-y divide-slate-100">
-                    @foreach($announcements as $ann)
+                    @foreach($announcements->take(3) as $ann)
                     <div class="p-4">
-                        <p class="font-semibold text-slate-800 text-sm mb-0.5">{{ $ann->title }}</p>
-                        <p class="text-xs text-slate-400">{{ $ann->date_posted?->format('d M Y') }}</p>
+                        <p class="font-semibold text-slate-800 text-sm leading-snug mb-0.5">{{ $ann->title }}</p>
+                        <p class="text-xs text-slate-400 mb-1.5">{{ $ann->date_posted?->format('d M Y') }}</p>
+                        @if($ann->description_short)
+                        <p class="text-xs text-slate-500 leading-relaxed line-clamp-2">
+                            {{ Str::limit(strip_tags($ann->description_short), 100) }}
+                        </p>
+                        @endif
                     </div>
                     @endforeach
                 </div>
@@ -421,6 +475,15 @@
                 </a>
                 @endauth
             </div>
+
+            {{-- ── Admin-configured sidebar blocks ───────────────────── --}}
+            @foreach($sidebarBlocks as $block)
+                @include('reader.partials.sidebar-block', [
+                    'block'   => $block,
+                    'journal' => $journal,
+                    'stats'   => $journalStats,
+                ])
+            @endforeach
 
         </div>{{-- end sidebar --}}
     </div>

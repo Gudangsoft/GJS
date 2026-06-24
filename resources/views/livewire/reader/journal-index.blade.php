@@ -76,11 +76,28 @@ $lightBg = ['#eff6ff','#f0fdf4','#faf5ff','#fff1f2','#fffbeb','#ecfeff'];
 
 {{-- ═══ TRUST BAR ═══ --}}
 <div style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
-    <div class="max-w-5xl mx-auto px-6 py-3 flex flex-wrap items-center justify-center gap-6">
+    <div class="max-w-5xl mx-auto px-6 py-3.5 flex flex-wrap items-center justify-center gap-x-7 gap-y-2">
         <span class="text-xs font-bold uppercase tracking-widest" style="color:#94a3b8;">Terindeks di</span>
-        @foreach(['🔍 Google Scholar','🔗 Crossref DOI','📡 OAI-PMH 2.0','📚 DOAJ Ready','🗂 PKP Index'] as $idx)
-        <span class="text-sm font-semibold" style="color:#475569;">{{ $idx }}</span>
-        @endforeach
+        <span class="inline-flex items-center gap-1.5 text-sm font-semibold" style="color:#475569;">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 4L22 9L12 14L2 9L12 4Z"/><path d="M4 10.5V18"/><circle cx="4" cy="19.2" r="1.2" fill="currentColor" stroke="none"/><path d="M7 12V16.5Q9.5 19.5 12 19.5Q14.5 19.5 17 16.5V12"/></svg>
+            Google Scholar
+        </span>
+        <span class="inline-flex items-center gap-1.5 text-sm font-semibold" style="color:#475569;">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Crossref DOI
+        </span>
+        <span class="inline-flex items-center gap-1.5 text-sm font-semibold" style="color:#475569;">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="5" cy="19" r="1.5" fill="currentColor" stroke="none"/><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/></svg>
+            OAI-PMH 2.0
+        </span>
+        <span class="inline-flex items-center gap-1.5 text-sm font-semibold" style="color:#475569;">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+            DOAJ Ready
+        </span>
+        <span class="inline-flex items-center gap-1.5 text-sm font-semibold" style="color:#475569;">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><circle cx="10" cy="15" r="2.5"/><path d="M12 17L14.5 19.5"/></svg>
+            PKP Index
+        </span>
     </div>
 </div>
 
@@ -238,23 +255,61 @@ $lightBg = ['#eff6ff','#f0fdf4','#faf5ff','#fff1f2','#fffbeb','#ecfeff'];
         </div>
 
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1.25rem;">
-            @foreach([
-                ['bg'=>'#eff6ff','c'=>'#2563eb','e'=>'🌐','t'=>'Akses Terbuka',    'd'=>'Semua artikel dapat diakses siapa saja, kapan saja, gratis.'],
-                ['bg'=>'#f0fdf4','c'=>'#059669','e'=>'✅','t'=>'Peer Review Ganda','d'=>'Double-blind review menjamin kualitas dan integritas ilmiah.'],
-                ['bg'=>'#faf5ff','c'=>'#7c3aed','e'=>'🔗','t'=>'DOI Crossref',     'd'=>'Setiap artikel mendapat DOI permanen via Crossref.'],
-                ['bg'=>'#fffbeb','c'=>'#d97706','e'=>'📊','t'=>'Terindeks Global', 'd'=>'OAI-PMH untuk Google Scholar, DOAJ & PKP Index.'],
-                ['bg'=>'#fff1f2','c'=>'#dc2626','e'=>'🔒','t'=>'Aman & Terpercaya','d'=>'CSP headers, MFA, enkripsi data, dan audit log.'],
-                ['bg'=>'#ecfeff','c'=>'#0891b2','e'=>'📱','t'=>'Responsif & Cepat','d'=>'Tampilan optimal di semua perangkat, loading cepat.'],
-            ] as $f)
-            <div class="rounded-2xl p-5 transition-all duration-200"
-                 style="background:{{ $f['bg'] }};border:1px solid rgba(0,0,0,.05);"
-                 onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,.08)'"
-                 onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
-                <div style="font-size:2rem;margin-bottom:.875rem;line-height:1;">{{ $f['e'] }}</div>
-                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">{{ $f['t'] }}</h3>
-                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">{{ $f['d'] }}</p>
+
+            {{-- Akses Terbuka --}}
+            <div class="rounded-2xl p-5 transition-all duration-200" style="background:#eff6ff;border:1px solid rgba(37,99,235,.1);" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,.08)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#dbeafe;">
+                    <svg class="w-5 h-5" style="color:#2563eb;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                </div>
+                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Akses Terbuka</h3>
+                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">Semua artikel dapat diakses siapa saja, kapan saja, gratis.</p>
             </div>
-            @endforeach
+
+            {{-- Peer Review Ganda --}}
+            <div class="rounded-2xl p-5 transition-all duration-200" style="background:#f0fdf4;border:1px solid rgba(5,150,105,.1);" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,.08)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#dcfce7;">
+                    <svg class="w-5 h-5" style="color:#059669;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.955 11.955 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+                </div>
+                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Peer Review Ganda</h3>
+                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">Double-blind review menjamin kualitas dan integritas ilmiah.</p>
+            </div>
+
+            {{-- DOI Crossref --}}
+            <div class="rounded-2xl p-5 transition-all duration-200" style="background:#faf5ff;border:1px solid rgba(124,58,237,.1);" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,.08)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#ede9fe;">
+                    <svg class="w-5 h-5" style="color:#7c3aed;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/></svg>
+                </div>
+                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">DOI Crossref</h3>
+                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">Setiap artikel mendapat DOI permanen via Crossref.</p>
+            </div>
+
+            {{-- Terindeks Global --}}
+            <div class="rounded-2xl p-5 transition-all duration-200" style="background:#fffbeb;border:1px solid rgba(217,119,6,.1);" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,.08)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#fef3c7;">
+                    <svg class="w-5 h-5" style="color:#d97706;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z"/></svg>
+                </div>
+                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Terindeks Global</h3>
+                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">OAI-PMH untuk Google Scholar, DOAJ & PKP Index.</p>
+            </div>
+
+            {{-- Aman & Terpercaya --}}
+            <div class="rounded-2xl p-5 transition-all duration-200" style="background:#fff1f2;border:1px solid rgba(220,38,38,.1);" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,.08)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#fee2e2;">
+                    <svg class="w-5 h-5" style="color:#dc2626;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                </div>
+                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Aman &amp; Terpercaya</h3>
+                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">CSP headers, MFA, enkripsi data, dan audit log.</p>
+            </div>
+
+            {{-- Responsif & Cepat --}}
+            <div class="rounded-2xl p-5 transition-all duration-200" style="background:#ecfeff;border:1px solid rgba(8,145,178,.1);" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,.08)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#cffafe;">
+                    <svg class="w-5 h-5" style="color:#0891b2;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+                </div>
+                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Responsif &amp; Cepat</h3>
+                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">Tampilan optimal di semua perangkat, loading cepat.</p>
+            </div>
+
         </div>
     </div>
 </section>

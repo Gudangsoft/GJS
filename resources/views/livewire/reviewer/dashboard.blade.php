@@ -52,7 +52,9 @@
     {{-- Assignment list --}}
     @if($assignments->isEmpty())
     <div class="text-center py-16 rounded-2xl" style="border:2px dashed #e2e8f0;">
-        <div style="font-size:2.5rem;margin-bottom:.75rem;">📭</div>
+        <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
+            <svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z"/></svg>
+        </div>
         <p class="font-semibold" style="color:#94a3b8;">Tidak ada assignment di kategori ini</p>
     </div>
     @else
@@ -71,7 +73,7 @@
                         @if($a->date_due)
                         <span class="text-xs font-semibold {{ $a->date_due->isPast() ? 'text-red-600' : '' }}" style="{{ $a->date_due->isPast() ? 'color:#dc2626' : 'color:#94a3b8' }}">
                             Deadline: {{ $a->date_due->format('d M Y') }}
-                            @if($a->date_due->isPast()) ⚠️ @endif
+                            @if($a->date_due->isPast()) <svg class="w-3.5 h-3.5 inline-block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg> @endif
                         </span>
                         @endif
                     </div>

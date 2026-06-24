@@ -48,8 +48,22 @@ class JournalHome extends Component
             ->take(5)
             ->get();
 
+        $sidebarBlocks = \App\Models\JournalSidebarBlock::where('journal_id', $this->journal->id)
+            ->where('enabled', true)->orderBy('sort_order')->get();
+
+        $journalStats = [];
+        if ($sidebarBlocks->where('type', 'statistics')->isNotEmpty()) {
+            $journalStats = [
+                'articles'  => \App\Models\Article::where('journal_id', $this->journal->id)->count(),
+                'issues'    => \App\Models\Issue::where('journal_id', $this->journal->id)->where('published', true)->count(),
+                'views'     => \App\Models\Article::where('journal_id', $this->journal->id)->sum('views'),
+                'downloads' => \App\Models\Article::where('journal_id', $this->journal->id)->sum('downloads'),
+                'citations' => \App\Models\Article::where('journal_id', $this->journal->id)->sum('citations'),
+            ];
+        }
+
         return view('livewire.reader.journal-home',
-            compact('currentIssue', 'tocBySection', 'announcements', 'pastIssues'))
+            compact('currentIssue', 'tocBySection', 'announcements', 'pastIssues', 'sidebarBlocks', 'journalStats'))
             ->title($this->journal->name);
     }
 }

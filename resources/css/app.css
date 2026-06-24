@@ -11,3 +11,22 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Slim scrollbar */
+:root {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Text selection */
+::selection { background-color: #dbeafe; color: #1e40af; }
+
+/* Consistent focus ring */
+:focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
+
+/* Smooth anchor scrolling (supplement to scroll-smooth on html) */
+html { scroll-behavior: smooth; }

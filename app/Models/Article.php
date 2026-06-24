@@ -14,7 +14,7 @@ class Article extends Model
     protected $fillable = [
         'submission_id', 'issue_id', 'journal_id', 'section_id',
         'doi', 'doi_status', 'pages', 'sequence',
-        'date_published', 'access_status', 'views', 'downloads',
+        'date_published', 'access_status', 'views', 'downloads', 'citations',
     ];
 
     protected $casts = [

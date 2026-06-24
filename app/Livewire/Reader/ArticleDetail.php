@@ -4,7 +4,9 @@ namespace App\Livewire\Reader;
 
 use App\Jobs\IncrementArticleViews;
 use App\Models\Article;
+use App\Models\Issue;
 use App\Models\Journal;
+use App\Models\JournalSidebarBlock;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -34,7 +36,23 @@ class ArticleDetail extends Component
             ->orderBy('sequence')
             ->get();
 
-        return view('livewire.reader.article-detail', compact('articleGalleys'))
+        $sidebarBlocks = JournalSidebarBlock::where('journal_id', $this->journal->id)
+            ->where('enabled', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        $journalStats = [];
+        if ($sidebarBlocks->contains('type', 'statistics')) {
+            $journalStats = [
+                'articles'  => Article::where('journal_id', $this->journal->id)->count(),
+                'issues'    => Issue::where('journal_id', $this->journal->id)->where('published', true)->count(),
+                'views'     => Article::where('journal_id', $this->journal->id)->sum('views'),
+                'downloads' => Article::where('journal_id', $this->journal->id)->sum('downloads'),
+                'citations' => Article::where('journal_id', $this->journal->id)->sum('citations'),
+            ];
+        }
+
+        return view('livewire.reader.article-detail', compact('articleGalleys', 'sidebarBlocks', 'journalStats'))
             ->title($this->article->submission->title . ' — ' . $this->journal->name);
     }
 }

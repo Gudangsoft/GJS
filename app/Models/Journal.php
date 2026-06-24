@@ -15,22 +15,32 @@ class Journal extends Model
     use HasFactory, SoftDeletes, LogsActivity;
 
     protected $fillable = [
-        'slug', 'name', 'name_abbrev', 'description',
-        'issn_print', 'issn_online', 'publisher', 'email', 'url',
-        'logo', 'cover_image', 'primary_locale', 'supported_locales',
-        'country', 'timezone', 'status', 'enabled',
+        'slug', 'oai_identifier', 'name', 'name_abbrev', 'description', 'publication_frequency',
+        'issn_print', 'issn_online', 'publisher', 'email',
+        'contact_name', 'contact_phone', 'tech_support_name', 'tech_support_email', 'mailing_address',
+        'url', 'logo', 'cover_image', 'favicon', 'homepage_image',
+        'custom_header_html', 'custom_footer_html',
+        'primary_locale', 'supported_locales', 'country', 'timezone',
+        'status', 'enabled', 'announcements_enabled', 'announcements_intro',
         'focus_scope', 'ethics_statement', 'author_guidelines',
         'reviewer_guidelines', 'privacy_statement', 'about_journal',
         'review_mode', 'num_weeks_per_review', 'num_weeks_per_response',
         'requires_author_competinginterests', 'requires_reviewer_competinginterests',
+        'disable_submissions', 'submission_checklist', 'submission_acknowledgement', 'copyright_notice',
+        'license_type', 'copyright_holder', 'doi_prefix', 'doi_suffix_pattern', 'open_access_statement',
         'settings',
+        'sinta_id', 'sinta_level', 'sinta_score', 'sinta_score_3yr',
+        'accreditation_no', 'accreditation_period', 'doaj_id', 'garuda_id',
     ];
 
     protected $casts = [
-        'supported_locales' => 'array',
-        'settings' => 'array',
-        'enabled' => 'boolean',
-        'requires_author_competinginterests' => 'boolean',
+        'supported_locales'                    => 'array',
+        'submission_checklist'                 => 'array',
+        'settings'                             => 'array',
+        'enabled'                              => 'boolean',
+        'announcements_enabled'                => 'boolean',
+        'disable_submissions'                  => 'boolean',
+        'requires_author_competinginterests'   => 'boolean',
         'requires_reviewer_competinginterests' => 'boolean',
     ];
 
@@ -62,6 +72,11 @@ class Journal extends Model
     public function announcements(): HasMany
     {
         return $this->hasMany(Announcement::class);
+    }
+
+    public function sidebarBlocks(): HasMany
+    {
+        return $this->hasMany(JournalSidebarBlock::class)->orderBy('sort_order');
     }
 
     public function managers(): BelongsToMany

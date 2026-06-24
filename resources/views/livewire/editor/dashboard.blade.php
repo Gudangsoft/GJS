@@ -53,7 +53,9 @@
     {{-- Submission list --}}
     @if($submissions->isEmpty())
     <div class="text-center py-16 rounded-2xl" style="border:2px dashed #e2e8f0;">
-        <div style="font-size:2.5rem;margin-bottom:.75rem;">📭</div>
+        <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
+            <svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z"/></svg>
+        </div>
         <p class="font-semibold" style="color:#94a3b8;">Tidak ada naskah di kategori ini</p>
     </div>
     @else

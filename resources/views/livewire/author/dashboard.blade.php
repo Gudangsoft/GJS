@@ -34,11 +34,22 @@
     {{-- Tabs --}}
     <div x-data="{ tab: 'active' }" class="space-y-4">
         <div class="flex gap-1 bg-slate-100 p-1 rounded-xl w-fit">
-            @foreach([['active','Dalam Proses'],['published','Diterbitkan'],['drafts','Draft'],['declined','Ditolak']] as [$key, $label])
+            @foreach([
+                ['active',     'Dalam Proses', $active->count(),     'bg-blue-500'],
+                ['published',  'Diterbitkan',  $published->count(),  'bg-green-500'],
+                ['drafts',     'Draft',        $drafts->count(),     'bg-slate-400'],
+                ['declined',   'Ditolak',      $declined->count(),   'bg-red-500'],
+            ] as [$key, $label, $count, $badgeColor])
             <button @click="tab = '{{ $key }}'"
                     :class="tab === '{{ $key }}' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700'"
-                    class="px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all">
                 {{ $label }}
+                @if($count > 0)
+                <span :class="tab === '{{ $key }}' ? '{{ $badgeColor }} text-white' : 'bg-slate-300 text-slate-600'"
+                      class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full text-xs font-bold transition-colors">
+                    {{ $count }}
+                </span>
+                @endif
             </button>
             @endforeach
         </div>

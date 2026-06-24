@@ -45,9 +45,14 @@ class IssueFactory extends Factory
 
     public function current(): static
     {
-        return $this->state(fn () => [
-            'current'    => true,
-            'published'  => false,
-        ]);
+        return $this->state(function () {
+            $date = fake()->dateTimeBetween('-3 months', 'now');
+            return [
+                'current'        => true,
+                'published'      => true,
+                'date_published' => $date,
+                'date_notified'  => $date,
+            ];
+        });
     }
 }
