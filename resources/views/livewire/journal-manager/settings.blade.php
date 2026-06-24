@@ -179,7 +179,179 @@
         </div>
     </div>
 
-    {{-- 3. Kontak --}}
+    {{-- 3. Header Jurnal --}}
+    <div
+        x-data="{
+            bgType: @entangle('header_bg_type'),
+            bgColor: @entangle('header_bg_color'),
+            bgColor2: @entangle('header_bg_color2'),
+            textLight: @entangle('header_text_light'),
+            tagline: @entangle('header_tagline'),
+            get previewStyle() {
+                if (this.bgType === 'color')    return 'background:' + this.bgColor;
+                if (this.bgType === 'gradient') return 'background:linear-gradient(135deg,' + this.bgColor + ',' + this.bgColor2 + ')';
+                if (this.bgType === 'image')    return 'background:linear-gradient(135deg,#1e3a8a,#4338ca)';
+                return 'background:#ffffff';
+            },
+            get textClass() {
+                return (this.bgType !== 'default' && this.textLight) ? 'color:#ffffff' : 'color:#0f172a';
+            }
+        }"
+        class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-3 border-b border-slate-100 flex items-center gap-2" style="background:#fdf4ff;">
+            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+            <h2 class="text-xs font-bold text-purple-800 uppercase tracking-wider">Header Jurnal</h2>
+        </div>
+        <div class="p-6 space-y-5">
+
+            {{-- Live Preview --}}
+            <div>
+                <p class="text-xs font-semibold text-slate-500 mb-2">Pratinjau Header</p>
+                <div class="rounded-xl overflow-hidden border border-slate-200 transition-all duration-300"
+                     :style="previewStyle + ';padding:1.5rem;min-height:100px;'">
+                    <div class="font-black text-lg leading-snug" :style="textClass">
+                        {{ $journal?->name ?? 'Nama Jurnal' }}
+                    </div>
+                    <div class="text-sm mt-1 opacity-80" :style="textClass" x-show="tagline" x-text="tagline"></div>
+                    <div class="flex gap-1.5 mt-3">
+                        <div class="h-2 w-16 rounded-full opacity-40" :style="'background:' + (textLight && bgType!=='default' ? '#ffffff' : '#334155')"></div>
+                        <div class="h-2 w-10 rounded-full opacity-30" :style="'background:' + (textLight && bgType!=='default' ? '#ffffff' : '#334155')"></div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Tipe Background --}}
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-2">Tipe Background</label>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    @foreach(['default' => ['label'=>'Default Putih','icon'=>'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'], 'color' => ['label'=>'Warna Solid','icon'=>'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01'], 'gradient' => ['label'=>'Gradien','icon'=>'M4.871 4A17.926 17.926 0 003 12c0 2.874.673 5.59 1.871 8m14.13-16A17.926 17.926 0 0121 12c0 2.874-.673 5.59-1.871 8M9 9h1.246a1 1 0 01.961.725l1.586 5.55a1 1 0 00.961.725H15m1-7h-.08a2 2 0 00-1.519.698L9.6 15.302A2 2 0 018.08 16H8'], 'image' => ['label'=>'Gambar/Banner','icon'=>'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z']] as $val => $item)
+                    <button type="button"
+                            wire:click="$set('header_bg_type','{{ $val }}')"
+                            x-on:click="bgType = '{{ $val }}'"
+                            class="flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 text-xs font-medium transition-all"
+                            :class="bgType === '{{ $val }}'
+                                ? 'border-purple-500 bg-purple-50 text-purple-700'
+                                : 'border-slate-200 text-slate-500 hover:border-slate-300'">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $item['icon'] }}"/></svg>
+                        {{ $item['label'] }}
+                    </button>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- Warna (tampil kalau color atau gradient) --}}
+            <div x-show="bgType === 'color' || bgType === 'gradient'" class="space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">
+                            <span x-show="bgType === 'gradient'">Warna Awal</span>
+                            <span x-show="bgType === 'color'">Warna Background</span>
+                        </label>
+                        <div class="flex gap-2 items-center">
+                            <input type="color"
+                                   wire:model.live="header_bg_color"
+                                   x-model="bgColor"
+                                   class="w-10 h-10 rounded-lg border border-slate-200 cursor-pointer p-0.5">
+                            <input type="text"
+                                   wire:model.live="header_bg_color"
+                                   x-model="bgColor"
+                                   placeholder="#1e3a8a"
+                                   class="flex-1 px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono">
+                        </div>
+                    </div>
+                    <div x-show="bgType === 'gradient'">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Warna Akhir (Gradien)</label>
+                        <div class="flex gap-2 items-center">
+                            <input type="color"
+                                   wire:model.live="header_bg_color2"
+                                   x-model="bgColor2"
+                                   class="w-10 h-10 rounded-lg border border-slate-200 cursor-pointer p-0.5">
+                            <input type="text"
+                                   wire:model.live="header_bg_color2"
+                                   x-model="bgColor2"
+                                   placeholder="#4338ca"
+                                   class="flex-1 px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono">
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Preset warna cepat --}}
+                <div>
+                    <p class="text-xs text-slate-400 mb-1.5">Preset cepat:</p>
+                    <div class="flex flex-wrap gap-1.5">
+                        @foreach([
+                            ['#1e3a8a','#3730a3'],['#0f766e','#0891b2'],['#7c3aed','#db2777'],
+                            ['#b91c1c','#dc2626'],['#065f46','#059669'],['#92400e','#d97706'],
+                            ['#1e293b','#334155'],['#000000','#1e293b'],
+                        ] as [$c1,$c2])
+                        <button type="button"
+                                x-on:click="bgColor = '{{ $c1 }}'; bgColor2 = '{{ $c2 }}'; $wire.set('header_bg_color','{{ $c1 }}'); $wire.set('header_bg_color2','{{ $c2 }}')"
+                                class="w-8 h-8 rounded-lg border-2 border-white shadow-sm hover:scale-110 transition-transform"
+                                style="background:linear-gradient(135deg,{{ $c1 }},{{ $c2 }});"
+                                title="{{ $c1 }} → {{ $c2 }}">
+                        </button>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+            {{-- Banner Image (tampil kalau image) --}}
+            <div x-show="bgType === 'image'" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-2">Gambar Banner Header</label>
+                    <div class="flex items-center gap-4">
+                        @if($journal?->homepage_image)
+                        <img src="{{ asset('storage/' . $journal->homepage_image) }}"
+                             class="w-24 h-14 object-cover rounded-lg border border-slate-200">
+                        @else
+                        <div class="w-24 h-14 rounded-lg border-2 border-dashed border-slate-300 flex items-center justify-center bg-slate-50">
+                            <svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                        @endif
+                        <div class="flex-1">
+                            <input wire:model="newHeaderBanner" type="file" accept="image/*"
+                                   class="block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer">
+                            <p class="text-xs text-slate-400 mt-1">JPG/PNG. Maks 4MB. Rekomendasi: 1400×300px (landscape lebar).</p>
+                            @error('newHeaderBanner')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
+                    </div>
+                </div>
+                <p class="text-xs text-amber-600 bg-amber-50 px-3 py-2 rounded-lg border border-amber-100">
+                    Tip: Gunakan gambar beresolusi tinggi dan lebar. Teks jurnal akan ditampilkan di atas gambar.
+                </p>
+            </div>
+
+            {{-- Toggle Warna Teks --}}
+            <div x-show="bgType !== 'default'" class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
+                <button type="button"
+                        wire:click="$toggle('header_text_light')"
+                        x-on:click="textLight = !textLight"
+                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
+                        :class="textLight ? 'bg-purple-500' : 'bg-slate-300'">
+                    <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                          :class="textLight ? 'translate-x-6' : 'translate-x-1'"></span>
+                </button>
+                <div>
+                    <p class="text-sm font-semibold text-slate-700">Teks Terang (Putih)</p>
+                    <p class="text-xs text-slate-400">Aktifkan untuk background gelap agar teks terbaca</p>
+                </div>
+            </div>
+
+            {{-- Tagline --}}
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Tagline / Slogan Jurnal <span class="font-normal text-slate-400">(opsional)</span></label>
+                <input wire:model.live="header_tagline"
+                       x-model="tagline"
+                       type="text"
+                       placeholder="Contoh: Jurnal Ilmiah Bidang Kesehatan Masyarakat"
+                       class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <p class="text-xs text-slate-400 mt-1">Muncul di bawah nama jurnal di halaman utama.</p>
+            </div>
+
+        </div>
+    </div>
+
+    {{-- 4. Kontak --}}
     {{-- NOTE: old "3. Akreditasi" below renumbered to 4 --}}
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-6 py-3 border-b border-slate-100" style="background:#f0f5ff;">

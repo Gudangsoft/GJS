@@ -1,8 +1,34 @@
 <div>
 
 {{-- ══════════════════════════════════════════ JOURNAL HEADER (OJS-style) ══ --}}
-<div class="bg-white border-b border-slate-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+@php
+    $hs        = $journal->settings ?? [];
+    $hBgType   = $hs['header_bg_type']   ?? 'default';
+    $hBgColor  = $hs['header_bg_color']  ?? '#1e3a8a';
+    $hBgColor2 = $hs['header_bg_color2'] ?? '#4338ca';
+    $hLight    = (bool)($hs['header_text_light'] ?? true);
+    $hTagline  = $hs['header_tagline'] ?? '';
+
+    $headerStyle = match($hBgType) {
+        'color'    => "background:{$hBgColor};",
+        'gradient' => "background:linear-gradient(135deg,{$hBgColor},{$hBgColor2});",
+        'image'    => $journal->homepage_image
+                        ? "background:url(" . asset('storage/' . $journal->homepage_image) . ") center/cover no-repeat;position:relative;"
+                        : "background:linear-gradient(135deg,{$hBgColor},{$hBgColor2});",
+        default    => '',
+    };
+
+    $headerBorder = $hBgType === 'default' ? 'border-b border-slate-200' : '';
+    $textColorMain = ($hBgType !== 'default' && $hLight) ? '#ffffff' : '#0f172a';
+    $textColorMuted= ($hBgType !== 'default' && $hLight) ? 'rgba(255,255,255,0.75)' : '#64748b';
+    $overlayNeeded = $hBgType === 'image' && $journal->homepage_image;
+@endphp
+{{-- Hero area (banner/color) — sub-nav terpisah supaya tidak tertutup overlay --}}
+<div style="position:relative;overflow:hidden;{{ $headerStyle }}">
+    @if($overlayNeeded)
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.5),rgba(0,0,0,0.3));z-index:0;"></div>
+    @endif
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" style="position:relative;z-index:1;">
         <div class="flex flex-col sm:flex-row gap-6">
 
             {{-- Cover image --}}
@@ -22,22 +48,25 @@
 
             {{-- Journal info --}}
             <div class="flex-1">
-                <h1 class="text-2xl font-black text-slate-900 leading-snug mb-1">{{ $journal->name }}</h1>
+                <h1 class="text-2xl font-black leading-snug mb-0.5" style="color:{{ $textColorMain }}">{{ $journal->name }}</h1>
+                @if($hTagline)
+                <p class="text-sm mb-2" style="color:{{ $textColorMuted }}">{{ $hTagline }}</p>
+                @endif
 
-                <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm text-slate-500 mb-3">
+                <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm mb-3" style="color:{{ $textColorMuted }}">
                     @if($journal->publisher)
                     <span>{{ $journal->publisher }}</span>
                     @endif
                     @if($journal->issn_print)
-                    <span class="font-mono">p-ISSN: <strong class="text-slate-700">{{ $journal->issn_print }}</strong></span>
+                    <span class="font-mono">p-ISSN: <strong style="color:{{ $textColorMain }}">{{ $journal->issn_print }}</strong></span>
                     @endif
                     @if($journal->issn_online)
-                    <span class="font-mono">e-ISSN: <strong class="text-slate-700">{{ $journal->issn_online }}</strong></span>
+                    <span class="font-mono">e-ISSN: <strong style="color:{{ $textColorMain }}">{{ $journal->issn_online }}</strong></span>
                     @endif
                 </div>
 
                 @if($journal->focus_scope)
-                <p class="text-sm text-slate-600 leading-relaxed mb-4 max-w-2xl line-clamp-2">
+                <p class="text-sm leading-relaxed mb-4 max-w-2xl line-clamp-2" style="color:{{ $textColorMuted }}">
                     {{ strip_tags($journal->focus_scope) }}
                 </p>
                 @endif
@@ -58,7 +87,8 @@
                     </a>
                     @endauth
                     <a href="{{ route('journals.issues', $journal->slug) }}"
-                       class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+                       class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+                       style="{{ $hBgType !== 'default' ? 'background:rgba(255,255,255,0.15);color:' . $textColorMain . ';' : 'background:#f1f5f9;color:#334155;' }}">
                         Arsip Terbitan
                     </a>
                     @if($journal->wa_contact)
@@ -84,9 +114,10 @@
             </div>
         </div>
     </div>
+</div>{{-- end hero --}}
 
-    {{-- Sub-navigation: OJS-style tabs + About dropdown + Search --}}
-    <div class="border-t border-slate-200 relative" style="background:#f8fafc;">
+{{-- Sub-navigation: OJS-style tabs + About dropdown + Search --}}
+<div class="border-t border-slate-200 relative" style="background:#f8fafc;">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-stretch">
                 <nav class="flex gap-0 overflow-x-auto text-sm flex-1">
@@ -168,7 +199,6 @@
     </div>
 </div>
 
-{{-- ══════════════════════════════════════════ BODY: 2-COLUMN (OJS Layout) ══ --}}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 

@@ -107,7 +107,15 @@ class Settings extends Component
     public string $custom_footer_html = '';
 
     // Uploads tambahan
-    public $newFavicon = null;
+    public $newFavicon      = null;
+    public $newHeaderBanner = null;
+
+    // Header Jurnal (disimpan di settings JSON + homepage_image)
+    public string $header_bg_type    = 'default'; // default|color|gradient|image
+    public string $header_bg_color   = '#1e3a8a';
+    public string $header_bg_color2  = '#4338ca';
+    public bool   $header_text_light = true;
+    public string $header_tagline    = '';
 
     // Status
     public bool $enabled             = true;
@@ -201,6 +209,13 @@ class Settings extends Component
         $this->custom_header_html = $j->custom_header_html ?? '';
         $this->custom_footer_html = $j->custom_footer_html ?? '';
 
+        $s = $j->settings ?? [];
+        $this->header_bg_type    = $s['header_bg_type']   ?? 'default';
+        $this->header_bg_color   = $s['header_bg_color']  ?? '#1e3a8a';
+        $this->header_bg_color2  = $s['header_bg_color2'] ?? '#4338ca';
+        $this->header_text_light = (bool)($s['header_text_light'] ?? true);
+        $this->header_tagline    = $s['header_tagline']   ?? '';
+
         $this->enabled             = (bool)$j->enabled;
         $this->disable_submissions = (bool)$j->disable_submissions;
     }
@@ -271,6 +286,12 @@ class Settings extends Component
             'newLogo'               => 'nullable|image|max:2048',
             'newCoverImage'         => 'nullable|image|max:2048',
             'newFavicon'            => 'nullable|image|max:512',
+            'newHeaderBanner'       => 'nullable|image|max:4096',
+            'header_bg_type'        => 'nullable|string|in:default,color,gradient,image',
+            'header_bg_color'       => 'nullable|string|max:20',
+            'header_bg_color2'      => 'nullable|string|max:20',
+            'header_text_light'     => 'boolean',
+            'header_tagline'        => 'nullable|string|max:255',
         ];
     }
 
@@ -356,6 +377,19 @@ class Settings extends Component
             $updateData['favicon'] = $this->newFavicon->store('journals/favicons', 'public');
             $this->newFavicon = null;
         }
+        if ($this->newHeaderBanner) {
+            $updateData['homepage_image'] = $this->newHeaderBanner->store('journals/banners', 'public');
+            $this->newHeaderBanner = null;
+        }
+
+        $existingSettings = $this->journal->settings ?? [];
+        $updateData['settings'] = array_merge($existingSettings, [
+            'header_bg_type'    => $this->header_bg_type,
+            'header_bg_color'   => $this->header_bg_color,
+            'header_bg_color2'  => $this->header_bg_color2,
+            'header_text_light' => $this->header_text_light,
+            'header_tagline'    => $this->header_tagline,
+        ]);
 
         $this->journal->update($updateData);
 
