@@ -1,0 +1,7 @@
+@extends('errors.layout')
+@section('title', '500 — Kesalahan Server')
+@section('code-gradient', 'linear-gradient(135deg, #ef4444 0%, #be123c 100%)')
+@section('icon', '⚙️')
+@section('code', '500')
+@section('heading', 'Kesalahan Server Internal')
+@section('message', 'Terjadi kesalahan di sisi server kami. Tim teknis telah mendapat notifikasi. Silakan coba beberapa saat lagi atau kembali ke beranda.')

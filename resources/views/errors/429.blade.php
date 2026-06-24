@@ -1,0 +1,7 @@
+@extends('errors.layout')
+@section('title', '429 — Terlalu Banyak Permintaan')
+@section('code-gradient', 'linear-gradient(135deg, #f97316 0%, #dc2626 100%)')
+@section('icon', '🚦')
+@section('code', '429')
+@section('heading', 'Terlalu Banyak Permintaan')
+@section('message', 'Anda telah mengirim terlalu banyak permintaan dalam waktu singkat. Tunggu sebentar, lalu coba lagi. Ini adalah perlindungan otomatis sistem kami.')

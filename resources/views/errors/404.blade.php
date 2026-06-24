@@ -1,0 +1,7 @@
+@extends('errors.layout')
+@section('title', '404 — Halaman Tidak Ditemukan')
+@section('code-gradient', 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)')
+@section('icon', '🔭')
+@section('code', '404')
+@section('heading', 'Halaman Tidak Ditemukan')
+@section('message', 'Sepertinya halaman yang Anda cari telah dipindahkan, dihapus, atau mungkin tidak pernah ada. Periksa kembali URL atau kembali ke beranda.')

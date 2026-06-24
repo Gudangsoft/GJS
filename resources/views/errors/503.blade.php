@@ -1,0 +1,7 @@
+@extends('errors.layout')
+@section('title', '503 — Sedang Dalam Pemeliharaan')
+@section('code-gradient', 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)')
+@section('icon', '🛠️')
+@section('code', '503')
+@section('heading', 'Sedang Dalam Pemeliharaan')
+@section('message', 'Sistem kami sedang dalam proses pemeliharaan terjadwal untuk meningkatkan layanan. Kami akan kembali online sebentar lagi. Terima kasih atas kesabaran Anda.')

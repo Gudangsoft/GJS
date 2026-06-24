@@ -1,0 +1,7 @@
+@extends('errors.layout')
+@section('title', '403 — Akses Ditolak')
+@section('code-gradient', 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)')
+@section('icon', '🔒')
+@section('code', '403')
+@section('heading', 'Akses Ditolak')
+@section('message', 'Anda tidak memiliki izin untuk mengakses halaman ini. Pastikan Anda sudah masuk dengan akun yang tepat atau hubungi pengelola sistem.')

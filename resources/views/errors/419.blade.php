@@ -1,0 +1,7 @@
+@extends('errors.layout')
+@section('title', '419 — Sesi Kedaluwarsa')
+@section('code-gradient', 'linear-gradient(135deg, #10b981 0%, #0891b2 100%)')
+@section('icon', '⏳')
+@section('code', '419')
+@section('heading', 'Sesi Kedaluwarsa')
+@section('message', 'Sesi Anda telah habis karena tidak ada aktivitas. Ini adalah langkah keamanan untuk melindungi akun Anda. Silakan muat ulang halaman.')
