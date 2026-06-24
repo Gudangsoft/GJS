@@ -42,6 +42,15 @@ class SubmissionReview extends Component
 
     public function mount(Submission $submission): void
     {
+        $user = auth()->user();
+
+        if (!$user->hasAnyRole(['super_admin', 'admin'])) {
+            $submission->loadMissing('journal');
+            $hasAccess = $submission->journal->managers()->where('users.id', $user->id)->exists()
+                || $submission->journal->editors()->where('users.id', $user->id)->exists();
+            abort_unless($hasAccess, 403, 'Anda tidak memiliki akses ke submission ini.');
+        }
+
         $this->submission = $submission;
         $this->dateDue = now()->addWeeks(4)->format('Y-m-d');
         $this->dateResponseDue = now()->addWeeks(1)->format('Y-m-d');

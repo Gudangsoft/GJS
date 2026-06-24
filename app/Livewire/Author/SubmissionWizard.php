@@ -212,11 +212,12 @@ class SubmissionWizard extends Component
             ]),
             4 => $this->validate([
                 // File: wajib ada, hanya PDF/DOC/DOCX, maks 20MB
-                'manuscriptFile' => 'required|file|mimes:pdf,doc,docx|max:20480',
+                'manuscriptFile' => 'required|file|mimes:pdf,doc,docx|mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document|max:20480',
             ], [
-                'manuscriptFile.required' => 'File naskah wajib diunggah.',
-                'manuscriptFile.mimes'    => 'Format file harus PDF, DOC, atau DOCX.',
-                'manuscriptFile.max'      => 'Ukuran file maksimal 20MB.',
+                'manuscriptFile.required'  => 'File naskah wajib diunggah.',
+                'manuscriptFile.mimes'     => 'Format file harus PDF, DOC, atau DOCX.',
+                'manuscriptFile.mimetypes' => 'Tipe MIME file tidak valid. Hanya PDF, DOC, atau DOCX yang diizinkan.',
+                'manuscriptFile.max'       => 'Ukuran file maksimal 20MB.',
             ]),
             default => null,
         };
