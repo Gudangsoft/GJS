@@ -205,6 +205,34 @@
             </div>
             @endif
 
+            {{-- Timeline: received → accepted → published ─────────────── --}}
+            @php
+                $hasTimeline = $article->submission->submitted_at || $article->date_published;
+            @endphp
+            @if($hasTimeline)
+            <div class="mt-4 flex flex-wrap items-center gap-0 text-xs">
+                @if($article->submission->submitted_at)
+                <div class="flex items-center gap-1.5 pr-3">
+                    <div class="w-2 h-2 rounded-full bg-blue-400 shrink-0"></div>
+                    <div>
+                        <p class="text-slate-400">Dikirim</p>
+                        <p class="font-semibold text-slate-700">{{ $article->submission->submitted_at->format('d M Y') }}</p>
+                    </div>
+                </div>
+                <div class="w-8 border-t border-dashed border-slate-300 mr-3"></div>
+                @endif
+                @if($article->date_published)
+                <div class="flex items-center gap-1.5">
+                    <div class="w-2 h-2 rounded-full bg-green-500 shrink-0"></div>
+                    <div>
+                        <p class="text-slate-400">Diterbitkan</p>
+                        <p class="font-semibold text-slate-700">{{ $article->date_published->format('d M Y') }}</p>
+                    </div>
+                </div>
+                @endif
+            </div>
+            @endif
+
         </div>
     </div>
 
@@ -227,10 +255,11 @@
             <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2.5">Kata Kunci</p>
             <div class="flex flex-wrap gap-2">
                 @foreach($article->submission->keywords as $kw)
-                <span class="text-xs font-medium px-3 py-1.5 rounded-full"
-                      style="background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;">
+                <a href="{{ route('journals.search', $journal->slug) }}?kw={{ urlencode($kw) }}"
+                   class="text-xs font-medium px-3 py-1.5 rounded-full transition-colors hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200"
+                   style="background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;">
                     {{ $kw }}
-                </span>
+                </a>
                 @endforeach
             </div>
         </div>
@@ -988,21 +1017,38 @@
     </div>
 
     {{-- ── LICENSE ───────────────────────────────────────────────────── --}}
+    @php
+        $ccMap = [
+            'cc_by'       => ['label'=>'CC BY 4.0',       'icons'=>['cc','by'],         'url'=>'https://creativecommons.org/licenses/by/4.0/',       'name'=>'Creative Commons Attribution 4.0 International'],
+            'cc_by_nc'    => ['label'=>'CC BY-NC 4.0',    'icons'=>['cc','by','nc'],     'url'=>'https://creativecommons.org/licenses/by-nc/4.0/',    'name'=>'Creative Commons Attribution-NonCommercial 4.0 International'],
+            'cc_by_nc_nd' => ['label'=>'CC BY-NC-ND 4.0', 'icons'=>['cc','by','nc','nd'],'url'=>'https://creativecommons.org/licenses/by-nc-nd/4.0/','name'=>'Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International'],
+            'cc_by_nc_sa' => ['label'=>'CC BY-NC-SA 4.0', 'icons'=>['cc','by','nc','sa'],'url'=>'https://creativecommons.org/licenses/by-nc-sa/4.0/','name'=>'Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International'],
+            'cc_by_sa'    => ['label'=>'CC BY-SA 4.0',    'icons'=>['cc','by','sa'],     'url'=>'https://creativecommons.org/licenses/by-sa/4.0/',    'name'=>'Creative Commons Attribution-ShareAlike 4.0 International'],
+            'cc_by_nd'    => ['label'=>'CC BY-ND 4.0',    'icons'=>['cc','by','nd'],     'url'=>'https://creativecommons.org/licenses/by-nd/4.0/',    'name'=>'Creative Commons Attribution-NoDerivatives 4.0 International'],
+        ];
+        $licKey  = $journal->license_type ?? 'cc_by';
+        $licInfo = $ccMap[$licKey] ?? $ccMap['cc_by'];
+    @endphp
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-4 py-2.5" style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
             <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Lisensi</p>
         </div>
         <div class="p-4">
-            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener"
-               class="flex items-center gap-2 mb-2 hover:opacity-80 transition-opacity">
-                <img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="CC" class="w-5 h-5">
-                <img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="BY" class="w-5 h-5">
-                <span class="text-sm font-bold text-slate-700">CC BY 4.0</span>
+            <a href="{{ $licInfo['url'] }}" target="_blank" rel="noopener"
+               class="flex items-center gap-1.5 mb-2 hover:opacity-80 transition-opacity">
+                @foreach($licInfo['icons'] as $icon)
+                <img src="https://mirrors.creativecommons.org/presskit/icons/{{ $icon }}.svg"
+                     alt="{{ strtoupper($icon) }}" class="w-5 h-5">
+                @endforeach
+                <span class="text-sm font-bold text-slate-700 ml-1">{{ $licInfo['label'] }}</span>
             </a>
             <p class="text-xs text-slate-400 leading-relaxed">
                 Artikel ini dilisensikan di bawah
-                <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener"
-                   class="text-blue-600 hover:underline">Creative Commons Attribution 4.0 International License</a>.
+                <a href="{{ $licInfo['url'] }}" target="_blank" rel="noopener"
+                   class="text-blue-600 hover:underline">{{ $licInfo['name'] }}</a>.
+                @if($journal->copyright_holder)
+                Hak cipta © {{ now()->year }} {{ $journal->copyright_holder }}.
+                @endif
             </p>
         </div>
     </div>

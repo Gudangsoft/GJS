@@ -76,6 +76,39 @@ class Settings extends Component
     public string $loa_signer_name  = '';
     public string $loa_signer_title = '';
 
+    // Konten Tambahan
+    public string $description              = '';
+    public string $reviewer_guidelines      = '';
+    public string $privacy_statement        = '';
+    public string $submission_acknowledgement = '';
+    public string $announcements_intro      = '';
+    public bool   $announcements_enabled    = true;
+
+    // Submission settings
+    public bool   $requires_author_competinginterests   = false;
+    public bool   $requires_reviewer_competinginterests = false;
+    public int    $num_weeks_per_response               = 1;
+    public string $submission_checklist                 = '';
+
+    // SINTA scores
+    public string $sinta_score     = '';
+    public string $sinta_score_3yr = '';
+
+    // Tech support
+    public string $tech_support_name  = '';
+    public string $tech_support_email = '';
+
+    // Lokasi
+    public string $country  = '';
+    public string $timezone = 'Asia/Jakarta';
+
+    // Custom HTML
+    public string $custom_header_html = '';
+    public string $custom_footer_html = '';
+
+    // Uploads tambahan
+    public $newFavicon = null;
+
     // Status
     public bool $enabled             = true;
     public bool $disable_submissions = false;
@@ -140,6 +173,34 @@ class Settings extends Component
         $this->loa_signer_name  = $j->loa_signer_name ?? '';
         $this->loa_signer_title = $j->loa_signer_title ?? '';
 
+        $this->description               = $j->description ?? '';
+        $this->reviewer_guidelines       = $j->reviewer_guidelines ?? '';
+        $this->privacy_statement         = $j->privacy_statement ?? '';
+        $this->submission_acknowledgement= $j->submission_acknowledgement ?? '';
+        $this->announcements_intro       = $j->announcements_intro ?? '';
+        $this->announcements_enabled     = (bool)($j->announcements_enabled ?? true);
+
+        $this->requires_author_competinginterests   = (bool)($j->requires_author_competinginterests ?? false);
+        $this->requires_reviewer_competinginterests = (bool)($j->requires_reviewer_competinginterests ?? false);
+        $this->num_weeks_per_response               = (int)($j->num_weeks_per_response ?? 1);
+
+        $checklist = $j->submission_checklist;
+        $this->submission_checklist = is_array($checklist)
+            ? implode("\n", $checklist)
+            : ($checklist ?? '');
+
+        $this->sinta_score     = (string)($j->sinta_score ?? '');
+        $this->sinta_score_3yr = (string)($j->sinta_score_3yr ?? '');
+
+        $this->tech_support_name  = $j->tech_support_name ?? '';
+        $this->tech_support_email = $j->tech_support_email ?? '';
+
+        $this->country  = $j->country ?? '';
+        $this->timezone = $j->timezone ?? 'Asia/Jakarta';
+
+        $this->custom_header_html = $j->custom_header_html ?? '';
+        $this->custom_footer_html = $j->custom_footer_html ?? '';
+
         $this->enabled             = (bool)$j->enabled;
         $this->disable_submissions = (bool)$j->disable_submissions;
     }
@@ -187,10 +248,29 @@ class Settings extends Component
             'wa_sender_number'      => 'nullable|string|max:20',
             'loa_signer_name'       => 'nullable|string|max:255',
             'loa_signer_title'      => 'nullable|string|max:255',
+            'description'           => 'nullable|string|max:1000',
+            'reviewer_guidelines'   => 'nullable|string',
+            'privacy_statement'     => 'nullable|string',
+            'submission_acknowledgement' => 'nullable|string',
+            'announcements_intro'   => 'nullable|string',
+            'announcements_enabled' => 'boolean',
+            'requires_author_competinginterests'   => 'boolean',
+            'requires_reviewer_competinginterests' => 'boolean',
+            'num_weeks_per_response' => 'nullable|integer|min:1|max:52',
+            'submission_checklist'  => 'nullable|string',
+            'sinta_score'           => 'nullable|numeric|min:0',
+            'sinta_score_3yr'       => 'nullable|numeric|min:0',
+            'tech_support_name'     => 'nullable|string|max:255',
+            'tech_support_email'    => 'nullable|email|max:255',
+            'country'               => 'nullable|string|max:100',
+            'timezone'              => 'nullable|string|max:100',
+            'custom_header_html'    => 'nullable|string',
+            'custom_footer_html'    => 'nullable|string',
             'enabled'               => 'boolean',
             'disable_submissions'   => 'boolean',
             'newLogo'               => 'nullable|image|max:2048',
             'newCoverImage'         => 'nullable|image|max:2048',
+            'newFavicon'            => 'nullable|image|max:512',
         ];
     }
 
@@ -240,6 +320,26 @@ class Settings extends Component
             'wa_sender_number'      => $this->wa_sender_number ?: null,
             'loa_signer_name'       => $this->loa_signer_name ?: null,
             'loa_signer_title'      => $this->loa_signer_title ?: null,
+            'description'           => $this->description ?: null,
+            'reviewer_guidelines'   => $this->reviewer_guidelines ?: null,
+            'privacy_statement'     => $this->privacy_statement ?: null,
+            'submission_acknowledgement' => $this->submission_acknowledgement ?: null,
+            'announcements_intro'   => $this->announcements_intro ?: null,
+            'announcements_enabled' => $this->announcements_enabled,
+            'requires_author_competinginterests'   => $this->requires_author_competinginterests,
+            'requires_reviewer_competinginterests' => $this->requires_reviewer_competinginterests,
+            'num_weeks_per_response' => $this->num_weeks_per_response ?: null,
+            'submission_checklist'  => $this->submission_checklist
+                ? array_values(array_filter(array_map('trim', explode("\n", $this->submission_checklist))))
+                : null,
+            'sinta_score'     => $this->sinta_score ?: null,
+            'sinta_score_3yr' => $this->sinta_score_3yr ?: null,
+            'tech_support_name'  => $this->tech_support_name ?: null,
+            'tech_support_email' => $this->tech_support_email ?: null,
+            'country'   => $this->country ?: null,
+            'timezone'  => $this->timezone ?: null,
+            'custom_header_html' => $this->custom_header_html ?: null,
+            'custom_footer_html' => $this->custom_footer_html ?: null,
             'enabled'               => $this->enabled,
             'disable_submissions'   => $this->disable_submissions,
         ];
@@ -251,6 +351,10 @@ class Settings extends Component
         if ($this->newCoverImage) {
             $updateData['cover_image'] = $this->newCoverImage->store('journals/covers', 'public');
             $this->newCoverImage = null;
+        }
+        if ($this->newFavicon) {
+            $updateData['favicon'] = $this->newFavicon->store('journals/favicons', 'public');
+            $this->newFavicon = null;
         }
 
         $this->journal->update($updateData);

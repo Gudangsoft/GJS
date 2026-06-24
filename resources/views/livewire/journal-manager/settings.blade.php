@@ -95,16 +95,16 @@
     {{-- 2. Cover & Logo Jurnal --}}
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-6 py-3 border-b border-slate-100" style="background:#f0f5ff;">
-            <h2 class="text-xs font-bold text-blue-800 uppercase tracking-wider">Logo & Cover Jurnal</h2>
+            <h2 class="text-xs font-bold text-blue-800 uppercase tracking-wider">Logo, Cover & Favicon</h2>
         </div>
         <div class="p-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
 
                 {{-- Logo --}}
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-2">Logo Jurnal</label>
-                    <div class="flex items-start gap-4">
-                        <div class="w-20 h-20 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden shrink-0 bg-slate-50">
+                    <div class="flex flex-col gap-3">
+                        <div class="w-20 h-20 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden bg-slate-50">
                             @if($newLogo)
                                 <img src="{{ $newLogo->temporaryUrl() }}" class="w-full h-full object-contain">
                             @elseif($journal->logo)
@@ -113,10 +113,10 @@
                                 <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                             @endif
                         </div>
-                        <div class="flex-1">
+                        <div>
                             <input wire:model="newLogo" type="file" accept="image/*"
                                    class="block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
-                            <p class="text-xs text-slate-400 mt-1.5">PNG, JPG, SVG. Maks 2MB.<br>Rekomendasi: 200×200px.</p>
+                            <p class="text-xs text-slate-400 mt-1">PNG, JPG, SVG. Maks 2MB. Rekomendasi: 200×200px.</p>
                             @error('newLogo')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                         </div>
                     </div>
@@ -124,9 +124,9 @@
 
                 {{-- Cover Image --}}
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-2">Cover / Gambar Utama Jurnal</label>
-                    <div class="flex items-start gap-4">
-                        <div class="w-20 h-20 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden shrink-0 bg-slate-50">
+                    <label class="block text-xs font-semibold text-slate-600 mb-2">Cover / Gambar Utama</label>
+                    <div class="flex flex-col gap-3">
+                        <div class="w-20 h-20 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden bg-slate-50">
                             @if($newCoverImage)
                                 <img src="{{ $newCoverImage->temporaryUrl() }}" class="w-full h-full object-cover">
                             @elseif($journal->cover_image)
@@ -135,15 +135,46 @@
                                 <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                             @endif
                         </div>
-                        <div class="flex-1">
+                        <div>
                             <input wire:model="newCoverImage" type="file" accept="image/*"
                                    class="block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
-                            <p class="text-xs text-slate-400 mt-1.5">PNG, JPG. Maks 2MB.<br>Rekomendasi: 800×400px.</p>
+                            <p class="text-xs text-slate-400 mt-1">PNG, JPG. Maks 2MB. Rekomendasi: 800×400px.</p>
                             @error('newCoverImage')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                         </div>
                     </div>
                 </div>
 
+                {{-- Favicon --}}
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-2">Favicon <span class="font-normal text-slate-400">(ikon tab browser)</span></label>
+                    <div class="flex flex-col gap-3">
+                        <div class="w-20 h-20 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden bg-slate-50">
+                            @if($newFavicon)
+                                <img src="{{ $newFavicon->temporaryUrl() }}" class="w-12 h-12 object-contain">
+                            @elseif($journal->favicon)
+                                <img src="{{ Storage::disk('public')->url($journal->favicon) }}" class="w-12 h-12 object-contain">
+                            @else
+                                <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+                            @endif
+                        </div>
+                        <div>
+                            <input wire:model="newFavicon" type="file" accept="image/*"
+                                   class="block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                            <p class="text-xs text-slate-400 mt-1">PNG/ICO. Maks 512KB. Rekomendasi: 32×32px atau 64×64px.</p>
+                            @error('newFavicon')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            {{-- Description --}}
+            <div class="mt-5">
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Deskripsi Singkat Jurnal</label>
+                <textarea wire:model="description" rows="2"
+                          placeholder="Deskripsi singkat untuk listing dan meta-description (maks 1000 karakter)..."
+                          class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+                @error('description')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
         </div>
     </div>
@@ -242,7 +273,7 @@
             <h2 class="text-xs font-bold text-blue-800 uppercase tracking-wider">Akreditasi & Indeksasi</h2>
         </div>
         <div class="p-6 space-y-4">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Level SINTA</label>
                     <select wire:model="sinta_level"
@@ -259,15 +290,27 @@
                            class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Skor SINTA</label>
+                    <input wire:model="sinta_score" type="number" step="0.01" placeholder="Contoh: 3.45"
+                           class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Skor SINTA 3 Tahun</label>
+                    <input wire:model="sinta_score_3yr" type="number" step="0.01" placeholder="Contoh: 2.80"
+                           class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor SK Akreditasi</label>
+                    <input wire:model="accreditation_no" type="text" placeholder="Contoh: 200/M/KPT/2020"
+                           class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Periode Akreditasi</label>
                     <input wire:model="accreditation_period" type="text" placeholder="Contoh: 2020–2024"
                            class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor SK Akreditasi</label>
-                <input wire:model="accreditation_no" type="text" placeholder="Contoh: 200/M/KPT/2020"
-                       class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -284,13 +327,43 @@
         </div>
     </div>
 
+    {{-- Pengumuman --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-3 border-b border-slate-100 flex items-center gap-2" style="background:#f0fdf4;">
+            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+            <h2 class="text-xs font-bold text-green-800 uppercase tracking-wider">Pengumuman</h2>
+        </div>
+        <div class="p-6 space-y-4">
+            <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
+                <button type="button" wire:click="$toggle('announcements_enabled')"
+                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
+                        :class="{ 'bg-green-500': $wire.announcements_enabled, 'bg-slate-300': !$wire.announcements_enabled }">
+                    <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                          :class="{ 'translate-x-6': $wire.announcements_enabled, 'translate-x-1': !$wire.announcements_enabled }"></span>
+                </button>
+                <div>
+                    <p class="text-sm font-semibold text-slate-700">Aktifkan Fitur Pengumuman</p>
+                    <p class="text-xs text-slate-400">Tampilkan pengumuman di beranda jurnal</p>
+                </div>
+            </div>
+            @if($announcements_enabled)
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Intro Pengumuman</label>
+                <textarea wire:model="announcements_intro" rows="3"
+                          placeholder="Teks pengantar yang muncul sebelum daftar pengumuman..."
+                          class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-green-400 resize-none"></textarea>
+            </div>
+            @endif
+        </div>
+    </div>
+
     {{-- 4. Review & Lisensi --}}
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-6 py-3 border-b border-slate-100" style="background:#f0f5ff;">
             <h2 class="text-xs font-bold text-blue-800 uppercase tracking-wider">Review & Lisensi</h2>
         </div>
         <div class="p-6 space-y-4">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Mode Review</label>
                     <select wire:model="review_mode"
@@ -298,11 +371,17 @@
                         <option value="double_blind">Double Blind</option>
                         <option value="single_blind">Single Blind</option>
                         <option value="open">Open Review</option>
+                        <option value="triple_blind">Triple Blind</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Durasi Review (minggu)</label>
                     <input wire:model="num_weeks_per_review" type="number" min="1" max="52"
+                           class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Durasi Respons (minggu)</label>
+                    <input wire:model="num_weeks_per_response" type="number" min="1" max="52"
                            class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
@@ -317,6 +396,22 @@
                         <option value="cc_by_nc_nd">CC BY-NC-ND</option>
                     </select>
                 </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer">
+                    <input wire:model="requires_author_competinginterests" type="checkbox" class="w-4 h-4 rounded text-blue-600">
+                    <div>
+                        <p class="text-sm font-semibold text-slate-700">Wajib: Competing Interests Penulis</p>
+                        <p class="text-xs text-slate-400">Penulis harus mengisi pernyataan kepentingan bersaing</p>
+                    </div>
+                </label>
+                <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer">
+                    <input wire:model="requires_reviewer_competinginterests" type="checkbox" class="w-4 h-4 rounded text-blue-600">
+                    <div>
+                        <p class="text-sm font-semibold text-slate-700">Wajib: Competing Interests Reviewer</p>
+                        <p class="text-xs text-slate-400">Reviewer harus mengisi pernyataan kepentingan bersaing</p>
+                    </div>
+                </label>
             </div>
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">Pemegang Hak Cipta</label>
@@ -355,12 +450,99 @@
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">Panduan Penulis</label>
                 <textarea wire:model="author_guidelines" rows="4"
+                          placeholder="Panduan lengkap untuk penulis yang akan menyerahkan naskah..."
                           class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
             </div>
             <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Pernyataan Etika</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Panduan Reviewer</label>
+                <textarea wire:model="reviewer_guidelines" rows="4"
+                          placeholder="Panduan bagi reviewer dalam menilai naskah..."
+                          class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Pernyataan Etika Publikasi</label>
                 <textarea wire:model="ethics_statement" rows="3"
                           class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Kebijakan Privasi</label>
+                <textarea wire:model="privacy_statement" rows="3"
+                          placeholder="Pernyataan privasi tentang penggunaan data pengguna..."
+                          class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Ucapan Terima Kasih Pengiriman</label>
+                <textarea wire:model="submission_acknowledgement" rows="3"
+                          placeholder="Pesan yang dikirimkan kepada penulis setelah naskah diterima..."
+                          class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Daftar Periksa Naskah <span class="font-normal text-slate-400">(satu item per baris)</span></label>
+                <textarea wire:model="submission_checklist" rows="5"
+                          placeholder="Naskah ditulis menggunakan template jurnal&#10;Abstrak tidak melebihi 250 kata&#10;Daftar pustaka menggunakan gaya APA 7&#10;File dalam format .docx atau .pdf"
+                          class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none font-mono"></textarea>
+                <p class="text-xs text-slate-400 mt-1">Setiap baris akan menjadi satu item centang yang harus dipenuhi penulis sebelum submit.</p>
+            </div>
+        </div>
+    </div>
+
+    {{-- Lokasi & Info Teknis --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-3 border-b border-slate-100" style="background:#f0f5ff;">
+            <h2 class="text-xs font-bold text-blue-800 uppercase tracking-wider">Lokasi & Dukungan Teknis</h2>
+        </div>
+        <div class="p-6 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Negara</label>
+                    <input wire:model="country" type="text" placeholder="Contoh: Indonesia"
+                           class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Zona Waktu</label>
+                    <select wire:model="timezone"
+                            class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Asia/Jakarta">WIB — Asia/Jakarta (UTC+7)</option>
+                        <option value="Asia/Makassar">WITA — Asia/Makassar (UTC+8)</option>
+                        <option value="Asia/Jayapura">WIT — Asia/Jayapura (UTC+9)</option>
+                        <option value="UTC">UTC</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Dukungan Teknis</label>
+                    <input wire:model="tech_support_name" type="text" placeholder="Nama penanggungjawab teknis"
+                           class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Email Dukungan Teknis</label>
+                    <input wire:model="tech_support_email" type="email" placeholder="techsupport@jurnal.ac.id"
+                           class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Custom HTML --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-3 border-b border-slate-100 flex items-center gap-2" style="background:#fdf4ff;">
+            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+            <h2 class="text-xs font-bold text-purple-800 uppercase tracking-wider">Custom HTML (Lanjutan)</h2>
+        </div>
+        <div class="p-6 space-y-4">
+            <p class="text-xs text-slate-500">HTML kustom untuk diinjeksi ke header atau footer halaman jurnal. Berguna untuk skrip analitik, badge khusus, dll.</p>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Custom Header HTML</label>
+                <textarea wire:model="custom_header_html" rows="4"
+                          placeholder="<!-- Contoh: Google Analytics, dll. -->"
+                          class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none font-mono"></textarea>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Custom Footer HTML</label>
+                <textarea wire:model="custom_footer_html" rows="4"
+                          placeholder="<!-- HTML tambahan di bawah footer -->"
+                          class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none font-mono"></textarea>
             </div>
         </div>
     </div>

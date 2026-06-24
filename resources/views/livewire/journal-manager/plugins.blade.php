@@ -1,21 +1,28 @@
 <div
     x-data="{
+        _sortInst: null,
         initSortable() {
-            if (typeof Sortable === 'undefined') return;
+            if (typeof Sortable === 'undefined') {
+                setTimeout(() => this.initSortable(), 100);
+                return;
+            }
             const el = document.getElementById('sortable-blocks');
             if (!el) return;
-            Sortable.create(el, {
+            if (this._sortInst) { try { this._sortInst.destroy(); } catch(e){} }
+            this._sortInst = Sortable.create(el, {
                 animation: 150,
                 handle: '.drag-handle',
-                ghostClass: 'opacity-40',
+                ghostClass: 'opacity-30',
+                dragClass:  'shadow-lg',
                 onEnd: (evt) => {
-                    const ids = [...el.querySelectorAll('[data-id]')].map(el => parseInt(el.dataset.id));
+                    const ids = [...el.querySelectorAll('[data-id]')].map(n => parseInt(n.dataset.id));
                     $wire.updateOrder(ids);
                 }
             });
         }
     }"
     x-init="$nextTick(() => initSortable())"
+    @livewire:morphed.window="$nextTick(() => initSortable())"
 >
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
 

@@ -15,8 +15,11 @@ use App\Livewire\Editor\SubmissionReview;
 use App\Livewire\Reader\ArticleDetail;
 use App\Livewire\Reader\IssueArchive;
 use App\Livewire\Reader\IssueToc;
+use App\Livewire\Reader\JournalBrowse;
 use App\Livewire\Reader\JournalHome;
 use App\Livewire\Reader\JournalIndex;
+use App\Livewire\Reader\JournalPage;
+use App\Livewire\Reader\JournalSearch;
 use App\Livewire\Reviewer\Dashboard as ReviewerDashboard;
 use App\Livewire\Reviewer\ReviewForm;
 use Illuminate\Support\Facades\Auth;
@@ -33,6 +36,9 @@ Route::prefix('journals/{journal:slug}')->name('journals.')->group(function () {
     Route::get('/articles/{article}',                      ArticleDetail::class)->name('articles.show');
     Route::get('/articles/{article}/galley/{galley}',      GalleyController::class)->name('articles.galley');
     Route::get('/articles/{article}/galley/{galley}/view', GalleyViewerController::class)->name('articles.galley.view');
+    Route::get('/search',                                  JournalSearch::class)->name('search');
+    Route::get('/browse/{by}',                             JournalBrowse::class)->name('browse');
+    Route::get('/about/{page?}',                           JournalPage::class)->name('page');
     Route::get('/oai',                                     JournalOaiController::class)->name('oai');
 });
 

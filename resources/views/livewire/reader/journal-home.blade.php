@@ -85,33 +85,85 @@
         </div>
     </div>
 
-    {{-- Sub-navigation (OJS-style top tabs) --}}
-    <div class="border-t border-slate-200" style="background:#f8fafc;">
+    {{-- Sub-navigation: OJS-style tabs + About dropdown + Search --}}
+    <div class="border-t border-slate-200 relative" style="background:#f8fafc;">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <nav class="flex gap-0 overflow-x-auto text-sm">
-                <a href="{{ route('journals.home', $journal->slug) }}"
-                   class="shrink-0 px-4 py-3 font-semibold border-b-2 transition-colors"
-                   style="border-color:#1e40af;color:#1e40af;">
-                    Beranda
-                </a>
-                <a href="{{ route('journals.issues', $journal->slug) }}"
-                   class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors">
-                    Arsip
-                </a>
-                @if($announcements->isNotEmpty())
-                <a href="#pengumuman"
-                   class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors">
-                    Pengumuman
-                </a>
-                @endif
+            <div class="flex items-stretch">
+                <nav class="flex gap-0 overflow-x-auto text-sm flex-1">
+                    <a href="{{ route('journals.home', $journal->slug) }}"
+                       class="shrink-0 px-4 py-3 font-semibold border-b-2 transition-colors"
+                       style="border-color:#1e40af;color:#1e40af;">
+                        Beranda
+                    </a>
+                    <a href="{{ route('journals.issues', $journal->slug) }}"
+                       class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors">
+                        Terbitan
+                    </a>
+                    @if($announcements->isNotEmpty())
+                    <a href="#pengumuman"
+                       class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors">
+                        Pengumuman
+                    </a>
+                    @endif
 
-                @if($journal->focus_scope || $journal->about_journal)
-                <a href="#tentang"
-                   class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors">
-                    Tentang
-                </a>
-                @endif
-            </nav>
+                    {{-- About dropdown --}}
+                    <div class="relative shrink-0 flex" x-data="{ open: false }">
+                        <button @mouseenter="open = true" @mouseleave.self="open = false" @click="open = !open"
+                                class="flex items-center gap-1 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors text-sm">
+                            Tentang
+                            <svg class="w-3 h-3 transition-transform duration-150" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="open" @mouseleave="open = false" @click.outside="open = false" x-cloak
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="opacity-0 -translate-y-1"
+                             x-transition:enter-end="opacity-100 translate-y-0"
+                             class="absolute top-full left-0 w-52 bg-white border border-slate-200 rounded-b-xl rounded-tr-xl shadow-lg z-50 py-1.5">
+                            @foreach([
+                                ['about',               'Tentang Jurnal'],
+                                ['editorial-team',      'Tim Editorial'],
+                                ['submissions',         'Pengiriman Naskah'],
+                                ['guidelines',          'Panduan Penulis'],
+                                ['reviewer-guidelines', 'Panduan Reviewer'],
+                                ['ethics',              'Etika Publikasi'],
+                                ['privacy',             'Kebijakan Privasi'],
+                                ['contact',             'Kontak'],
+                            ] as [$slug, $label])
+                            <a href="{{ route('journals.page', [$journal->slug, $slug]) }}"
+                               class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                               {{ $label }}
+                            </a>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <a href="{{ route('journals.browse', [$journal->slug, 'author']) }}"
+                       class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors text-sm">
+                        Jelajahi
+                    </a>
+                </nav>
+
+                {{-- Search icon button --}}
+                <div class="flex items-center pl-2 border-l border-slate-200 ml-2 relative" x-data="{ sopen: false }">
+                    <button @click="sopen = !sopen; $nextTick(() => $refs.searchInput?.focus())"
+                            class="p-2 text-slate-500 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </button>
+                    <div x-show="sopen" @click.outside="sopen = false" x-cloak
+                         x-transition:enter="transition ease-out duration-100"
+                         x-transition:enter-start="opacity-0 scale-95"
+                         x-transition:enter-end="opacity-100 scale-100"
+                         class="absolute right-0 top-full mt-1 w-72 bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-2">
+                        <form action="{{ route('journals.search', $journal->slug) }}" method="GET">
+                            <div class="relative">
+                                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                <input name="q" type="text" x-ref="searchInput"
+                                       placeholder="Cari artikel, penulis..."
+                                       class="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -233,12 +285,10 @@
                             </p>
                             @endif
 
-                            {{-- Meta row: pages, DOI, galley buttons --}}
-                            <div class="flex items-center flex-wrap gap-3">
+                            {{-- Meta row: pages, DOI, stats, galley buttons --}}
+                            <div class="flex items-center flex-wrap gap-x-4 gap-y-2 mt-1">
                                 @if($article->pages)
-                                <span class="text-xs text-slate-400">
-                                    Hal. {{ $article->pages }}
-                                </span>
+                                <span class="text-xs text-slate-400">Hal. {{ $article->pages }}</span>
                                 @endif
                                 @if($article->doi)
                                 <a href="https://doi.org/{{ $article->doi }}" target="_blank" rel="noopener"
@@ -246,18 +296,31 @@
                                     https://doi.org/{{ $article->doi }}
                                 </a>
                                 @endif
-                                {{-- Galley buttons (like OJS: [PDF] [HTML]) --}}
-                                <div class="flex gap-1.5 ml-auto">
+                                {{-- View / Download stats --}}
+                                @if($article->views > 0)
+                                <span class="inline-flex items-center gap-1 text-xs text-slate-400">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    {{ number_format($article->views) }}
+                                </span>
+                                @endif
+                                @if($article->downloads > 0)
+                                <span class="inline-flex items-center gap-1 text-xs text-slate-400">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                    {{ number_format($article->downloads) }}
+                                </span>
+                                @endif
+                                {{-- Galley buttons (OJS style) --}}
+                                <div class="flex gap-1.5 ml-auto flex-wrap">
                                     <a href="{{ route('journals.articles.show', [$journal->slug, $article->id]) }}"
                                        class="text-xs font-bold px-3 py-1.5 rounded border transition-colors"
                                        style="background:#eff6ff;border-color:#bfdbfe;color:#1e40af;">
                                         Abstrak
                                     </a>
                                     @foreach($article->galleys->take(3) as $galley)
-                                    <a href="{{ route('journals.articles.show', [$journal->slug, $article->id]) }}"
+                                    <a href="{{ route('journals.articles.galley.view', [$journal->slug, $article->id, $galley->id]) }}"
                                        class="text-xs font-bold px-3 py-1.5 rounded border transition-colors"
                                        style="background:#1e40af;border-color:#1e3a8a;color:#ffffff;">
-                                        {{ strtoupper($galley->label) }}
+                                        {{ strtoupper($galley->label ?? 'PDF') }}
                                     </a>
                                     @endforeach
                                 </div>
@@ -380,17 +443,24 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('journals.issues', $journal->slug) }}"
+                            <a href="{{ route('journals.browse', [$journal->slug, 'author']) }}"
                                class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
                                 <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                                 Berdasarkan Penulis
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('journals.issues', $journal->slug) }}"
+                            <a href="{{ route('journals.browse', [$journal->slug, 'title']) }}"
                                class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
                                 <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h12"/></svg>
                                 Berdasarkan Judul
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('journals.browse', [$journal->slug, 'keyword']) }}"
+                               class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                                Berdasarkan Kata Kunci
                             </a>
                         </li>
                     </ul>
