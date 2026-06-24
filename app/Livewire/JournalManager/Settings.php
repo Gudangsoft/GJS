@@ -111,7 +111,8 @@ class Settings extends Component
     public $newHeaderBanner = null;
 
     // Bulan terbit (disimpan di settings JSON)
-    public array $publication_months = [];
+    public array $publication_months   = [];
+    public int   $publication_freq_count = 1;
 
     // Header Jurnal (disimpan di settings JSON + homepage_image)
     public string $header_bg_type    = 'default'; // default|color|gradient|image
@@ -213,7 +214,8 @@ class Settings extends Component
         $this->custom_footer_html = $j->custom_footer_html ?? '';
 
         $s = $j->settings ?? [];
-        $this->publication_months = $s['publication_months'] ?? [];
+        $this->publication_months    = $s['publication_months']    ?? [];
+        $this->publication_freq_count = (int)($s['publication_freq_count'] ?? 1);
         $this->header_bg_type    = $s['header_bg_type']   ?? 'default';
         $this->header_bg_color   = $s['header_bg_color']  ?? '#1e3a8a';
         $this->header_bg_color2  = $s['header_bg_color2'] ?? '#4338ca';
@@ -290,8 +292,9 @@ class Settings extends Component
             'newLogo'               => 'nullable|image|max:2048',
             'newCoverImage'         => 'nullable|image|max:2048',
             'newFavicon'            => 'nullable|image|max:512',
-            'publication_months'    => 'nullable|array',
-            'publication_months.*'  => 'integer|between:1,12',
+            'publication_months'      => 'nullable|array',
+            'publication_months.*'    => 'integer|between:1,12',
+            'publication_freq_count'  => 'nullable|integer|in:1,2,3,4,6,12',
             'newHeaderBanner'       => 'nullable|image|max:4096',
             'header_bg_type'        => 'nullable|string|in:default,color,gradient,image',
             'header_bg_color'       => 'nullable|string|max:20',
@@ -391,24 +394,24 @@ class Settings extends Component
         // Auto-generate publication_frequency dari bulan dipilih
         $monthNames = [1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',5=>'Mei',6=>'Juni',
                        7=>'Juli',8=>'Agustus',9=>'September',10=>'Oktober',11=>'November',12=>'Desember'];
+        $freqLabels = [1=>'Tahunan',2=>'Semesteran',3=>'3x Setahun',4=>'Kuartalan',6=>'2 Bulanan',12=>'Bulanan'];
         $selectedMonths = array_values(array_filter($this->publication_months));
         sort($selectedMonths);
+        // Trim jika melebihi limit yang dipilih
+        $selectedMonths = array_slice($selectedMonths, 0, $this->publication_freq_count);
         if (!empty($selectedMonths)) {
             $count = count($selectedMonths);
             $names = array_map(fn($m) => $monthNames[$m] ?? '', $selectedMonths);
-            if ($count === 1) {
-                $freq = "Sekali setahun ({$names[0]})";
-            } else {
-                $last  = array_pop($names);
-                $freq  = implode(', ', $names) . ' & ' . $last;
-                $freq  = "{$count} kali setahun ({$freq})";
-            }
-            $updateData['publication_frequency'] = $freq;
+            $last  = array_pop($names);
+            $monthStr = empty($names) ? $last : implode(', ', $names) . ' & ' . $last;
+            $label = $freqLabels[$this->publication_freq_count] ?? "{$this->publication_freq_count}x Setahun";
+            $updateData['publication_frequency'] = "{$this->publication_freq_count}x {$label} ({$monthStr})";
         }
 
         $existingSettings = $this->journal->settings ?? [];
         $updateData['settings'] = array_merge($existingSettings, [
-            'publication_months' => $selectedMonths,
+            'publication_months'     => $selectedMonths,
+            'publication_freq_count' => $this->publication_freq_count,
             'header_bg_type'    => $this->header_bg_type,
             'header_bg_color'   => $this->header_bg_color,
             'header_bg_color2'  => $this->header_bg_color2,
@@ -427,9 +430,18 @@ class Settings extends Component
             $this->publication_months = array_values(
                 array_filter($this->publication_months, fn($m) => $m !== $month)
             );
-        } else {
+        } elseif (count($this->publication_months) < $this->publication_freq_count) {
             $this->publication_months[] = $month;
             sort($this->publication_months);
+        }
+        // Jika sudah penuh, tidak menambah (user harus uncheck dulu)
+    }
+
+    public function updatedPublicationFreqCount(): void
+    {
+        // Trim pilihan bulan yang melebihi limit baru
+        if (count($this->publication_months) > $this->publication_freq_count) {
+            $this->publication_months = array_slice($this->publication_months, 0, $this->publication_freq_count);
         }
     }
 

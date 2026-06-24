@@ -69,35 +69,61 @@
                            class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Bulan Terbit</label>
-                    @php
-                        $bulanList = [1=>'Jan',2=>'Feb',3=>'Mar',4=>'Apr',5=>'Mei',6=>'Jun',
-                                      7=>'Jul',8=>'Agu',9=>'Sep',10=>'Okt',11=>'Nov',12=>'Des'];
-                    @endphp
-                    <div class="grid grid-cols-6 gap-1">
-                        @foreach($bulanList as $num => $label)
-                        <button type="button"
-                                wire:click="toggleMonth({{ $num }})"
-                                class="text-xs font-semibold py-1.5 rounded-lg border-2 transition-all text-center {{ in_array($num, $publication_months) ? 'border-blue-500 bg-blue-500 text-white' : 'border-slate-200 text-slate-500 hover:border-blue-300' }}">
-                            {{ $label }}
-                        </button>
-                        @endforeach
-                    </div>
-                    @php
-                        $count = count($publication_months);
-                        $monthNames = [1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',5=>'Mei',6=>'Juni',
-                                       7=>'Juli',8=>'Agustus',9=>'September',10=>'Oktober',11=>'November',12=>'Desember'];
-                        $selNames = array_map(fn($m) => $monthNames[$m] ?? '', $publication_months);
-                    @endphp
-                    @if($count > 0)
-                    <p class="text-xs text-blue-600 mt-1.5 font-medium">
-                        {{ $count }} kali setahun ({{ implode(', ', $selNames) }})
-                    </p>
-                    @else
-                    <p class="text-xs text-slate-400 mt-1.5">Pilih bulan terbit jurnal</p>
-                    @endif
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Frekuensi Terbit/Tahun</label>
+                    <select wire:model.live="publication_freq_count"
+                            class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="1">1x (Tahunan)</option>
+                        <option value="2">2x (Semesteran)</option>
+                        <option value="3">3x (Tri-semesteran)</option>
+                        <option value="4">4x (Kuartalan)</option>
+                        <option value="6">6x (Dua Bulanan)</option>
+                        <option value="12">12x (Bulanan)</option>
+                    </select>
                 </div>
             </div>
+
+            {{-- Bulan Terbit --}}
+            @php
+                $bulanNama = [1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',5=>'Mei',6=>'Juni',
+                              7=>'Juli',8=>'Agustus',9=>'September',10=>'Oktober',11=>'November',12=>'Desember'];
+                $sisaSlot  = $publication_freq_count - count($publication_months);
+            @endphp
+            <div class="border border-slate-200 rounded-xl p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <label class="text-xs font-semibold text-slate-600">Bulan Terbit</label>
+                    @if($sisaSlot > 0)
+                    <span class="text-xs font-semibold text-blue-600">(Pilih {{ $sisaSlot }} bulan lagi)</span>
+                    @else
+                    <span class="text-xs font-semibold text-green-600">✓ Lengkap</span>
+                    @endif
+                </div>
+                <div class="grid grid-cols-6 gap-x-4 gap-y-2">
+                    @foreach($bulanNama as $num => $nama)
+                    @php $checked = in_array($num, $publication_months); @endphp
+                    <label class="flex items-center gap-1.5 cursor-pointer group">
+                        <input type="checkbox"
+                               wire:click="toggleMonth({{ $num }})"
+                               @checked($checked)
+                               {{ (!$checked && $sisaSlot === 0) ? 'disabled' : '' }}
+                               class="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 cursor-pointer
+                                      disabled:opacity-30 disabled:cursor-not-allowed">
+                        <span class="text-xs {{ $checked ? 'text-blue-700 font-semibold' : ($sisaSlot === 0 ? 'text-slate-300' : 'text-slate-600') }} group-hover:text-blue-600 transition-colors">
+                            {{ $nama }}
+                        </span>
+                    </label>
+                    @endforeach
+                </div>
+                @if(!empty($publication_months))
+                @php
+                    $selNames = array_map(fn($m) => $bulanNama[$m] ?? '', $publication_months);
+                    sort($selNames);
+                @endphp
+                <p class="text-xs text-slate-500 mt-3 pt-3 border-t border-slate-100">
+                    Terbit setiap: <strong class="text-slate-700">{{ implode(', ', $selNames) }}</strong>
+                </p>
+                @endif
+            </div>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Bahasa Utama</label>
