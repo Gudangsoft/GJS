@@ -69,9 +69,33 @@
                            class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Frekuensi Terbit</label>
-                    <input wire:model="publication_frequency" type="text" placeholder="Contoh: 2 kali setahun (Maret & September)"
-                           class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Bulan Terbit</label>
+                    @php
+                        $bulanList = [1=>'Jan',2=>'Feb',3=>'Mar',4=>'Apr',5=>'Mei',6=>'Jun',
+                                      7=>'Jul',8=>'Agu',9=>'Sep',10=>'Okt',11=>'Nov',12=>'Des'];
+                    @endphp
+                    <div class="grid grid-cols-6 gap-1">
+                        @foreach($bulanList as $num => $label)
+                        <button type="button"
+                                wire:click="toggleMonth({{ $num }})"
+                                class="text-xs font-semibold py-1.5 rounded-lg border-2 transition-all text-center {{ in_array($num, $publication_months) ? 'border-blue-500 bg-blue-500 text-white' : 'border-slate-200 text-slate-500 hover:border-blue-300' }}">
+                            {{ $label }}
+                        </button>
+                        @endforeach
+                    </div>
+                    @php
+                        $count = count($publication_months);
+                        $monthNames = [1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',5=>'Mei',6=>'Juni',
+                                       7=>'Juli',8=>'Agustus',9=>'September',10=>'Oktober',11=>'November',12=>'Desember'];
+                        $selNames = array_map(fn($m) => $monthNames[$m] ?? '', $publication_months);
+                    @endphp
+                    @if($count > 0)
+                    <p class="text-xs text-blue-600 mt-1.5 font-medium">
+                        {{ $count }} kali setahun ({{ implode(', ', $selNames) }})
+                    </p>
+                    @else
+                    <p class="text-xs text-slate-400 mt-1.5">Pilih bulan terbit jurnal</p>
+                    @endif
                 </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
