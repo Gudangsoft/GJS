@@ -26,9 +26,9 @@
 {{-- Hero area (banner/color) — sub-nav terpisah supaya tidak tertutup overlay --}}
 <div style="position:relative;overflow:hidden;{{ $headerStyle }}">
     @if($overlayNeeded)
-    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.5),rgba(0,0,0,0.3));z-index:0;"></div>
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.65) 100%);z-index:0;"></div>
     @endif
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 {{ $hBgType === 'image' ? 'py-14' : 'py-8' }}" style="position:relative;z-index:1;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10" style="position:relative;z-index:1;">
         <div class="flex flex-col sm:flex-row gap-6">
 
             {{-- Cover image --}}
@@ -113,6 +113,56 @@
                 @endif
             </div>
         </div>
+
+        {{-- Tentang Jurnal — di dalam hero, satu background ──────────── --}}
+        @if($journal->focus_scope || $journal->about_journal)
+        <div id="tentang" class="mt-6 pt-5" style="border-top:1px solid {{ $hBgType !== 'default' ? 'rgba(255,255,255,0.2)' : '#e2e8f0' }};"
+             x-data="{ open: true }">
+            <button @click="open = !open"
+                    class="w-full flex items-center justify-between mb-3 text-left group">
+                <span class="text-xs font-bold uppercase tracking-widest flex items-center gap-2"
+                      style="color:{{ $textColorMuted }};">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
+                    Tentang Jurnal
+                </span>
+                <svg class="w-4 h-4 shrink-0 transition-transform duration-200"
+                     :class="open ? '' : 'rotate-180'"
+                     style="color:{{ $textColorMuted }};"
+                     fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
+                </svg>
+            </button>
+            <div x-show="open"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 -translate-y-2"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-100"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-4">
+                    @if($journal->focus_scope)
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-widest mb-2"
+                           style="color:{{ $textColorMuted }};">Fokus dan Ruang Lingkup</p>
+                        <div class="text-sm leading-relaxed prose prose-sm max-w-none"
+                             style="color:{{ $textColorMain }};--tw-prose-body:{{ $textColorMain }};--tw-prose-headings:{{ $textColorMain }};">
+                            {!! $journal->focus_scope !!}
+                        </div>
+                    </div>
+                    @endif
+                    @if($journal->about_journal)
+                    <div class="{{ !$journal->focus_scope ? 'lg:col-span-2' : '' }}">
+                        <div class="text-sm leading-relaxed prose prose-sm max-w-none"
+                             style="color:{{ $textColorMain }};">
+                            {!! $journal->about_journal !!}
+                        </div>
+                    </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+        @endif
+
     </div>
 </div>{{-- end hero --}}
 
@@ -198,58 +248,6 @@
         </div>
     </div>
 
-{{-- ══ TENTANG JURNAL — full-width strip di bawah sub-nav ══════════════════ --}}
-@if($journal->focus_scope || $journal->about_journal)
-<div id="tentang" class="border-b border-slate-200 bg-white"
-     x-data="{ open: true }">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <button @click="open = !open"
-                class="w-full flex items-center justify-between py-3 text-left">
-            <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
-                <span class="text-sm font-bold text-slate-700">Tentang Jurnal</span>
-                @if($journal->focus_scope)
-                <span class="hidden sm:inline text-xs text-slate-400 truncate max-w-md">
-                    — {{ Str::limit(strip_tags($journal->focus_scope), 80) }}
-                </span>
-                @endif
-            </div>
-            <svg class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200"
-                 :class="open ? 'rotate-180' : ''"
-                 fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-            </svg>
-        </button>
-
-        <div x-show="open"
-             x-transition:enter="transition ease-out duration-150"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-100"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
-             class="pb-5 border-t border-slate-100">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
-                @if($journal->focus_scope)
-                <div>
-                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Fokus dan Ruang Lingkup</p>
-                    <div class="text-sm text-slate-600 leading-relaxed prose prose-sm max-w-none">
-                        {!! $journal->focus_scope !!}
-                    </div>
-                </div>
-                @endif
-                @if($journal->about_journal)
-                <div class="{{ !$journal->focus_scope ? 'lg:col-span-2' : '' }}">
-                    <div class="text-sm text-slate-600 leading-relaxed prose prose-sm max-w-none">
-                        {!! $journal->about_journal !!}
-                    </div>
-                </div>
-                @endif
-            </div>
-        </div>
-    </div>
-</div>
-@endif
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
