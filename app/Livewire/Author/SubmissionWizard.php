@@ -7,6 +7,8 @@ use App\Models\Section;
 use App\Models\Submission;
 use App\Models\SubmissionContributor;
 use App\Models\SubmissionFile;
+use App\Traits\SanitizesInput;
+use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Validate;
@@ -17,7 +19,7 @@ use Livewire\WithFileUploads;
 #[Title('Kirim Naskah Baru')]
 class SubmissionWizard extends Component
 {
-    use WithFileUploads;
+    use WithFileUploads, SanitizesInput;
 
     public int $step = 1;
     public const TOTAL_STEPS = 5;
@@ -106,8 +108,18 @@ class SubmissionWizard extends Component
     {
         if (!$this->validateStep(4)) return;
 
+        // Rate limit: maks 5 submission per jam per user
+        $key = 'submission:' . auth()->id();
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $seconds = RateLimiter::availableIn($key);
+            $this->addError('rate_limit', "Terlalu banyak pengiriman. Coba lagi dalam {$seconds} detik.");
+            return;
+        }
+        RateLimiter::hit($key, 3600);
+
+        // Sanitasi input sebelum disimpan
         $keywords = array_values(array_filter(
-            array_map('trim', explode(',', $this->keywordsInput))
+            array_map(fn($k) => $this->sanitizePlain($k), explode(',', $this->keywordsInput))
         ));
 
         $submission = Submission::create([
@@ -115,23 +127,23 @@ class SubmissionWizard extends Component
             'section_id'         => $this->sectionId,
             'user_id'            => auth()->id(),
             'status'             => 'submitted',
-            'title'              => trim($this->title),
-            'subtitle'           => trim($this->subtitle) ?: null,
-            'abstract'           => trim($this->abstract),
+            'title'              => $this->sanitizePlain($this->title),
+            'subtitle'           => $this->sanitizePlain($this->subtitle) ?: null,
+            'abstract'           => $this->sanitizeRich($this->abstract),
             'keywords'           => $keywords ?: null,
             'locale'             => $this->locale,
-            'competing_interests'=> trim($this->competingInterests) ?: null,
+            'competing_interests'=> $this->sanitizePlain($this->competingInterests) ?: null,
             'submitted_at'       => now(),
         ]);
 
         foreach ($this->contributors as $seq => $data) {
             SubmissionContributor::create([
                 'submission_id'    => $submission->id,
-                'first_name'       => $data['first_name'],
-                'last_name'        => $data['last_name'],
-                'email'            => $data['email'],
-                'affiliation'      => $data['affiliation'] ?? null,
-                'primary_contact'  => $data['primary_contact'] ?? false,
+                'first_name'       => $this->sanitizePlain($data['first_name']),
+                'last_name'        => $this->sanitizePlain($data['last_name']),
+                'email'            => filter_var($data['email'], FILTER_SANITIZE_EMAIL),
+                'affiliation'      => $this->sanitizePlain($data['affiliation'] ?? ''),
+                'primary_contact'  => (bool)($data['primary_contact'] ?? false),
                 'include_in_browse'=> true,
                 'sequence'         => $seq + 1,
                 'country'          => 'ID',
@@ -139,9 +151,10 @@ class SubmissionWizard extends Component
         }
 
         if ($this->manuscriptFile) {
-            $originalName  = $this->manuscriptFile->getClientOriginalName();
-            $storedName    = $this->manuscriptFile->hashName();
-            $path          = $this->manuscriptFile->storeAs(
+            $mime         = $this->manuscriptFile->getMimeType();
+            $originalName = $this->sanitizeFilename($this->manuscriptFile->getClientOriginalName());
+            $storedName   = $this->manuscriptFile->hashName();
+            $path         = $this->manuscriptFile->storeAs(
                 'submissions/' . $submission->id,
                 $storedName,
                 'public'
@@ -154,7 +167,7 @@ class SubmissionWizard extends Component
                 'original_file_name'=> $originalName,
                 'stored_file_name'  => $storedName,
                 'path'              => $path,
-                'mime_type'         => $this->manuscriptFile->getMimeType(),
+                'mime_type'         => $mime,
                 'file_size'         => $this->manuscriptFile->getSize(),
                 'revision'          => 1,
                 'genre'             => 'Article Text',
@@ -162,7 +175,7 @@ class SubmissionWizard extends Component
             ]);
         }
 
-        session()->flash('success', 'Naskah berhasil dikirim! ID Submission: #' . $submission->id);
+        session()->flash('submission_success', 'Naskah berhasil dikirim! Nomor: #' . $submission->id);
         $this->redirect(route('submissions.show', $submission), navigate: true);
     }
 
@@ -196,6 +209,14 @@ class SubmissionWizard extends Component
                 'contributors.*.last_name.required'  => 'Nama belakang penulis wajib diisi.',
                 'contributors.*.email.required'      => 'Email penulis wajib diisi.',
                 'contributors.*.email.email'         => 'Format email penulis tidak valid.',
+            ]),
+            4 => $this->validate([
+                // File: wajib ada, hanya PDF/DOC/DOCX, maks 20MB
+                'manuscriptFile' => 'required|file|mimes:pdf,doc,docx|max:20480',
+            ], [
+                'manuscriptFile.required' => 'File naskah wajib diunggah.',
+                'manuscriptFile.mimes'    => 'Format file harus PDF, DOC, atau DOCX.',
+                'manuscriptFile.max'      => 'Ukuran file maksimal 20MB.',
             ]),
             default => null,
         };

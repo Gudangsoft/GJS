@@ -67,6 +67,51 @@
                 <span class="text-sm font-medium text-slate-700">Terbitan Terkini</span>
             </label>
         </div>
+
+        {{-- Cover Image --}}
+        <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-2">Cover Terbitan</label>
+            <div class="flex items-start gap-4">
+
+                {{-- Kotak gambar = trigger input file --}}
+                <label for="issueCoverInput" class="w-24 h-32 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden shrink-0 bg-slate-50 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors group relative">
+                    @if($newCoverImage)
+                        <img src="{{ $newCoverImage->temporaryUrl() }}" class="w-full h-full object-cover">
+                    @elseif($existingCover)
+                        <img src="{{ Storage::disk('public')->url($existingCover) }}" class="w-full h-full object-cover">
+                    @else
+                        <div class="text-center text-slate-300 group-hover:text-blue-400 transition-colors">
+                            <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <p class="text-xs mt-1">Klik pilih</p>
+                        </div>
+                    @endif
+                    {{-- Overlay saat sudah ada gambar --}}
+                    @if($newCoverImage || $existingCover)
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </div>
+                    @endif
+                </label>
+
+                <div class="flex-1">
+                    <input id="issueCoverInput" wire:model="newCoverImage" type="file" accept="image/*" class="hidden">
+                    <button type="button" onclick="document.getElementById('issueCoverInput').click()"
+                            class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-slate-600 hover:text-blue-700 transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        Pilih Gambar
+                    </button>
+                    <p class="text-xs text-slate-400 mt-2">PNG, JPG. Maks 2MB.<br>Rekomendasi: 400×560px (rasio 2:3).</p>
+                    @error('newCoverImage')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    @if($existingCover && $editingId)
+                    <button type="button" wire:click="removeCover({{ $editingId }})"
+                            class="mt-2 text-xs text-red-500 hover:underline block">
+                        Hapus cover
+                    </button>
+                    @endif
+                </div>
+            </div>
+        </div>
+
         <div class="flex gap-3 pt-2">
             <button type="submit"
                     class="px-5 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors">
@@ -102,13 +147,25 @@
             @foreach($issues as $issue)
             <tr class="hover:bg-slate-50 transition-colors">
                 <td class="px-5 py-3.5">
-                    <p class="font-semibold text-slate-900">
-                        @if($issue->volume) Vol. {{ $issue->volume }}@endif
-                        @if($issue->number) No. {{ $issue->number }}@endif
-                        @if($issue->year) ({{ $issue->year }})@endif
-                    </p>
-                    @if($issue->title)<p class="text-xs text-slate-400">{{ $issue->title }}</p>@endif
-                    @if($issue->current)<span class="text-xs font-bold text-blue-600">Terkini</span>@endif
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-14 rounded-lg overflow-hidden shrink-0 bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center">
+                            @if($issue->cover_image)
+                                <img src="{{ Storage::disk('public')->url($issue->cover_image) }}" class="w-full h-full object-cover">
+                            @else
+                                <span class="text-white text-xs font-bold leading-tight text-center px-1">{{ $issue->volume ?? '—' }}<br>{{ $issue->number ? '#'.$issue->number : '' }}</span>
+                            @endif
+                        </div>
+                        <div>
+                            <p class="font-semibold text-slate-900">
+                                @if($issue->volume) Vol. {{ $issue->volume }}@endif
+                                @if($issue->number) No. {{ $issue->number }}@endif
+                                @if($issue->year) ({{ $issue->year }})@endif
+                            </p>
+                            @if($issue->title)<p class="text-xs text-slate-400">{{ $issue->title }}</p>@endif
+                        </div>
+                    </div>
+                    </div>
+                    @if($issue->current)<span class="ml-13 text-xs font-bold text-blue-600">Terkini</span>@endif
                 </td>
                 <td class="px-5 py-3.5 text-slate-600">
                     {{ $issue->date_published ? $issue->date_published->format('d M Y') : '—' }}

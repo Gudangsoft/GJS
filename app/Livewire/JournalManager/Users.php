@@ -14,9 +14,11 @@ class Users extends Component
 
     protected function getJournal(): ?Journal
     {
-        return Journal::whereHas('managers', fn($q) => $q->where('users.id', auth()->id()))
+        $journals = Journal::whereHas('managers', fn($q) => $q->where('users.id', auth()->id()))
             ->orWhereHas('editors', fn($q) => $q->where('users.id', auth()->id()))
-            ->first();
+            ->get();
+        $activeId = session('manager_active_journal');
+        return $journals->firstWhere('id', $activeId) ?? $journals->first();
     }
 
     public function render()

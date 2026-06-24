@@ -21,6 +21,7 @@ class Submission extends Model
         'disciplines', 'subjects', 'languages', 'cover_letter_file',
         'locale', 'doi', 'submission_type', 'hide_author',
         'competing_interests', 'submitted_at',
+        'similarity_score', 'similarity_checked_at',
     ];
 
     protected $casts = [
@@ -30,6 +31,8 @@ class Submission extends Model
         'languages' => 'array',
         'hide_author' => 'boolean',
         'submitted_at' => 'datetime',
+        'similarity_checked_at' => 'datetime',
+        'similarity_score' => 'float',
     ];
 
     public function getActivitylogOptions(): LogOptions

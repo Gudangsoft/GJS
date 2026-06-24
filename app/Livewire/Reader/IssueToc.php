@@ -5,6 +5,7 @@ namespace App\Livewire\Reader;
 use App\Models\Article;
 use App\Models\Issue;
 use App\Models\Journal;
+use App\Models\JournalSidebarBlock;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -29,7 +30,20 @@ class IssueToc extends Component
             ->get()
             ->groupBy('section.title');
 
-        return view('livewire.reader.issue-toc', compact('articles'))
+        $sidebarBlocks = JournalSidebarBlock::where('journal_id', $this->journal->id)
+            ->where('enabled', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        $journalStats = [
+            'articles'  => \App\Models\Article::whereHas('issue', fn($q) => $q->where('journal_id', $this->journal->id))->count(),
+            'issues'    => \App\Models\Issue::where('journal_id', $this->journal->id)->where('published', true)->count(),
+            'views'     => 0,
+            'downloads' => 0,
+            'citations' => 0,
+        ];
+
+        return view('livewire.reader.issue-toc', compact('articles', 'sidebarBlocks', 'journalStats'))
             ->title($this->issue->getLabel() . ' — ' . $this->journal->name);
     }
 }

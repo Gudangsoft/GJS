@@ -4,10 +4,12 @@ namespace App\Livewire\Editor;
 
 use App\Mail\EditorialDecision;
 use App\Mail\ReviewInvitation;
+use App\Models\PlagiarismCheck;
 use App\Models\ReviewAssignment;
 use App\Models\ReviewRound;
 use App\Models\Submission;
 use App\Models\User;
+use App\Services\PlagiarismService;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
@@ -93,6 +95,13 @@ class SubmissionReview extends Component
         session()->flash('success', 'Penugasan reviewer dibatalkan.');
     }
 
+    public function runPlagiarismCheck(): void
+    {
+        $check = (new PlagiarismService)->check($this->submission);
+        $this->submission->refresh();
+        session()->flash('plagiarism_done', "Cek selesai — skor kemiripan: {$check->overall_score}%");
+    }
+
     public function makeDecision(): void
     {
         $this->validateOnly('decision');
@@ -132,7 +141,11 @@ class SubmissionReview extends Component
             ->orderBy('last_name')
             ->get();
 
-        return view('livewire.editor.submission-review', compact('assignments', 'availableReviewers'))
+        $plagiarismCheck = PlagiarismCheck::where('submission_id', $this->submission->id)
+            ->latest('checked_at')
+            ->first();
+
+        return view('livewire.editor.submission-review', compact('assignments', 'availableReviewers', 'plagiarismCheck'))
             ->title('Kelola Review — ' . \Str::limit($this->submission->title, 50));
     }
 }

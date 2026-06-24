@@ -31,9 +31,11 @@ class Sections extends Component
 
     protected function getJournal(): ?Journal
     {
-        return Journal::whereHas('managers', fn($q) => $q->where('users.id', auth()->id()))
+        $journals = Journal::whereHas('managers', fn($q) => $q->where('users.id', auth()->id()))
             ->orWhereHas('editors', fn($q) => $q->where('users.id', auth()->id()))
-            ->first();
+            ->get();
+        $activeId = session('manager_active_journal');
+        return $journals->firstWhere('id', $activeId) ?? $journals->first();
     }
 
     public function openCreate(): void
@@ -71,19 +73,20 @@ class Sections extends Component
 
         if ($this->editingId) {
             Section::findOrFail($this->editingId)->update($data);
-            session()->flash('success', 'Seksi berhasil diperbarui.');
+            $msg = 'Seksi berhasil diperbarui.';
         } else {
             Section::create($data);
-            session()->flash('success', 'Seksi berhasil dibuat.');
+            $msg = 'Seksi berhasil dibuat.';
         }
 
         $this->cancelForm();
+        $this->dispatch('toast', message: $msg, type: 'success');
     }
 
     public function delete(int $id): void
     {
         Section::findOrFail($id)->delete();
-        session()->flash('success', 'Seksi dihapus.');
+        $this->dispatch('toast', message: 'Seksi dihapus.', type: 'success');
     }
 
     public function cancelForm(): void

@@ -18,7 +18,9 @@ class Dashboard extends Component
     {
         $journals = $this->getManagedJournals();
         if ($journals->isNotEmpty()) {
-            $this->activeJournalSlug = $journals->first()->slug;
+            $activeId = session('manager_active_journal');
+            $active = $journals->firstWhere('id', $activeId) ?? $journals->first();
+            $this->activeJournalSlug = $active->slug;
         }
     }
 
@@ -38,6 +40,8 @@ class Dashboard extends Component
     {
         $this->activeJournalSlug = $slug;
         $this->tab = 'pending';
+        $journal = $this->getManagedJournals()->firstWhere('slug', $slug);
+        if ($journal) session(['manager_active_journal' => $journal->id]);
     }
 
     public function render()

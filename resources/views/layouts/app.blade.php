@@ -346,6 +346,7 @@
     </div>
 </footer>
 
+<x-toast />
 @livewireScripts
 </body>
 </html>

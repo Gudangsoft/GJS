@@ -6,6 +6,40 @@
     $blockTitle = $block->getDisplayTitle();
 @endphp
 
+{{-- ── submission: full-gradient card ────────────────────────────────── --}}
+@if($block->type === 'submission')
+@php
+    $submitUrl   = $block->setting('button_url') ?: route('submit');
+    $submitLabel = $block->setting('button_label', 'Kirim Naskah Sekarang');
+    $callText    = $block->setting('call_text');
+@endphp
+<div class="rounded-2xl overflow-hidden shadow-sm" style="background:linear-gradient(135deg,#1e40af 0%,#4338ca 100%);">
+    <div class="p-5 text-center">
+        <svg class="w-9 h-9 mx-auto mb-3 text-white opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <p class="font-bold text-white text-sm mb-1.5">Kirim Naskah Anda</p>
+        @if($callText)
+        <p class="text-xs text-blue-200 leading-relaxed mb-4">{{ $callText }}</p>
+        @else
+        <p class="text-xs text-blue-200 mb-4">Naskah penelitian, review, dan studi kasus</p>
+        @endif
+        @auth
+        <a href="{{ $submitUrl }}"
+           class="block w-full py-2.5 px-4 bg-white text-blue-800 rounded-xl text-sm font-bold hover:bg-blue-50 transition-colors">
+            {{ $submitLabel }}
+        </a>
+        @else
+        <a href="{{ route('login') }}"
+           class="block w-full py-2.5 px-4 bg-white text-blue-800 rounded-xl text-sm font-bold hover:bg-blue-50 transition-colors">
+            Masuk untuk Submit
+        </a>
+        @endauth
+    </div>
+</div>
+
+@else
+
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
 
     {{-- Header --}}
@@ -27,7 +61,7 @@
         $doajId      = $journal->doaj_id;
         $garudaId    = $journal->garuda_id;
 
-        $sintaUrl = $block->setting('sinta_url_override')
+        $sintaUrl = $block->setting('url_sinta')
             ?: ($sintaId ? 'https://sinta.kemdikbud.go.id/journals/profile/'.$sintaId : null);
 
         $sintaColors = [
@@ -82,11 +116,20 @@
 
     {{-- No SK Akreditasi --}}
     @if($block->setting('show_accreditation_no', true) && $accNo)
+    @php $urlSk = $block->setting('url_sk'); @endphp
     <div class="mb-3 text-xs text-slate-500 flex items-start gap-1.5">
         <svg class="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
         <div>
             <span class="font-semibold text-slate-600">No. SK:</span> {{ $accNo }}
             @if($accPeriod) <span class="text-slate-400">({{ $accPeriod }})</span>@endif
+            @if($urlSk)
+            <br>
+            <a href="{{ $urlSk }}" target="_blank" rel="noopener"
+               class="inline-flex items-center gap-1 mt-1 font-semibold text-green-700 hover:text-green-900 hover:underline">
+                <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                Lihat Dokumen SK
+            </a>
+            @endif
         </div>
     </div>
     @endif
@@ -94,10 +137,23 @@
     {{-- Indexing badges --}}
     @php
         $indexes = [];
-        if ($block->setting('show_garuda', true) && $garudaId) $indexes[] = ['label'=>'Garuda','color'=>'#1d4ed8','url'=>'https://garuda.kemdikbud.go.id/journal/'.$garudaId];
-        if ($block->setting('show_doaj', false) && $doajId)    $indexes[] = ['label'=>'DOAJ','color'=>'#16a34a','url'=>'https://doaj.org/toc/'.$doajId];
-        if ($block->setting('show_google_scholar', true))       $indexes[] = ['label'=>'Google Scholar','color'=>'#4285f4','url'=>null];
-        foreach ($customIndexes as $ci)                         $indexes[] = ['label'=>$ci,'color'=>'#475569','url'=>null];
+        if ($block->setting('show_garuda', true) && ($garudaId || $block->setting('url_garuda')))
+            $indexes[] = ['label'=>'Garuda','color'=>'#1d4ed8',
+                'url'=> $block->setting('url_garuda') ?: ($garudaId ? 'https://garuda.kemdikbud.go.id/journal/'.$garudaId : null)];
+        if ($block->setting('show_doaj', false) && ($doajId || $block->setting('url_doaj')))
+            $indexes[] = ['label'=>'DOAJ','color'=>'#16a34a',
+                'url'=> $block->setting('url_doaj') ?: ($doajId ? 'https://doaj.org/toc/'.$doajId : null)];
+        if ($block->setting('show_google_scholar', true))
+            $indexes[] = ['label'=>'Google Scholar','color'=>'#4285f4','url'=>$block->setting('url_google_scholar') ?: null];
+        if ($block->setting('show_scopus', false))
+            $indexes[] = ['label'=>'Scopus','color'=>'#e97706','url'=>$block->setting('url_scopus') ?: null];
+        if ($block->setting('show_wos', false))
+            $indexes[] = ['label'=>'Web of Science','color'=>'#7c3aed','url'=>$block->setting('url_wos') ?: null];
+        foreach ($customIndexes as $ci)
+            $indexes[] = ['label'=>$ci,'color'=>'#475569','url'=>null];
+        foreach ($block->setting('extra_indexes', []) as $xi)
+            if (!empty(trim($xi['label'] ?? '')))
+                $indexes[] = ['label'=>trim($xi['label']),'color'=>'#475569','url'=>trim($xi['url'] ?? '') ?: null];
     @endphp
     @if(!empty($indexes))
     <div class="mt-2">
@@ -193,27 +249,21 @@
                 <dd class="text-slate-700">{{ $block->setting('frequency_text') }}</dd>
             </div>
             @endif
-        </dl>
 
-    {{-- ── submission ─────────────────────────────────────────────────── --}}
-    @elseif($block->type === 'submission')
-        @if($block->setting('call_text'))
-        <p class="text-sm text-slate-600 leading-relaxed mb-3">
-            {{ $block->setting('call_text') }}
-        </p>
-        @endif
-        @php
-            $submitUrl   = $block->setting('button_url') ?: route('journals.home', $journal->slug);
-            $submitLabel = $block->setting('button_label', 'Kirim Naskah');
-        @endphp
-        <a href="{{ $submitUrl }}"
-           class="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl font-semibold text-sm transition-all hover:brightness-110 active:scale-95"
-           style="background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-            </svg>
-            {{ $submitLabel }}
-        </a>
+            @if($journal->primary_locale)
+            <div class="flex items-center justify-between">
+                <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Bahasa</dt>
+                <dd class="text-slate-700 text-sm">{{ strtoupper($journal->primary_locale) === 'ID' ? 'Indonesia' : 'English' }}</dd>
+            </div>
+            @endif
+
+            @if($journal->email)
+            <div>
+                <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Kontak</dt>
+                <dd><a href="mailto:{{ $journal->email }}" class="text-blue-600 hover:underline text-xs break-all">{{ $journal->email }}</a></dd>
+            </div>
+            @endif
+        </dl>
 
     {{-- ── article_template ───────────────────────────────────────────── --}}
     @elseif($block->type === 'article_template')
@@ -337,3 +387,5 @@
 
     </div>
 </div>
+
+@endif{{-- end submission @else --}}

@@ -61,7 +61,26 @@
                        class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
                         Arsip Terbitan
                     </a>
+                    @if($journal->wa_contact)
+                    <a href="https://wa.me/{{ preg_replace('/\D/', '', $journal->wa_contact) }}" target="_blank"
+                       class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors"
+                       style="background:#25d366;">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.998 2C6.477 2 2 6.484 2 12.017c0 1.99.521 3.848 1.427 5.449L2.036 22l4.66-1.366A9.987 9.987 0 0011.998 22c5.521 0 9.998-4.484 9.998-10.017C21.996 6.484 17.519 2 11.998 2z"/></svg>
+                        Chat Pengelola
+                    </a>
+                    @endif
                 </div>
+
+                {{-- APC Banner --}}
+                @if($journal->apc_enabled && $journal->apc_amount)
+                <div class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold" style="background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    APC: {{ $journal->apc_currency }} {{ number_format($journal->apc_amount, 0, ',', '.') }}
+                    @if($journal->apc_waiver_policy)
+                    &nbsp;·&nbsp; <span style="color:#b45309;">Waiver tersedia</span>
+                    @endif
+                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -328,53 +347,23 @@
             </div>
             @endif
 
-            {{-- Journal Info --}}
-            <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
-                <div class="px-4 py-3" style="background:#1e40af;">
-                    <p class="text-xs font-bold text-white uppercase tracking-widest">Informasi Jurnal</p>
-                </div>
-                <div class="p-4">
-                    <dl class="space-y-3 text-sm">
-                        @if($journal->review_mode)
-                        <div class="flex items-start gap-2">
-                            <dt class="text-slate-500 shrink-0 w-28">Mode Review</dt>
-                            <dd class="font-medium text-slate-800">
-                                {{ match($journal->review_mode) {
-                                    'double_blind' => 'Double Blind',
-                                    'single_blind' => 'Single Blind',
-                                    'open'         => 'Terbuka',
-                                    default        => $journal->review_mode,
-                                } }}
-                            </dd>
-                        </div>
-                        @endif
-                        @if($journal->issn_print)
-                        <div class="flex items-start gap-2">
-                            <dt class="text-slate-500 shrink-0 w-28">p-ISSN</dt>
-                            <dd class="font-mono font-medium text-slate-800">{{ $journal->issn_print }}</dd>
-                        </div>
-                        @endif
-                        @if($journal->issn_online)
-                        <div class="flex items-start gap-2">
-                            <dt class="text-slate-500 shrink-0 w-28">e-ISSN</dt>
-                            <dd class="font-mono font-medium text-slate-800">{{ $journal->issn_online }}</dd>
-                        </div>
-                        @endif
-                        @if($journal->primary_locale)
-                        <div class="flex items-start gap-2">
-                            <dt class="text-slate-500 shrink-0 w-28">Bahasa</dt>
-                            <dd class="font-medium text-slate-800">{{ strtoupper($journal->primary_locale) === 'ID' ? 'Indonesia' : 'English' }}</dd>
-                        </div>
-                        @endif
-                        @if($journal->email)
-                        <div class="flex items-start gap-2">
-                            <dt class="text-slate-500 shrink-0 w-28">Kontak</dt>
-                            <dd><a href="mailto:{{ $journal->email }}" class="text-blue-600 hover:underline text-xs break-all">{{ $journal->email }}</a></dd>
-                        </div>
-                        @endif
-                    </dl>
-                </div>
-            </div>
+            {{-- Akreditasi & Indeksasi --}}
+            @foreach($sidebarBlocks->where('type', 'accreditation') as $block)
+                @include('reader.partials.sidebar-block', [
+                    'block'   => $block,
+                    'journal' => $journal,
+                    'stats'   => $journalStats,
+                ])
+            @endforeach
+
+            {{-- Informasi Jurnal (journal_info blocks) --}}
+            @foreach($sidebarBlocks->where('type', 'journal_info') as $block)
+                @include('reader.partials.sidebar-block', [
+                    'block'   => $block,
+                    'journal' => $journal,
+                    'stats'   => $journalStats,
+                ])
+            @endforeach
 
             {{-- Browse --}}
             <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
@@ -434,13 +423,23 @@
             </div>
             @endif
 
-            {{-- Announcements sidebar --}}
+            {{-- submission block handled via sidebarBlocks below --}}
+
+            {{-- ── Admin-configured sidebar blocks ───────────────────── --}}
+            @foreach($sidebarBlocks->whereNotIn('type', ['journal_info','accreditation']) as $block)
+                @include('reader.partials.sidebar-block', [
+                    'block'   => $block,
+                    'journal' => $journal,
+                    'stats'   => $journalStats,
+                ])
+            @endforeach
+
+            {{-- Pengumuman — paling bawah --}}
             @if($announcements->isNotEmpty())
             <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
                 <div class="px-4 py-3 flex items-center justify-between" style="background:#1e40af;">
                     <p class="text-xs font-bold text-white uppercase tracking-widest">Pengumuman</p>
-                    <a href="#pengumuman"
-                       class="text-xs text-blue-200 hover:text-white transition-colors font-medium">
+                    <a href="#pengumuman" class="text-xs text-blue-200 hover:text-white transition-colors font-medium">
                         Lihat semua ↓
                     </a>
                 </div>
@@ -459,31 +458,6 @@
                 </div>
             </div>
             @endif
-
-            {{-- Submit CTA --}}
-            <div class="rounded-xl p-5 text-white text-center" style="background:linear-gradient(135deg,#1e40af,#4338ca);">
-                <svg class="w-8 h-8 mx-auto mb-3 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                <p class="font-bold text-sm mb-1">Kirim Naskah Anda</p>
-                <p class="text-xs text-blue-200 mb-4">Naskah penelitian, review, dan studi kasus</p>
-                @auth
-                <a href="{{ route('submit') }}" class="block py-2 px-4 bg-white text-blue-800 rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors">
-                    Mulai Submit
-                </a>
-                @else
-                <a href="{{ route('login') }}" class="block py-2 px-4 bg-white text-blue-800 rounded-lg text-sm font-bold hover:bg-blue-50 transition-colors">
-                    Masuk untuk Submit
-                </a>
-                @endauth
-            </div>
-
-            {{-- ── Admin-configured sidebar blocks ───────────────────── --}}
-            @foreach($sidebarBlocks as $block)
-                @include('reader.partials.sidebar-block', [
-                    'block'   => $block,
-                    'journal' => $journal,
-                    'stats'   => $journalStats,
-                ])
-            @endforeach
 
         </div>{{-- end sidebar --}}
     </div>

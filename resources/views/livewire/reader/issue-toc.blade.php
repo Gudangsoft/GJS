@@ -26,14 +26,23 @@
         {{-- Issue identity --}}
         <div class="flex items-start gap-5 sm:gap-7">
 
-            {{-- Issue icon --}}
-            <div class="hidden sm:flex shrink-0 w-20 h-24 rounded-xl flex-col items-center justify-center gap-1"
-                 style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);">
-                <svg class="w-8 h-8" style="color:#93c5fd;" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
-                </svg>
-                @if($issue->year)
-                <span class="text-xs font-bold" style="color:#93c5fd;">{{ $issue->year }}</span>
+            {{-- Issue cover --}}
+            <div class="hidden sm:block shrink-0 w-20 h-[106px] rounded-xl overflow-hidden shadow-lg"
+                 style="border:1px solid rgba(255,255,255,.15);">
+                @if($issue->cover_image)
+                    <img src="{{ asset('storage/' . $issue->cover_image) }}"
+                         alt="{{ $issue->getLabel() }}"
+                         class="w-full h-full object-cover">
+                @else
+                    <div class="w-full h-full flex flex-col items-center justify-center gap-1"
+                         style="background:rgba(255,255,255,.07);">
+                        <svg class="w-7 h-7" style="color:#93c5fd;" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+                        </svg>
+                        @if($issue->year)
+                        <span class="text-xs font-bold" style="color:#93c5fd;">{{ $issue->year }}</span>
+                        @endif
+                    </div>
                 @endif
             </div>
 
@@ -85,7 +94,11 @@
 
 {{-- ═══ MAIN CONTENT ═══ --}}
 <div class="bg-slate-50 min-h-screen">
-<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="flex gap-8 items-start">
+
+{{-- ── Left: Articles ──────────────────────────────────────────────── --}}
+<div class="flex-1 min-w-0">
 
     {{-- Top bar --}}
     <div class="flex items-center justify-between mb-8">
@@ -285,6 +298,34 @@
     </div>
     @endif
 
+</div>{{-- end articles --}}
+
+{{-- ── Right: Sidebar ──────────────────────────────────────────────── --}}
+<div class="w-72 shrink-0 hidden lg:block">
+    <div class="sticky top-6 space-y-5">
+
+        {{-- Journal info blocks at top --}}
+        @foreach($sidebarBlocks->where('type', 'journal_info') as $block)
+            @include('reader.partials.sidebar-block', [
+                'block'   => $block,
+                'journal' => $journal,
+                'stats'   => $journalStats,
+            ])
+        @endforeach
+
+        {{-- Other blocks --}}
+        @foreach($sidebarBlocks->where('type', '!=', 'journal_info') as $block)
+            @include('reader.partials.sidebar-block', [
+                'block'   => $block,
+                'journal' => $journal,
+                'stats'   => $journalStats,
+            ])
+        @endforeach
+
+    </div>
+</div>
+
+</div>{{-- end flex --}}
 </div>
 </div>
 </div>

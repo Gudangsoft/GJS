@@ -29,9 +29,11 @@ class Announcements extends Component
 
     protected function getJournal(): ?Journal
     {
-        return Journal::whereHas('managers', fn($q) => $q->where('users.id', auth()->id()))
+        $journals = Journal::whereHas('managers', fn($q) => $q->where('users.id', auth()->id()))
             ->orWhereHas('editors', fn($q) => $q->where('users.id', auth()->id()))
-            ->first();
+            ->get();
+        $activeId = session('manager_active_journal');
+        return $journals->firstWhere('id', $activeId) ?? $journals->first();
     }
 
     public function openCreate(): void
@@ -69,19 +71,20 @@ class Announcements extends Component
 
         if ($this->editingId) {
             Announcement::findOrFail($this->editingId)->update($data);
-            session()->flash('success', 'Pengumuman berhasil diperbarui.');
+            $msg = 'Pengumuman berhasil diperbarui.';
         } else {
             Announcement::create($data);
-            session()->flash('success', 'Pengumuman berhasil dibuat.');
+            $msg = 'Pengumuman berhasil dibuat.';
         }
 
         $this->cancelForm();
+        $this->dispatch('toast', message: $msg, type: 'success');
     }
 
     public function delete(int $id): void
     {
         Announcement::findOrFail($id)->delete();
-        session()->flash('success', 'Pengumuman dihapus.');
+        $this->dispatch('toast', message: 'Pengumuman dihapus.', type: 'success');
     }
 
     public function cancelForm(): void

@@ -573,6 +573,45 @@ $totalRounds = $submission->reviewRounds->count();
                 </div>
             </div>
 
+            {{-- LOA Block --}}
+            @php $loa = $submission->loa ?? \App\Models\LetterOfAcceptance::where('submission_id', $submission->id)->latest()->first(); @endphp
+            @if($loa)
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="px-5 py-3 border-b border-slate-100 flex items-center gap-2" style="background:#f0fdf4;">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    <p class="text-xs font-bold text-green-800 uppercase tracking-widest">Letter of Acceptance</p>
+                </div>
+                <div class="p-4 space-y-3">
+                    <div class="text-center py-2">
+                        <span class="inline-block bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full border border-green-200">Naskah Diterima ✓</span>
+                    </div>
+                    <div class="text-xs text-slate-500 space-y-1">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Nomor LOA</span>
+                            <span class="font-mono font-semibold text-slate-700">{{ $loa->loa_number }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Tanggal</span>
+                            <span class="font-semibold text-slate-700">{{ $loa->acceptance_date?->format('d M Y') }}</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2 pt-1">
+                        <a href="{{ route('loa.preview', $loa) }}" target="_blank"
+                           class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold text-white transition-colors"
+                           style="background:#1e3a5f;">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            Lihat LOA
+                        </a>
+                        <a href="{{ $loa->verifyUrl() }}" target="_blank"
+                           class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold text-green-700 bg-green-50 hover:bg-green-100 border border-green-200 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Verifikasi Keaslian
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endif
+
         </div>{{-- end sidebar --}}
     </div>
 </div>

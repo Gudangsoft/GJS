@@ -60,6 +60,32 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/manager/plugins',       \App\Livewire\JournalManager\Plugins::class)->name('manager.plugins');
     Route::get('/manager/settings',      \App\Livewire\JournalManager\Settings::class)->name('manager.settings');
     Route::get('/manager/users',         \App\Livewire\JournalManager\Users::class)->name('manager.users');
+    Route::get('/manager/loa',           \App\Livewire\JournalManager\Loa::class)->name('manager.loa');
+    Route::get('/manager/email-blast',   \App\Livewire\JournalManager\EmailBlast::class)->name('manager.email-blast');
+    Route::get('/manager/wa-blast',      \App\Livewire\JournalManager\WaBlast::class)->name('manager.wa-blast');
+    Route::get('/loa/{loa}/preview', function (\App\Models\LetterOfAcceptance $loa) {
+        $loa->load('journal', 'submission', 'issuedBy');
+        return view('loa.preview', compact('loa'));
+    })->name('loa.preview');
+
+    Route::get('/loa/verify/{code}', function (string $code) {
+        $loa = \App\Models\LetterOfAcceptance::where('verification_code', $code)
+            ->with('journal', 'submission', 'issuedBy')
+            ->first();
+        return view('loa.verify', compact('loa', 'code'));
+    })->name('loa.verify');
+
+    Route::post('/manager/switch-journal', function (\Illuminate\Http\Request $req) {
+        $journalId = (int) $req->input('journal_id');
+        $user = auth()->user();
+        $allowed = \App\Models\Journal::whereHas('managers', fn($q) => $q->where('users.id', $user->id))
+            ->orWhereHas('editors', fn($q) => $q->where('users.id', $user->id))
+            ->pluck('id');
+        if ($allowed->contains($journalId)) {
+            session(['manager_active_journal' => $journalId]);
+        }
+        return redirect()->back();
+    })->name('manager.switch-journal');
 });
 
 // ─── Editor Area ─────────────────────────────────────────────────────────────

@@ -6,19 +6,24 @@ use App\Models\Issue;
 use App\Models\Journal;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.manager')]
 class Issues extends Component
 {
-    public bool   $showForm    = false;
-    public ?int   $editingId   = null;
-    public string $volume      = '';
-    public string $number      = '';
-    public string $year        = '';
-    public string $title       = '';
+    use WithFileUploads;
+
+    public bool   $showForm      = false;
+    public ?int   $editingId     = null;
+    public string $volume        = '';
+    public string $number        = '';
+    public string $year          = '';
+    public string $title         = '';
     public string $date_published = '';
-    public bool   $published   = false;
-    public bool   $current     = false;
+    public bool   $published     = false;
+    public bool   $current       = false;
+    public $newCoverImage        = null;
+    public ?string $existingCover = null;
 
     protected function rules(): array
     {
@@ -30,19 +35,22 @@ class Issues extends Component
             'date_published' => 'nullable|date',
             'published'      => 'boolean',
             'current'        => 'boolean',
+            'newCoverImage'  => 'nullable|image|max:2048',
         ];
     }
 
     protected function getJournal(): ?Journal
     {
-        return Journal::whereHas('managers', fn($q) => $q->where('users.id', auth()->id()))
+        $journals = Journal::whereHas('managers', fn($q) => $q->where('users.id', auth()->id()))
             ->orWhereHas('editors', fn($q) => $q->where('users.id', auth()->id()))
-            ->first();
+            ->get();
+        $activeId = session('manager_active_journal');
+        return $journals->firstWhere('id', $activeId) ?? $journals->first();
     }
 
     public function openCreate(): void
     {
-        $this->reset(['editingId', 'volume', 'number', 'year', 'title', 'date_published', 'published', 'current']);
+        $this->reset(['editingId', 'volume', 'number', 'year', 'title', 'date_published', 'published', 'current', 'newCoverImage', 'existingCover']);
         $this->showForm = true;
     }
 
@@ -57,6 +65,8 @@ class Issues extends Component
         $this->date_published = $issue->date_published ? $issue->date_published->format('Y-m-d') : '';
         $this->published      = (bool)$issue->published;
         $this->current        = (bool)$issue->current;
+        $this->existingCover  = $issue->cover_image;
+        $this->newCoverImage  = null;
         $this->showForm       = true;
     }
 
@@ -77,16 +87,31 @@ class Issues extends Component
             'current'        => $this->current,
         ];
 
+        if ($this->newCoverImage) {
+            $data['cover_image'] = $this->newCoverImage->store('issues/covers', 'public');
+        }
+
         if ($this->editingId) {
             Issue::findOrFail($this->editingId)->update($data);
-            session()->flash('success', 'Terbitan berhasil diperbarui.');
+            $msg = 'Terbitan berhasil diperbarui.';
         } else {
             Issue::create($data);
-            session()->flash('success', 'Terbitan berhasil dibuat.');
+            $msg = 'Terbitan berhasil dibuat.';
         }
 
         $this->showForm = false;
-        $this->reset(['editingId', 'volume', 'number', 'year', 'title', 'date_published', 'published', 'current']);
+        $this->reset(['editingId', 'volume', 'number', 'year', 'title', 'date_published', 'published', 'current', 'newCoverImage', 'existingCover']);
+        $this->dispatch('toast', message: $msg, type: 'success');
+    }
+
+    public function removeCover(int $id): void
+    {
+        $issue = Issue::findOrFail($id);
+        if ($issue->cover_image) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($issue->cover_image);
+            $issue->update(['cover_image' => null]);
+        }
+        $this->existingCover = null;
     }
 
     public function togglePublish(int $id): void
@@ -98,13 +123,13 @@ class Issues extends Component
     public function delete(int $id): void
     {
         Issue::findOrFail($id)->delete();
-        session()->flash('success', 'Terbitan dihapus.');
+        $this->dispatch('toast', message: 'Terbitan dihapus.', type: 'success');
     }
 
     public function cancelForm(): void
     {
         $this->showForm = false;
-        $this->reset(['editingId', 'volume', 'number', 'year', 'title', 'date_published', 'published', 'current']);
+        $this->reset(['editingId', 'volume', 'number', 'year', 'title', 'date_published', 'published', 'current', 'newCoverImage', 'existingCover']);
     }
 
     public function render()

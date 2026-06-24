@@ -5,108 +5,257 @@ namespace App\Livewire\JournalManager;
 use App\Models\Journal;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.manager')]
 class Settings extends Component
 {
+    use WithFileUploads;
+
     public ?Journal $journal = null;
 
-    // Form fields
-    public string $name              = '';
-    public string $name_abbrev       = '';
-    public string $issn_print        = '';
-    public string $issn_online       = '';
-    public string $publisher         = '';
-    public string $email             = '';
-    public string $contact_name      = '';
-    public string $url               = '';
-    public string $review_mode       = 'double_blind';
-    public int    $num_weeks_per_review = 4;
-    public string $license_type      = 'cc_by';
-    public string $sinta_level       = '';
-    public string $sinta_id          = '';
+    // File uploads
+    public $newLogo        = null;
+    public $newCoverImage  = null;
+
+    // Identitas
+    public string $name                  = '';
+    public string $name_abbrev           = '';
+    public string $issn_print            = '';
+    public string $issn_online           = '';
+    public string $publisher             = '';
+    public string $url                   = '';
+    public string $publication_frequency = '';
+    public string $primary_locale        = 'id';
+
+    // Kontak
+    public string $email           = '';
+    public string $contact_name    = '';
+    public string $contact_phone   = '';
+    public string $mailing_address = '';
+
+    // Akreditasi & Indeksasi
+    public string $sinta_level          = '';
+    public string $sinta_id             = '';
+    public string $accreditation_no     = '';
+    public string $accreditation_period = '';
+    public string $doaj_id              = '';
+    public string $garuda_id            = '';
+    public string $doi_prefix           = '';
+
+    // Review & Lisensi
+    public string $review_mode            = 'double_blind';
+    public int    $num_weeks_per_review   = 4;
+    public string $license_type           = 'cc_by';
+    public string $copyright_holder       = '';
+    public string $open_access_statement  = '';
+    public string $copyright_notice       = '';
+
+    // Konten
     public string $focus_scope       = '';
     public string $author_guidelines = '';
-    public bool   $enabled           = true;
-    public bool   $disable_submissions = false;
+    public string $about_journal     = '';
+    public string $ethics_statement  = '';
+
+    // APC
+    public bool   $apc_enabled      = false;
+    public string $apc_amount       = '';
+    public string $apc_currency     = 'IDR';
+    public string $apc_waiver_policy= '';
+    public string $wa_contact       = '';
+
+    // Turnitin
+    public string $turnitin_api_key    = '';
+    public string $turnitin_account_id = '';
+
+    // WhatsApp
+    public string $wa_api_token      = '';
+    public string $wa_sender_number  = '';
+
+    // LOA
+    public string $loa_signer_name  = '';
+    public string $loa_signer_title = '';
+
+    // Status
+    public bool $enabled             = true;
+    public bool $disable_submissions = false;
 
     public function mount(): void
     {
-        $this->journal = Journal::whereHas('managers', fn($q) => $q->where('users.id', auth()->id()))
+        $journals = Journal::whereHas('managers', fn($q) => $q->where('users.id', auth()->id()))
             ->orWhereHas('editors', fn($q) => $q->where('users.id', auth()->id()))
-            ->first();
+            ->get();
 
-        if ($this->journal) {
-            $this->name               = $this->journal->name ?? '';
-            $this->name_abbrev        = $this->journal->name_abbrev ?? '';
-            $this->issn_print         = $this->journal->issn_print ?? '';
-            $this->issn_online        = $this->journal->issn_online ?? '';
-            $this->publisher          = $this->journal->publisher ?? '';
-            $this->email              = $this->journal->email ?? '';
-            $this->contact_name       = $this->journal->contact_name ?? '';
-            $this->url                = $this->journal->url ?? '';
-            $this->review_mode        = $this->journal->review_mode ?? 'double_blind';
-            $this->num_weeks_per_review = (int)($this->journal->num_weeks_per_review ?? 4);
-            $this->license_type       = $this->journal->license_type ?? 'cc_by';
-            $this->sinta_level        = $this->journal->sinta_level ?? '';
-            $this->sinta_id           = $this->journal->sinta_id ?? '';
-            $this->focus_scope        = $this->journal->focus_scope ?? '';
-            $this->author_guidelines  = $this->journal->author_guidelines ?? '';
-            $this->enabled            = (bool)$this->journal->enabled;
-            $this->disable_submissions = (bool)$this->journal->disable_submissions;
-        }
+        $activeId      = session('manager_active_journal');
+        $this->journal = $journals->firstWhere('id', $activeId) ?? $journals->first();
+
+        if (!$this->journal) return;
+
+        $j = $this->journal;
+        $this->name                  = $j->name ?? '';
+        $this->name_abbrev           = $j->name_abbrev ?? '';
+        $this->issn_print            = $j->issn_print ?? '';
+        $this->issn_online           = $j->issn_online ?? '';
+        $this->publisher             = $j->publisher ?? '';
+        $this->url                   = $j->url ?? '';
+        $this->publication_frequency = $j->publication_frequency ?? '';
+        $this->primary_locale        = $j->primary_locale ?? 'id';
+
+        $this->email           = $j->email ?? '';
+        $this->contact_name    = $j->contact_name ?? '';
+        $this->contact_phone   = $j->contact_phone ?? '';
+        $this->mailing_address = $j->mailing_address ?? '';
+
+        $this->sinta_level          = $j->sinta_level ?? '';
+        $this->sinta_id             = $j->sinta_id ?? '';
+        $this->accreditation_no     = $j->accreditation_no ?? '';
+        $this->accreditation_period = $j->accreditation_period ?? '';
+        $this->doaj_id              = $j->doaj_id ?? '';
+        $this->garuda_id            = $j->garuda_id ?? '';
+        $this->doi_prefix           = $j->doi_prefix ?? '';
+
+        $this->review_mode           = $j->review_mode ?? 'double_blind';
+        $this->num_weeks_per_review  = (int)($j->num_weeks_per_review ?? 4);
+        $this->license_type          = $j->license_type ?? 'cc_by';
+        $this->copyright_holder      = $j->copyright_holder ?? '';
+        $this->open_access_statement = $j->open_access_statement ?? '';
+        $this->copyright_notice      = $j->copyright_notice ?? '';
+
+        $this->focus_scope       = $j->focus_scope ?? '';
+        $this->author_guidelines = $j->author_guidelines ?? '';
+        $this->about_journal     = $j->about_journal ?? '';
+        $this->ethics_statement  = $j->ethics_statement ?? '';
+
+        $this->apc_enabled       = (bool)($j->apc_enabled ?? false);
+        $this->apc_amount        = (string)($j->apc_amount ?? '');
+        $this->apc_currency      = $j->apc_currency ?? 'IDR';
+        $this->apc_waiver_policy = $j->apc_waiver_policy ?? '';
+        $this->wa_contact        = $j->wa_contact ?? '';
+
+        $this->turnitin_api_key    = $j->turnitin_api_key ?? '';
+        $this->turnitin_account_id = $j->turnitin_account_id ?? '';
+        $this->wa_api_token        = $j->wa_api_token ?? '';
+        $this->wa_sender_number    = $j->wa_sender_number ?? '';
+
+        $this->loa_signer_name  = $j->loa_signer_name ?? '';
+        $this->loa_signer_title = $j->loa_signer_title ?? '';
+
+        $this->enabled             = (bool)$j->enabled;
+        $this->disable_submissions = (bool)$j->disable_submissions;
     }
 
     protected function rules(): array
     {
         return [
-            'name'               => 'required|string|max:255',
-            'name_abbrev'        => 'nullable|string|max:50',
-            'issn_print'         => 'nullable|string|max:20',
-            'issn_online'        => 'nullable|string|max:20',
-            'publisher'          => 'nullable|string|max:255',
-            'email'              => 'nullable|email|max:255',
-            'contact_name'       => 'nullable|string|max:255',
-            'url'                => 'nullable|url|max:255',
-            'review_mode'        => 'required|string',
-            'num_weeks_per_review' => 'required|integer|min:1|max:52',
-            'license_type'       => 'nullable|string|max:50',
-            'sinta_level'        => 'nullable|string|max:10',
-            'sinta_id'           => 'nullable|string|max:50',
-            'focus_scope'        => 'nullable|string',
-            'author_guidelines'  => 'nullable|string',
-            'enabled'            => 'boolean',
-            'disable_submissions' => 'boolean',
+            'name'                  => 'required|string|max:255',
+            'name_abbrev'           => 'nullable|string|max:50',
+            'issn_print'            => 'nullable|string|max:20',
+            'issn_online'           => 'nullable|string|max:20',
+            'publisher'             => 'nullable|string|max:255',
+            'url'                   => 'nullable|url|max:255',
+            'publication_frequency' => 'nullable|string|max:255',
+            'primary_locale'        => 'nullable|string|max:10',
+            'email'                 => 'nullable|email|max:255',
+            'contact_name'          => 'nullable|string|max:255',
+            'contact_phone'         => 'nullable|string|max:50',
+            'mailing_address'       => 'nullable|string',
+            'sinta_level'           => 'nullable|string|max:10',
+            'sinta_id'              => 'nullable|string|max:50',
+            'accreditation_no'      => 'nullable|string|max:100',
+            'accreditation_period'  => 'nullable|string|max:50',
+            'doaj_id'               => 'nullable|string|max:100',
+            'garuda_id'             => 'nullable|string|max:100',
+            'doi_prefix'            => 'nullable|string|max:50',
+            'review_mode'           => 'required|string',
+            'num_weeks_per_review'  => 'required|integer|min:1|max:52',
+            'license_type'          => 'nullable|string|max:50',
+            'copyright_holder'      => 'nullable|string|max:255',
+            'open_access_statement' => 'nullable|string',
+            'copyright_notice'      => 'nullable|string',
+            'focus_scope'           => 'nullable|string',
+            'author_guidelines'     => 'nullable|string',
+            'about_journal'         => 'nullable|string',
+            'ethics_statement'      => 'nullable|string',
+            'apc_enabled'           => 'boolean',
+            'apc_amount'            => 'nullable|numeric|min:0',
+            'apc_currency'          => 'nullable|string|max:10',
+            'apc_waiver_policy'     => 'nullable|string',
+            'wa_contact'            => 'nullable|string|max:50',
+            'turnitin_api_key'      => 'nullable|string|max:255',
+            'turnitin_account_id'   => 'nullable|string|max:100',
+            'wa_api_token'          => 'nullable|string|max:255',
+            'wa_sender_number'      => 'nullable|string|max:20',
+            'loa_signer_name'       => 'nullable|string|max:255',
+            'loa_signer_title'      => 'nullable|string|max:255',
+            'enabled'               => 'boolean',
+            'disable_submissions'   => 'boolean',
+            'newLogo'               => 'nullable|image|max:2048',
+            'newCoverImage'         => 'nullable|image|max:2048',
         ];
     }
 
     public function save(): void
     {
         $this->validate();
-
         if (!$this->journal) return;
 
-        $this->journal->update([
-            'name'               => $this->name,
-            'name_abbrev'        => $this->name_abbrev ?: null,
-            'issn_print'         => $this->issn_print ?: null,
-            'issn_online'        => $this->issn_online ?: null,
-            'publisher'          => $this->publisher ?: null,
-            'email'              => $this->email ?: null,
-            'contact_name'       => $this->contact_name ?: null,
-            'url'                => $this->url ?: null,
-            'review_mode'        => $this->review_mode,
-            'num_weeks_per_review' => $this->num_weeks_per_review,
-            'license_type'       => $this->license_type ?: null,
-            'sinta_level'        => $this->sinta_level ?: null,
-            'sinta_id'           => $this->sinta_id ?: null,
-            'focus_scope'        => $this->focus_scope ?: null,
-            'author_guidelines'  => $this->author_guidelines ?: null,
-            'enabled'            => $this->enabled,
-            'disable_submissions' => $this->disable_submissions,
-        ]);
+        $updateData = [
+            'name'                  => $this->name,
+            'name_abbrev'           => $this->name_abbrev ?: null,
+            'issn_print'            => $this->issn_print ?: null,
+            'issn_online'           => $this->issn_online ?: null,
+            'publisher'             => $this->publisher ?: null,
+            'url'                   => $this->url ?: null,
+            'publication_frequency' => $this->publication_frequency ?: null,
+            'primary_locale'        => $this->primary_locale ?: null,
+            'email'                 => $this->email ?: null,
+            'contact_name'          => $this->contact_name ?: null,
+            'contact_phone'         => $this->contact_phone ?: null,
+            'mailing_address'       => $this->mailing_address ?: null,
+            'sinta_level'           => $this->sinta_level ?: null,
+            'sinta_id'              => $this->sinta_id ?: null,
+            'accreditation_no'      => $this->accreditation_no ?: null,
+            'accreditation_period'  => $this->accreditation_period ?: null,
+            'doaj_id'               => $this->doaj_id ?: null,
+            'garuda_id'             => $this->garuda_id ?: null,
+            'doi_prefix'            => $this->doi_prefix ?: null,
+            'review_mode'           => $this->review_mode,
+            'num_weeks_per_review'  => $this->num_weeks_per_review,
+            'license_type'          => $this->license_type ?: null,
+            'copyright_holder'      => $this->copyright_holder ?: null,
+            'open_access_statement' => $this->open_access_statement ?: null,
+            'copyright_notice'      => $this->copyright_notice ?: null,
+            'focus_scope'           => $this->focus_scope ?: null,
+            'author_guidelines'     => $this->author_guidelines ?: null,
+            'about_journal'         => $this->about_journal ?: null,
+            'ethics_statement'      => $this->ethics_statement ?: null,
+            'apc_enabled'           => $this->apc_enabled,
+            'apc_amount'            => $this->apc_amount ?: null,
+            'apc_currency'          => $this->apc_currency ?: 'IDR',
+            'apc_waiver_policy'     => $this->apc_waiver_policy ?: null,
+            'wa_contact'            => $this->wa_contact ?: null,
+            'turnitin_api_key'      => $this->turnitin_api_key ?: null,
+            'turnitin_account_id'   => $this->turnitin_account_id ?: null,
+            'wa_api_token'          => $this->wa_api_token ?: null,
+            'wa_sender_number'      => $this->wa_sender_number ?: null,
+            'loa_signer_name'       => $this->loa_signer_name ?: null,
+            'loa_signer_title'      => $this->loa_signer_title ?: null,
+            'enabled'               => $this->enabled,
+            'disable_submissions'   => $this->disable_submissions,
+        ];
 
-        session()->flash('success', 'Pengaturan jurnal berhasil disimpan.');
+        if ($this->newLogo) {
+            $updateData['logo'] = $this->newLogo->store('journals/logos', 'public');
+            $this->newLogo = null;
+        }
+        if ($this->newCoverImage) {
+            $updateData['cover_image'] = $this->newCoverImage->store('journals/covers', 'public');
+            $this->newCoverImage = null;
+        }
+
+        $this->journal->update($updateData);
+
+        $this->dispatch('toast', message: 'Pengaturan jurnal berhasil disimpan.', type: 'success');
     }
 
     public function render()

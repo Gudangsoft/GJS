@@ -641,7 +641,7 @@
             <h2 class="text-xs font-bold text-slate-600 uppercase tracking-widest">Pernyataan Konflik Kepentingan</h2>
         </div>
         <div class="text-sm text-slate-600 leading-relaxed prose prose-sm max-w-none">
-            {!! $article->submission->competing_interests !!}
+            {{ strip_tags($article->submission->competing_interests) }}
         </div>
     </div>
     @endif

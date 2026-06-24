@@ -17,7 +17,10 @@ $user = auth()->user();
 $managedJournals = \App\Models\Journal::whereHas("managers", fn($q) => $q->where("users.id", $user->id))
     ->orWhereHas("editors", fn($q) => $q->where("users.id", $user->id))
     ->orderBy("name")->get();
-$activeJournal = $managedJournals->first();
+
+// Pakai session untuk jurnal aktif, fallback ke yang pertama
+$activeJournalId = session("manager_active_journal");
+$activeJournal = $managedJournals->firstWhere("id", $activeJournalId) ?? $managedJournals->first();
 @endphp
 
 {{-- TOP BAR --}}
@@ -44,6 +47,59 @@ $activeJournal = $managedJournals->first();
     </a>
 
     @if($activeJournal)
+    @if($managedJournals->count() > 1)
+    {{-- Dropdown switcher jurnal --}}
+    <div x-data="{ jOpen: false }" class="relative">
+        <button @click="jOpen = !jOpen"
+                class="flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-colors hover:bg-blue-800/50"
+                style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);">
+            @if($activeJournal->logo)
+            <img src="{{ Storage::disk("public")->url($activeJournal->logo) }}" class="w-5 h-5 rounded object-cover" alt="">
+            @else
+            <div class="w-5 h-5 rounded bg-blue-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                {{ strtoupper(substr($activeJournal->name_abbrev ?: $activeJournal->name, 0, 1)) }}
+            </div>
+            @endif
+            <span class="text-white text-xs font-semibold max-w-28 truncate">{{ $activeJournal->name_abbrev ?: Str::limit($activeJournal->name, 20) }}</span>
+            <svg class="w-3.5 h-3.5 text-blue-200 shrink-0 transition-transform" :class="jOpen ? 'rotate-180' : ''"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+
+        <div x-show="jOpen" @click.outside="jOpen = false" x-cloak x-transition
+             class="absolute left-0 top-11 w-64 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50">
+            <p class="px-3 pb-1.5 text-xs font-bold text-slate-400 uppercase tracking-widest">Jurnal yang Dikelola</p>
+            @foreach($managedJournals as $jItem)
+            <form method="POST" action="{{ route("manager.switch-journal") }}">
+                @csrf
+                <input type="hidden" name="journal_id" value="{{ $jItem->id }}">
+                <button type="submit"
+                        class="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-left transition-colors hover:bg-slate-50
+                               {{ $jItem->id === $activeJournal->id ? "bg-blue-50" : "" }}">
+                    @if($jItem->logo)
+                    <img src="{{ Storage::disk("public")->url($jItem->logo) }}" class="w-8 h-8 rounded-lg object-cover shrink-0" alt="">
+                    @else
+                    <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                        {{ strtoupper(substr($jItem->name_abbrev ?: $jItem->name, 0, 2)) }}
+                    </div>
+                    @endif
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-slate-900 truncate text-sm">{{ $jItem->name_abbrev ?: $jItem->name }}</p>
+                        <p class="text-xs text-slate-400 truncate">{{ Str::limit($jItem->name, 35) }}</p>
+                    </div>
+                    @if($jItem->id === $activeJournal->id)
+                    <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    @endif
+                </button>
+            </form>
+            @endforeach
+        </div>
+    </div>
+    @else
+    {{-- Hanya 1 jurnal — tampilkan statis tanpa dropdown --}}
     <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);">
         @if($activeJournal->logo)
         <img src="{{ Storage::disk("public")->url($activeJournal->logo) }}" class="w-5 h-5 rounded object-cover" alt="">
@@ -54,6 +110,7 @@ $activeJournal = $managedJournals->first();
         @endif
         <span class="text-white text-xs font-semibold">{{ $activeJournal->name_abbrev ?: Str::limit($activeJournal->name, 25) }}</span>
     </div>
+    @endif
     @endif
 
     <div class="flex-1"></div>
@@ -120,6 +177,7 @@ $activeJournal = $managedJournals->first();
             ],
             "TERBITAN" => [
                 ["label"=>"Terbitan (Issue)","icon"=>"M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253","url"=>route("manager.issues"),"match"=>"manager/issues"],
+                ["label"=>"Letter of Acceptance","icon"=>"M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z","url"=>route("manager.loa"),"match"=>"manager/loa"],
             ],
             "PENGATURAN JURNAL" => [
                 ["label"=>"Profil & Pengaturan","icon"=>"M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z","url"=>route("manager.settings"),"match"=>"manager/settings"],
@@ -129,6 +187,10 @@ $activeJournal = $managedJournals->first();
             ],
             "PENGGUNA" => [
                 ["label"=>"Daftar Pengguna","icon"=>"M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z","url"=>route("manager.users"),"match"=>"manager/users"],
+            ],
+            "KOMUNIKASI" => [
+                ["label"=>"Email Blast","icon"=>"M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z","url"=>route("manager.email-blast"),"match"=>"manager/email-blast"],
+                ["label"=>"WA Blast","icon"=>"M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z","url"=>route("manager.wa-blast"),"match"=>"manager/wa-blast"],
             ],
         ];
         @endphp
@@ -207,6 +269,7 @@ $activeJournal = $managedJournals->first();
 
 </div>
 
+<x-toast />
 @livewireScripts
 </body>
 </html>

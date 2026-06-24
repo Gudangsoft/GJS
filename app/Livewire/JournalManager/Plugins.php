@@ -10,7 +10,11 @@ use Livewire\Component;
 #[Layout('layouts.manager')]
 class Plugins extends Component
 {
-    public string $flash = '';
+    // Editing state
+    public ?int    $editingBlockId = null;
+    public string  $editTitle      = '';
+    public array   $editSettings   = [];
+    public bool    $showEditForm   = false;
 
     public static function availablePlugins(): array
     {
@@ -19,81 +23,120 @@ class Plugins extends Component
                 'type'        => 'journal_info',
                 'name'        => 'Informasi Jurnal',
                 'description' => 'Menampilkan nama, ISSN cetak, e-ISSN, penerbit, dan mode peer review jurnal.',
-                'color'       => '#1d4ed8',
-                'bg'          => '#eff6ff',
+                'color'       => '#1d4ed8', 'bg' => '#eff6ff',
                 'default_settings' => [
                     'show_issn_print' => true, 'show_issn_online' => true,
                     'show_publisher' => true, 'show_review_mode' => true,
+                ],
+                'settings_schema' => [
+                    ['key' => 'show_issn_print',  'label' => 'Tampilkan ISSN Cetak',    'type' => 'toggle'],
+                    ['key' => 'show_issn_online',  'label' => 'Tampilkan e-ISSN',        'type' => 'toggle'],
+                    ['key' => 'show_publisher',    'label' => 'Tampilkan Penerbit',       'type' => 'toggle'],
+                    ['key' => 'show_review_mode',  'label' => 'Tampilkan Mode Review',   'type' => 'toggle'],
                 ],
             ],
             [
                 'type'        => 'accreditation',
                 'name'        => 'Akreditasi & Indeksasi',
                 'description' => 'Badge SINTA, nomor SK akreditasi, dan daftar indeksasi.',
-                'color'       => '#15803d',
-                'bg'          => '#f0fdf4',
+                'color'       => '#15803d', 'bg' => '#f0fdf4',
                 'default_settings' => [
                     'show_sinta' => true, 'show_accreditation_no' => true,
                     'show_garuda' => true, 'show_google_scholar' => true,
+                ],
+                'settings_schema' => [
+                    ['key' => 'show_sinta',            'label' => 'Tampilkan Badge SINTA',           'type' => 'toggle'],
+                    ['key' => 'url_sinta',             'label' => '↳ Link SINTA (URL profil)',       'type' => 'text'],
+                    ['key' => 'show_accreditation_no', 'label' => 'Tampilkan No. SK Akreditasi',     'type' => 'toggle'],
+                    ['key' => 'url_sk',                'label' => '↳ Link Dokumen SK (PDF/URL)',     'type' => 'text'],
+                    ['key' => 'show_garuda',           'label' => 'Tampilkan Indeks Garuda',         'type' => 'toggle'],
+                    ['key' => 'url_garuda',            'label' => '↳ Link Garuda (URL profil)',      'type' => 'text'],
+                    ['key' => 'show_google_scholar',   'label' => 'Tampilkan Google Scholar',        'type' => 'toggle'],
+                    ['key' => 'url_google_scholar',    'label' => '↳ Link Google Scholar (URL)',     'type' => 'text'],
+                    ['key' => 'show_doaj',             'label' => 'Tampilkan Indeks DOAJ',           'type' => 'toggle'],
+                    ['key' => 'url_doaj',              'label' => '↳ Link DOAJ (URL profil)',        'type' => 'text'],
+                    ['key' => 'show_scopus',           'label' => 'Tampilkan Scopus',                'type' => 'toggle'],
+                    ['key' => 'url_scopus',            'label' => '↳ Link Scopus (URL profil)',      'type' => 'text'],
+                    ['key' => 'show_wos',              'label' => 'Tampilkan Web of Science',        'type' => 'toggle'],
+                    ['key' => 'url_wos',               'label' => '↳ Link Web of Science (URL)',     'type' => 'text'],
+                    ['key' => 'extra_indexes',         'label' => 'Indeksasi Tambahan Lainnya',      'type' => 'index_list'],
                 ],
             ],
             [
                 'type'        => 'submission',
                 'name'        => 'Kirim Naskah',
                 'description' => 'Tombol ajakan submit dengan teks call-for-papers yang dapat dikustomisasi.',
-                'color'       => '#7c3aed',
-                'bg'          => '#faf5ff',
+                'color'       => '#7c3aed', 'bg' => '#faf5ff',
                 'default_settings' => [
                     'call_text'    => 'Jurnal kami membuka penerimaan naskah ilmiah secara berkala.',
                     'button_label' => 'Kirim Naskah',
+                ],
+                'settings_schema' => [
+                    ['key' => 'call_text',    'label' => 'Teks Ajakan',      'type' => 'textarea'],
+                    ['key' => 'button_label', 'label' => 'Label Tombol',     'type' => 'text'],
+                    ['key' => 'button_url',   'label' => 'URL Kustom (opsional)', 'type' => 'text'],
                 ],
             ],
             [
                 'type'        => 'article_template',
                 'name'        => 'Template Artikel',
                 'description' => 'Tombol unduh template Word (.docx) dan panduan penulisan PDF.',
-                'color'       => '#b45309',
-                'bg'          => '#fffbeb',
+                'color'       => '#b45309', 'bg' => '#fffbeb',
                 'default_settings' => [
                     'label_docx' => 'Unduh Template (DOCX)',
                     'label_pdf'  => 'Panduan Penulisan (PDF)',
+                ],
+                'settings_schema' => [
+                    ['key' => 'url_docx',   'label' => 'URL File DOCX', 'type' => 'text'],
+                    ['key' => 'label_docx', 'label' => 'Label DOCX',    'type' => 'text'],
+                    ['key' => 'url_pdf',    'label' => 'URL File PDF',  'type' => 'text'],
+                    ['key' => 'label_pdf',  'label' => 'Label PDF',     'type' => 'text'],
                 ],
             ],
             [
                 'type'        => 'statistics',
                 'name'        => 'Statistik Jurnal',
                 'description' => 'Total artikel, terbitan, tayangan, unduhan, dan sitasi jurnal.',
-                'color'       => '#0891b2',
-                'bg'          => '#ecfeff',
+                'color'       => '#0891b2', 'bg' => '#ecfeff',
                 'default_settings' => [
                     'show_articles' => true, 'show_issues' => true,
                     'show_views' => true, 'show_downloads' => true,
+                ],
+                'settings_schema' => [
+                    ['key' => 'show_articles',  'label' => 'Tampilkan Total Artikel',  'type' => 'toggle'],
+                    ['key' => 'show_issues',    'label' => 'Tampilkan Total Terbitan', 'type' => 'toggle'],
+                    ['key' => 'show_views',     'label' => 'Tampilkan Tayangan',       'type' => 'toggle'],
+                    ['key' => 'show_downloads', 'label' => 'Tampilkan Unduhan',        'type' => 'toggle'],
                 ],
             ],
             [
                 'type'        => 'focus_scope',
                 'name'        => 'Fokus & Ruang Lingkup',
                 'description' => 'Menampilkan teks Fokus & Ruang Lingkup dari profil jurnal secara otomatis.',
-                'color'       => '#0f766e',
-                'bg'          => '#f0fdfa',
+                'color'       => '#0f766e', 'bg' => '#f0fdfa',
                 'default_settings' => [],
+                'settings_schema' => [],
             ],
             [
                 'type'        => 'custom_html',
                 'name'        => 'Konten Bebas (HTML)',
                 'description' => 'Blok konten fleksibel — untuk pengumuman, banner, atau info khusus.',
-                'color'       => '#475569',
-                'bg'          => '#f8fafc',
-                'default_settings' => ['html' => ''],
+                'color'       => '#475569', 'bg' => '#f8fafc',
+                'default_settings' => ['title' => '', 'html' => ''],
+                'settings_schema' => [
+                    ['key' => 'html', 'label' => 'Konten HTML', 'type' => 'html'],
+                ],
             ],
         ];
     }
 
     protected function getJournal(): ?Journal
     {
-        return Journal::whereHas('managers', fn($q) => $q->where('users.id', auth()->id()))
+        $journals = Journal::whereHas('managers', fn($q) => $q->where('users.id', auth()->id()))
             ->orWhereHas('editors', fn($q) => $q->where('users.id', auth()->id()))
-            ->first();
+            ->get();
+        $activeId = session('manager_active_journal');
+        return $journals->firstWhere('id', $activeId) ?? $journals->first();
     }
 
     public function installPlugin(string $type): void
@@ -115,7 +158,7 @@ class Plugins extends Component
             'sort_order' => $maxOrder + 1,
         ]);
 
-        session()->flash('success', 'Plugin "' . $plugin['name'] . '" berhasil dipasang.');
+        $this->dispatch('toast', message: 'Plugin "' . $plugin['name'] . '" berhasil dipasang.', type: 'success');
     }
 
     public function toggleBlock(int $blockId): void
@@ -127,59 +170,109 @@ class Plugins extends Component
         }
     }
 
+    public function openEdit(int $blockId): void
+    {
+        $journal = $this->getJournal();
+        $block = JournalSidebarBlock::find($blockId);
+        if (!$block || !$journal || $block->journal_id !== $journal->id) return;
+
+        $this->editingBlockId = $blockId;
+        $this->editTitle      = $block->title ?? '';
+        $this->editSettings   = $block->settings ?? [];
+        $this->showEditForm   = true;
+    }
+
+    public function saveEdit(): void
+    {
+        $journal = $this->getJournal();
+        $block = JournalSidebarBlock::find($this->editingBlockId);
+        if (!$block || !$journal || $block->journal_id !== $journal->id) return;
+
+        $block->update([
+            'title'    => $this->editTitle ?: null,
+            'settings' => $this->editSettings,
+        ]);
+
+        $this->showEditForm   = false;
+        $this->editingBlockId = null;
+        $this->dispatch('toast', message: 'Blok berhasil diperbarui.', type: 'success');
+    }
+
+    public function addExtraIndex(): void
+    {
+        $this->editSettings['extra_indexes'][] = ['label' => '', 'url' => ''];
+    }
+
+    public function removeExtraIndex(int $i): void
+    {
+        $list = $this->editSettings['extra_indexes'] ?? [];
+        array_splice($list, $i, 1);
+        $this->editSettings['extra_indexes'] = array_values($list);
+    }
+
+    public function updateOrder(array $order): void
+    {
+        $journal = $this->getJournal();
+        if (!$journal) return;
+
+        foreach ($order as $i => $blockId) {
+            JournalSidebarBlock::where('id', $blockId)
+                ->where('journal_id', $journal->id)
+                ->update(['sort_order' => $i + 1]);
+        }
+    }
+
     public function deleteBlock(int $blockId): void
     {
         $journal = $this->getJournal();
         $block = JournalSidebarBlock::find($blockId);
         if ($block && $journal && $block->journal_id === $journal->id) {
             $block->delete();
-            session()->flash('success', 'Blok dihapus.');
+            $this->dispatch('toast', message: 'Blok dihapus.', type: 'success');
         }
     }
 
-    public function moveUp(int $blockId): void
-    {
-        $journal = $this->getJournal();
-        if (!$journal) return;
-        $block = JournalSidebarBlock::find($blockId);
-        if (!$block) return;
-        $prev = JournalSidebarBlock::where('journal_id', $journal->id)
-            ->where('sort_order', '<', $block->sort_order)
-            ->orderByDesc('sort_order')->first();
-        if ($prev) {
-            [$block->sort_order, $prev->sort_order] = [$prev->sort_order, $block->sort_order];
-            $block->save();
-            $prev->save();
-        }
-    }
+    protected static array $defaultTypes = [
+        'journal_info', 'accreditation', 'submission', 'statistics',
+    ];
 
-    public function moveDown(int $blockId): void
+    protected function seedDefaultBlocks(Journal $journal): void
     {
-        $journal = $this->getJournal();
-        if (!$journal) return;
-        $block = JournalSidebarBlock::find($blockId);
-        if (!$block) return;
-        $next = JournalSidebarBlock::where('journal_id', $journal->id)
-            ->where('sort_order', '>', $block->sort_order)
-            ->orderBy('sort_order')->first();
-        if ($next) {
-            [$block->sort_order, $next->sort_order] = [$next->sort_order, $block->sort_order];
-            $block->save();
-            $next->save();
+        $available = collect(self::availablePlugins())->keyBy('type');
+        foreach (self::$defaultTypes as $i => $type) {
+            $plugin = $available[$type] ?? null;
+            if (!$plugin) continue;
+            JournalSidebarBlock::create([
+                'journal_id' => $journal->id,
+                'type'       => $type,
+                'title'      => null,
+                'settings'   => $plugin['default_settings'],
+                'enabled'    => true,
+                'sort_order' => $i + 1,
+            ]);
         }
     }
 
     public function render()
     {
         $journal = $this->getJournal();
-        $blocks  = $journal
+
+        if ($journal) {
+            $count = JournalSidebarBlock::where('journal_id', $journal->id)->count();
+            if ($count === 0) {
+                $this->seedDefaultBlocks($journal);
+            }
+        }
+
+        $blocks = $journal
             ? JournalSidebarBlock::where('journal_id', $journal->id)->orderBy('sort_order')->get()
             : collect();
 
         $installedTypes = $blocks->pluck('type')->toArray();
-        $available = collect(self::availablePlugins());
+        $available      = collect(self::availablePlugins());
+        $pluginMap      = $available->keyBy('type');
 
-        return view('livewire.journal-manager.plugins', compact('journal', 'blocks', 'available', 'installedTypes'))
+        return view('livewire.journal-manager.plugins', compact('journal', 'blocks', 'available', 'installedTypes', 'pluginMap'))
             ->title('Plugin Sidebar — Panel Pengelola');
     }
 }

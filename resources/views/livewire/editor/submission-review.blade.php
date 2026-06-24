@@ -113,6 +113,126 @@
                 @endif
             </div>
 
+            {{-- Plagiarism Check --}}
+            @if(session('plagiarism_done'))
+            <div class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium" style="background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                {{ session('plagiarism_done') }}
+            </div>
+            @endif
+
+            <div class="rounded-2xl overflow-hidden" style="background:#fff;border:1px solid #e2e8f0;">
+                {{-- Header --}}
+                <div class="flex items-center justify-between px-6 py-4" style="border-bottom:1px solid #f1f5f9;">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4" style="color:#7c3aed;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                        <h2 class="font-bold text-sm uppercase tracking-wide" style="color:#64748b;">Cek Plagiarisme</h2>
+                        @if($submission->similarity_checked_at)
+                        <span class="text-xs ml-2" style="color:#94a3b8;">
+                            Terakhir: {{ $submission->similarity_checked_at->diffForHumans() }}
+                        </span>
+                        @endif
+                    </div>
+                    <button wire:click="runPlagiarismCheck" wire:loading.attr="disabled"
+                            class="inline-flex items-center gap-1.5 text-sm font-semibold rounded-xl px-3 py-1.5 transition-opacity"
+                            style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;">
+                        <span wire:loading.remove wire:target="runPlagiarismCheck">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        </span>
+                        <span wire:loading wire:target="runPlagiarismCheck">
+                            <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>
+                        </span>
+                        <span wire:loading.remove wire:target="runPlagiarismCheck">Cek Sekarang</span>
+                        <span wire:loading wire:target="runPlagiarismCheck">Memeriksa...</span>
+                    </button>
+                </div>
+
+                <div class="p-6">
+                @if($plagiarismCheck)
+                    {{-- Score meter --}}
+                    @php
+                        $score = $plagiarismCheck->overall_score;
+                        [$meterColor, $label, $labelStyle] = match(true) {
+                            $score <= 15 => ['#22c55e', 'Aman',        'background:#f0fdf4;color:#166534;border-color:#bbf7d0'],
+                            $score <= 30 => ['#f59e0b', 'Sedang',      'background:#fffbeb;color:#92400e;border-color:#fde68a'],
+                            $score <= 50 => ['#f97316', 'Perlu Revisi','background:#fff7ed;color:#9a3412;border-color:#fed7aa'],
+                            default      => ['#ef4444', 'Plagiat Tinggi','background:#fef2f2;color:#991b1b;border-color:#fecaca'],
+                        };
+                    @endphp
+                    <div class="flex items-center gap-6 mb-5">
+                        <div class="relative w-24 h-24 shrink-0">
+                            <svg class="w-24 h-24 -rotate-90" viewBox="0 0 36 36">
+                                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="3"/>
+                                <circle cx="18" cy="18" r="15.9" fill="none"
+                                        stroke="{{ $meterColor }}" stroke-width="3"
+                                        stroke-dasharray="{{ min($score,100) }} {{ 100-min($score,100) }}"
+                                        stroke-linecap="round"/>
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span class="text-xl font-black" style="color:{{ $meterColor }};">{{ $score }}%</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="inline-block text-xs font-bold px-3 py-1 rounded-full border mb-2" style="{{ $labelStyle }}">{{ $label }}</span>
+                            <p class="text-sm" style="color:#475569;">
+                                Dibandingkan <strong>{{ $plagiarismCheck->sources_checked }}</strong> naskah lain dalam jurnal ini.
+                                Teks sumber: <strong>{{ $plagiarismCheck->source_length }}</strong> kata.
+                            </p>
+                            <p class="text-xs mt-1" style="color:#94a3b8;">
+                                Diperiksa {{ $plagiarismCheck->checked_at->format('d M Y H:i') }} oleh {{ $plagiarismCheck->checker?->first_name }}
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- Matched sources --}}
+                    @if(count($plagiarismCheck->results) > 0)
+                    <div class="space-y-2">
+                        <p class="text-xs font-semibold uppercase tracking-wide mb-2" style="color:#94a3b8;">Sumber Kemiripan</p>
+                        @foreach($plagiarismCheck->results as $match)
+                        @php
+                            $s = $match['score'];
+                            $c = $s <= 15 ? '#22c55e' : ($s <= 30 ? '#f59e0b' : ($s <= 50 ? '#f97316' : '#ef4444'));
+                        @endphp
+                        <div class="flex items-start gap-3 px-4 py-3 rounded-xl" style="background:#f8fafc;border:1px solid #e2e8f0;">
+                            <div class="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-xs font-black text-white"
+                                 style="background:{{ $c }};">{{ $s }}%</div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold truncate" style="color:#0f172a;">{{ $match['title'] }}</p>
+                                <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                    <a href="{{ route('editor.submissions.review', $match['submission_id']) }}"
+                                       target="_blank"
+                                       class="text-xs underline" style="color:#7c3aed;">Lihat naskah →</a>
+                                    <span class="text-xs px-2 py-0.5 rounded-full"
+                                          style="background:#f1f5f9;color:#64748b;">{{ ucfirst($match['status']) }}</span>
+                                </div>
+                                @if(!empty($match['matched']))
+                                <div class="mt-2 flex flex-wrap gap-1">
+                                    @foreach($match['matched'] as $phrase)
+                                    <span class="text-xs px-2 py-0.5 rounded" style="background:#fef3c7;color:#92400e;">"{{ $phrase }}"</span>
+                                    @endforeach
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    @else
+                    <div class="text-center py-4">
+                        <svg class="w-8 h-8 mx-auto mb-2" style="color:#22c55e;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <p class="text-sm font-semibold" style="color:#166534;">Tidak ditemukan kemiripan signifikan.</p>
+                    </div>
+                    @endif
+
+                @else
+                    <div class="text-center py-8" style="color:#94a3b8;">
+                        <svg class="w-10 h-10 mx-auto mb-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                        <p class="text-sm">Belum pernah dicek.</p>
+                        <p class="text-xs mt-1">Klik <strong>Cek Sekarang</strong> untuk menjalankan analisis kemiripan.</p>
+                    </div>
+                @endif
+                </div>
+            </div>
+
             {{-- Review Assignments --}}
             <div class="rounded-2xl p-6" style="background:#fff;border:1px solid #e2e8f0;">
                 <div class="flex items-center justify-between mb-5">
