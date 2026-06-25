@@ -21,7 +21,7 @@ class Submission extends Model
         'disciplines', 'subjects', 'languages', 'cover_letter_file',
         'locale', 'doi', 'submission_type', 'hide_author',
         'competing_interests', 'submitted_at',
-        'similarity_score', 'similarity_checked_at',
+        'similarity_score', 'similarity_checked_at', 'ojs_id', 'ojs_source_url',
     ];
 
     protected $casts = [

@@ -110,7 +110,9 @@
     $quickActions = [
         ['label'=>'Buat Terbitan','desc'=>'Issue baru','icon'=>'M12 4v16m8-8H4','color'=>'#1d4ed8','bg'=>'#eff6ff','url'=>route('manager.issues')],
         ['label'=>'Plugin Sidebar','desc'=>'Kelola blok','icon'=>'M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z','color'=>'#7c3aed','bg'=>'#faf5ff','url'=>route('manager.plugins')],
-        ['label'=>'Pengumuman','desc'=>'Tambah baru','icon'=>'M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z','color'=>'#0891b2','bg'=>'#ecfeff','url'=>route('manager.announcements')],
+        ['label'=>'Halaman Jurnal','desc'=>'Buat halaman kustom','icon'=>'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z','color'=>'#0891b2','bg'=>'#ecfeff','url'=>route('manager.pages')],
+        ['label'=>'Menu Navigasi','desc'=>'Atur menu web jurnal','icon'=>'M4 6h16M4 12h16M4 18h7','color'=>'#0f766e','bg'=>'#f0fdfa','url'=>route('manager.menu')],
+        ['label'=>'Pengumuman','desc'=>'Tambah baru','icon'=>'M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z','color'=>'#d97706','bg'=>'#fffbeb','url'=>route('manager.announcements')],
         ['label'=>'Profil Jurnal','desc'=>'Edit info','icon'=>'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z','color'=>'#059669','bg'=>'#f0fdf4','url'=>route('manager.settings')],
     ];
     @endphp

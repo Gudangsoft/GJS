@@ -8,6 +8,17 @@
     $hBgColor2 = $hs['header_bg_color2'] ?? '#4338ca';
     $hLight    = (bool)($hs['header_text_light'] ?? true);
     $hTagline  = $hs['header_tagline'] ?? '';
+    $siteBg    = $hs['site_bg_color']    ?? '#f1f5f9';
+    $indexedBy = $hs['indexed_by']       ?? [];
+    $sponsors  = $hs['sponsors']         ?? [];
+
+    // Menu settings
+    $menuShowIssues        = (bool)($hs['menu_show_issues']        ?? true);
+    $menuShowAnnouncements = (bool)($hs['menu_show_announcements'] ?? true);
+    $menuShowAbout         = (bool)($hs['menu_show_about']         ?? true);
+    $menuShowBrowse        = (bool)($hs['menu_show_browse']        ?? true);
+    $customMenuItems       = $hs['custom_menu_items']              ?? [];
+    $customPages           = array_values(array_filter($hs['custom_pages'] ?? [], fn($p) => $p['enabled'] ?? true));
 
     $headerStyle = match($hBgType) {
         'color'    => "background:{$hBgColor};",
@@ -18,243 +29,312 @@
         default    => '',
     };
 
-    $headerBorder = $hBgType === 'default' ? 'border-b border-slate-200' : '';
-    $textColorMain = ($hBgType !== 'default' && $hLight) ? '#ffffff' : '#0f172a';
-    $textColorMuted= ($hBgType !== 'default' && $hLight) ? 'rgba(255,255,255,0.75)' : '#64748b';
-    $overlayNeeded = $hBgType === 'image' && $journal->homepage_image;
+    $textColorMain  = ($hBgType !== 'default' && $hLight) ? '#ffffff' : '#0f172a';
+    $textColorMuted = ($hBgType !== 'default' && $hLight) ? 'rgba(255,255,255,0.75)' : '#64748b';
+    $overlayNeeded  = $hBgType === 'image' && $journal->homepage_image;
 @endphp
-{{-- Hero area (banner/color) — sub-nav terpisah supaya tidak tertutup overlay --}}
-<div style="position:relative;overflow:hidden;{{ $headerStyle }}">
-    @if($overlayNeeded)
-    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.65) 100%);z-index:0;"></div>
-    @endif
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10" style="position:relative;z-index:1;">
-        <div class="flex flex-col sm:flex-row gap-6">
+{{-- ══ JOURNAL HEADER — terpusat sejajar konten (mirip OJS) ══ --}}
+@php
+    $pIssn = $journal->issn_print  ?? '';
+    $eIssn = $journal->issn_online ?? '';
+@endphp
+{{-- Outer: full-width dengan background site, agar sisi kiri-kanan terisi warna --}}
+<div style="width:100%;background:{{ $siteBg }};">
+    {{-- Inner: max-w terpusat, sejajar konten di bawahnya --}}
+    <div style="max-width:80rem;margin:0 auto;overflow:hidden;">
 
-            {{-- Cover image --}}
-            <div class="shrink-0">
-                @if($journal->cover_image)
-                <img src="{{ asset('storage/' . $journal->cover_image) }}" alt="{{ $journal->name }}"
-                     class="w-24 h-32 object-cover rounded-lg border border-slate-200 shadow-sm">
-                @else
-                <div class="w-24 h-32 rounded-lg flex items-center justify-center shadow-sm"
-                     style="background:linear-gradient(145deg,#1e40af,#3730a3);">
-                    <span class="text-white font-black text-base text-center px-1 leading-tight">
-                        {{ strtoupper(substr($journal->name_abbrev ?? $journal->name, 0, 4)) }}
-                    </span>
+        @if($hBgType === 'image' && $journal->homepage_image)
+        {{-- Mode gambar: tampil proporsional penuh dalam container --}}
+        <img src="{{ asset('storage/' . $journal->homepage_image) }}"
+             alt="{{ $journal->name }}"
+             style="display:block;width:100%;height:auto;">
+
+        @elseif($hBgType === 'color' || $hBgType === 'gradient')
+        {{-- Mode warna / gradien --}}
+        <div style="{{ $headerStyle }}width:100%;padding:1.5rem 2rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+                <div>
+                    <h1 style="font-size:1.5rem;font-weight:900;line-height:1.2;color:{{ $textColorMain }};margin:0;">{{ $journal->name }}</h1>
+                    @if($hTagline)<p style="font-size:.875rem;margin:.25rem 0 0;color:{{ $textColorMuted }};">{{ $hTagline }}</p>@endif
                 </div>
-                @endif
-            </div>
-
-            {{-- Journal info --}}
-            <div class="flex-1">
-                <h1 class="text-2xl font-black leading-snug mb-0.5" style="color:{{ $textColorMain }}">{{ $journal->name }}</h1>
-                @if($hTagline)
-                <p class="text-sm mb-2" style="color:{{ $textColorMuted }}">{{ $hTagline }}</p>
-                @endif
-
-                <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm mb-3" style="color:{{ $textColorMuted }}">
-                    @if($journal->publisher)
-                    <span>{{ $journal->publisher }}</span>
-                    @endif
-                    @if($journal->issn_print)
-                    <span class="font-mono">p-ISSN: <strong style="color:{{ $textColorMain }}">{{ $journal->issn_print }}</strong></span>
-                    @endif
-                    @if($journal->issn_online)
-                    <span class="font-mono">e-ISSN: <strong style="color:{{ $textColorMain }}">{{ $journal->issn_online }}</strong></span>
-                    @endif
-                </div>
-
-                @if($journal->focus_scope)
-                <p class="text-sm leading-relaxed mb-4 max-w-2xl line-clamp-2" style="color:{{ $textColorMuted }}">
-                    {{ strip_tags($journal->focus_scope) }}
-                </p>
-                @endif
-
-                <div class="flex flex-wrap gap-2">
-                    @auth
-                    <a href="{{ route('submit') }}"
-                       class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors"
-                       style="background:#1e40af;">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        Kirim Naskah
-                    </a>
-                    @else
-                    <a href="{{ route('login') }}"
-                       class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-lg"
-                       style="background:#1e40af;">
-                        Kirim Naskah
-                    </a>
-                    @endauth
-                    <a href="{{ route('journals.issues', $journal->slug) }}"
-                       class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-colors"
-                       style="{{ $hBgType !== 'default' ? 'background:rgba(255,255,255,0.15);color:' . $textColorMain . ';' : 'background:#f1f5f9;color:#334155;' }}">
-                        Arsip Terbitan
-                    </a>
-                    @if($journal->wa_contact)
-                    <a href="https://wa.me/{{ preg_replace('/\D/', '', $journal->wa_contact) }}" target="_blank"
-                       class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors"
-                       style="background:#25d366;">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.998 2C6.477 2 2 6.484 2 12.017c0 1.99.521 3.848 1.427 5.449L2.036 22l4.66-1.366A9.987 9.987 0 0011.998 22c5.521 0 9.998-4.484 9.998-10.017C21.996 6.484 17.519 2 11.998 2z"/></svg>
-                        Chat Pengelola
-                    </a>
-                    @endif
-                </div>
-
-                {{-- APC Banner --}}
-                @if($journal->apc_enabled && $journal->apc_amount)
-                <div class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold" style="background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    APC: {{ $journal->apc_currency }} {{ number_format($journal->apc_amount, 0, ',', '.') }}
-                    @if($journal->apc_waiver_policy)
-                    &nbsp;·&nbsp; <span style="color:#b45309;">Waiver tersedia</span>
-                    @endif
+                @if($pIssn || $eIssn)
+                <div style="text-align:right;font-size:.75rem;color:{{ $textColorMuted }};line-height:1.8;">
+                    @if($pIssn)<div>P-ISSN: <strong style="color:{{ $textColorMain }}">{{ $pIssn }}</strong></div>@endif
+                    @if($eIssn)<div>E-ISSN: <strong style="color:{{ $textColorMain }}">{{ $eIssn }}</strong></div>@endif
                 </div>
                 @endif
             </div>
         </div>
 
-        {{-- Tentang Jurnal — di dalam hero, satu background ──────────── --}}
-        @if($journal->focus_scope || $journal->about_journal)
-        <div id="tentang" class="mt-6 pt-5" style="border-top:1px solid {{ $hBgType !== 'default' ? 'rgba(255,255,255,0.2)' : '#e2e8f0' }};"
-             x-data="{ open: true }">
-            <button @click="open = !open"
-                    class="w-full flex items-center justify-between mb-3 text-left group">
-                <span class="text-xs font-bold uppercase tracking-widest flex items-center gap-2"
-                      style="color:{{ $textColorMuted }};">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
-                    Tentang Jurnal
-                </span>
-                <svg class="w-4 h-4 shrink-0 transition-transform duration-200"
-                     :class="open ? '' : 'rotate-180'"
-                     style="color:{{ $textColorMuted }};"
-                     fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
-                </svg>
-            </button>
-            <div x-show="open"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0 -translate-y-2"
-                 x-transition:enter-end="opacity-100 translate-y-0"
-                 x-transition:leave="transition ease-in duration-100"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-4">
-                    @if($journal->focus_scope)
+        @else
+        {{-- Mode default: banner gradien biru profesional --}}
+        <div style="background:linear-gradient(135deg,#1e3a8a 0%,#1e40af 60%,#1d4ed8 100%);padding:1.25rem 2rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:.875rem;">
+                    @if($journal->cover_image)
+                    <img src="{{ asset('storage/' . $journal->cover_image) }}"
+                         alt="{{ $journal->name }}"
+                         style="height:3rem;width:auto;border-radius:.375rem;box-shadow:0 2px 8px rgba(0,0,0,.3);">
+                    @else
+                    <div style="width:2.75rem;height:2.75rem;border-radius:.375rem;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.75rem;color:#fff;letter-spacing:.05em;border:1px solid rgba(255,255,255,.25);">
+                        {{ strtoupper(substr($journal->name, 0, 3)) }}
+                    </div>
+                    @endif
                     <div>
-                        <p class="text-xs font-bold uppercase tracking-widest mb-2"
-                           style="color:{{ $textColorMuted }};">Fokus dan Ruang Lingkup</p>
-                        <div class="text-sm leading-relaxed prose prose-sm max-w-none"
-                             style="color:{{ $textColorMain }};--tw-prose-body:{{ $textColorMain }};--tw-prose-headings:{{ $textColorMain }};">
-                            {!! $journal->focus_scope !!}
-                        </div>
+                        <div style="font-size:1.25rem;font-weight:900;color:#fff;line-height:1.25;text-shadow:0 1px 3px rgba(0,0,0,.3);">{{ $journal->name }}</div>
+                        @if($hTagline)<div style="font-size:.8125rem;color:rgba(255,255,255,.8);margin-top:.125rem;">{{ $hTagline }}</div>@endif
                     </div>
-                    @endif
-                    @if($journal->about_journal)
-                    <div class="{{ !$journal->focus_scope ? 'lg:col-span-2' : '' }}">
-                        <div class="text-sm leading-relaxed prose prose-sm max-w-none"
-                             style="color:{{ $textColorMain }};">
-                            {!! $journal->about_journal !!}
-                        </div>
-                    </div>
-                    @endif
                 </div>
+                @if($pIssn || $eIssn)
+                <div style="text-align:right;font-size:.75rem;color:rgba(255,255,255,.85);line-height:1.8;">
+                    @if($pIssn)<div>P-ISSN: <strong style="color:#fff">{{ $pIssn }}</strong></div>@endif
+                    @if($eIssn)<div>E-ISSN: <strong style="color:#fff">{{ $eIssn }}</strong></div>@endif
+                </div>
+                @endif
             </div>
         </div>
         @endif
 
     </div>
-</div>{{-- end hero --}}
+</div>
+{{-- ══ end journal header ══ --}}
 
-{{-- Sub-navigation: OJS-style tabs + About dropdown + Search --}}
-<div class="border-t border-slate-200 relative" style="background:#f8fafc;">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-stretch">
-                <nav class="flex gap-0 overflow-x-auto text-sm flex-1">
-                    <a href="{{ route('journals.home', $journal->slug) }}"
-                       class="shrink-0 px-4 py-3 font-semibold border-b-2 transition-colors"
-                       style="border-color:#1e40af;color:#1e40af;">
-                        Beranda
-                    </a>
-                    <a href="{{ route('journals.issues', $journal->slug) }}"
-                       class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors">
-                        Terbitan
-                    </a>
-                    @if($announcements->isNotEmpty())
-                    <a href="#pengumuman"
-                       class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors">
-                        Pengumuman
-                    </a>
-                    @endif
+{{-- Sub-navigation: OJS-style tabs (dinamis) --}}
+<div style="background:#ffffff;border-bottom:1px solid #e2e8f0;border-top:1px solid #f1f5f9;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-stretch">
+            <nav class="flex gap-0 overflow-x-auto text-sm flex-1">
+                {{-- Beranda — selalu tampil --}}
+                <a href="{{ route('journals.home', $journal->slug) }}"
+                   class="shrink-0 px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap"
+                   style="border-color:#1e40af;color:#1e40af;">
+                    Beranda
+                </a>
 
-                    {{-- About dropdown --}}
-                    <div class="relative shrink-0 flex" x-data="{ open: false }">
-                        <button @mouseenter="open = true" @mouseleave.self="open = false" @click="open = !open"
-                                class="flex items-center gap-1 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors text-sm">
-                            Tentang
-                            <svg class="w-3 h-3 transition-transform duration-150" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                        </button>
-                        <div x-show="open" @mouseleave="open = false" @click.outside="open = false" x-cloak
-                             x-transition:enter="transition ease-out duration-100"
-                             x-transition:enter-start="opacity-0 -translate-y-1"
-                             x-transition:enter-end="opacity-100 translate-y-0"
-                             class="absolute top-full left-0 w-52 bg-white border border-slate-200 rounded-b-xl rounded-tr-xl shadow-lg z-50 py-1.5">
-                            @foreach([
-                                ['about',               'Tentang Jurnal'],
-                                ['editorial-team',      'Tim Editorial'],
-                                ['submissions',         'Pengiriman Naskah'],
-                                ['guidelines',          'Panduan Penulis'],
-                                ['reviewer-guidelines', 'Panduan Reviewer'],
-                                ['ethics',              'Etika Publikasi'],
-                                ['privacy',             'Kebijakan Privasi'],
-                                ['contact',             'Kontak'],
-                            ] as [$slug, $label])
-                            <a href="{{ route('journals.page', [$journal->slug, $slug]) }}"
-                               class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
-                               {{ $label }}
-                            </a>
-                            @endforeach
-                        </div>
-                    </div>
+                @if($menuShowIssues)
+                <a href="{{ route('journals.issues', $journal->slug) }}"
+                   class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors whitespace-nowrap">
+                    Terbitan
+                </a>
+                @endif
 
-                    <a href="{{ route('journals.browse', [$journal->slug, 'author']) }}"
-                       class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors text-sm">
-                        Jelajahi
-                    </a>
-                </nav>
+                @if($menuShowAnnouncements && $announcements->isNotEmpty())
+                <a href="#pengumuman"
+                   class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors whitespace-nowrap">
+                    Pengumuman
+                </a>
+                @endif
 
-                {{-- Search icon button --}}
-                <div class="flex items-center pl-2 border-l border-slate-200 ml-2 relative" x-data="{ sopen: false }">
-                    <button @click="sopen = !sopen; $nextTick(() => $refs.searchInput?.focus())"
-                            class="p-2 text-slate-500 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                @if($menuShowAbout)
+                {{-- About dropdown --}}
+                <div class="relative shrink-0 flex" x-data="{ open: false }">
+                    <button @mouseenter="open = true" @mouseleave="open = false" @click="open = !open"
+                            class="flex items-center gap-1 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors text-sm whitespace-nowrap">
+                        Tentang
+                        <svg class="w-3 h-3 transition-transform duration-150" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                     </button>
-                    <div x-show="sopen" @click.outside="sopen = false" x-cloak
+                    <div x-show="open" @mouseleave="open = false" @click.outside="open = false" x-cloak
                          x-transition:enter="transition ease-out duration-100"
-                         x-transition:enter-start="opacity-0 scale-95"
-                         x-transition:enter-end="opacity-100 scale-100"
-                         class="absolute right-0 top-full mt-1 w-72 bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-2">
-                        <form action="{{ route('journals.search', $journal->slug) }}" method="GET">
-                            <div class="relative">
-                                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                                <input name="q" type="text" x-ref="searchInput"
-                                       placeholder="Cari artikel, penulis..."
-                                       class="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                        </form>
+                         x-transition:enter-start="opacity-0 -translate-y-1"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         class="absolute top-full left-0 w-52 bg-white border border-slate-200 rounded-b-xl rounded-tr-xl shadow-lg z-50 py-1.5">
+                        @foreach([
+                            ['about',               'Tentang Jurnal'],
+                            ['editorial-team',      'Tim Editorial'],
+                            ['submissions',         'Pengiriman Naskah'],
+                            ['guidelines',          'Panduan Penulis'],
+                            ['reviewer-guidelines', 'Panduan Reviewer'],
+                            ['ethics',              'Etika Publikasi'],
+                            ['privacy',             'Kebijakan Privasi'],
+                            ['contact',             'Kontak'],
+                        ] as [$pg, $plabel])
+                        <a href="{{ route('journals.page', [$journal->slug, $pg]) }}"
+                           class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                           {{ $plabel }}
+                        </a>
+                        @endforeach
+                        {{-- Halaman kustom --}}
+                        @foreach($customPages as $cp)
+                        <a href="{{ route('journals.page', [$journal->slug, $cp['slug']]) }}"
+                           class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                           {{ $cp['title'] }}
+                        </a>
+                        @endforeach
                     </div>
+                </div>
+                @endif
+
+                @if($menuShowBrowse)
+                <a href="{{ route('journals.browse', [$journal->slug, 'author']) }}"
+                   class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors text-sm whitespace-nowrap">
+                    Jelajahi
+                </a>
+                @endif
+
+                {{-- Custom menu items --}}
+                @foreach($customMenuItems as $cmi)
+                <a href="{{ $cmi['url'] }}"
+                   target="{{ $cmi['target'] ?? '_self' }}"
+                   class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors text-sm whitespace-nowrap">
+                    {{ $cmi['label'] }}
+                </a>
+                @endforeach
+            </nav>
+
+            {{-- Search icon --}}
+            <div class="flex items-center pl-2 border-l border-slate-200 ml-2 relative" x-data="{ sopen: false }">
+                <button @click="sopen = !sopen; $nextTick(() => $refs.searchInput?.focus())"
+                        class="p-2 text-slate-500 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </button>
+                <div x-show="sopen" @click.outside="sopen = false" x-cloak
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="opacity-0 scale-95"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     class="absolute right-0 top-full mt-1 w-72 bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-2">
+                    <form action="{{ route('journals.search', $journal->slug) }}" method="GET">
+                        <div class="relative">
+                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <input name="q" type="text" x-ref="searchInput"
+                                   placeholder="Cari artikel, penulis..."
+                                   class="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
 
+
+<div style="background:{{ $siteBg }};">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
         {{-- ── MAIN AREA (left 2/3) ──────────────────────────────────────── --}}
         <div class="lg:col-span-2">
 
+            {{-- ── JOURNAL INFO CARD ──────────────────────────────────────── --}}
+            @php $isOA = ($journal->settings['open_access'] ?? true); @endphp
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm mb-8 overflow-hidden">
+
+                {{-- Top accent bar --}}
+                <div style="height:4px;background:linear-gradient(90deg,#1e40af,#0891b2,#0d9488);"></div>
+
+                <div class="p-5">
+                    {{-- Cover + Info side by side --}}
+                    <div class="flex gap-4">
+
+                        {{-- Cover image — diperbesar --}}
+                        <div class="shrink-0" style="width:96px;">
+                            <div class="rounded-xl overflow-hidden border border-slate-200 shadow-md" style="width:96px;height:132px;">
+                                @if($journal->cover_image)
+                                <img src="{{ asset('storage/' . $journal->cover_image) }}" alt="{{ $journal->name }}"
+                                     style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;">
+                                @elseif($journal->logo)
+                                <img src="{{ Storage::disk('public')->url($journal->logo) }}" alt="{{ $journal->name }}"
+                                     style="width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:#eff6ff;padding:12px;">
+                                @else
+                                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#1e40af,#0891b2);">
+                                    <span style="color:#fff;font-weight:900;font-size:13px;text-align:center;padding:6px;line-height:1.2;">
+                                        {{ strtoupper(substr($journal->name_abbrev ?? $journal->name, 0, 4)) }}
+                                    </span>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- Info kanan --}}
+                        <div class="flex-1 min-w-0">
+
+                            {{-- Nama + OPEN badge --}}
+                            <div class="flex items-start justify-between gap-2 mb-1">
+                                <h1 class="text-base font-black text-slate-900 leading-snug">{{ $journal->name }}</h1>
+                                @if($isOA)
+                                <span class="shrink-0 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold"
+                                      style="background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;white-space:nowrap;">
+                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a7 7 0 015.292 11.583L21 16.414V22h-5.586l-1.002-1.002A7 7 0 1112 1zm0 2a5 5 0 100 10A5 5 0 0012 3zm0 1.5a3.5 3.5 0 110 7 3.5 3.5 0 010-7z"/></svg>
+                                    OPEN
+                                </span>
+                                @endif
+                            </div>
+
+                            {{-- Publisher --}}
+                            @if($journal->publisher)
+                            <p class="text-xs font-semibold text-blue-700 mb-1.5">{{ $journal->publisher }}</p>
+                            @endif
+
+                            {{-- ISSN badges --}}
+                            <div class="flex flex-wrap gap-1.5 mb-2">
+                                @if($journal->issn_print)
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono font-semibold"
+                                      style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;">
+                                    p-ISSN&nbsp;<strong>{{ $journal->issn_print }}</strong>
+                                </span>
+                                @endif
+                                @if($journal->issn_online)
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono font-semibold"
+                                      style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;">
+                                    e-ISSN&nbsp;<strong>{{ $journal->issn_online }}</strong>
+                                </span>
+                                @endif
+                                @if($journal->apc_enabled && $journal->apc_amount)
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold"
+                                      style="background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    APC {{ $journal->apc_currency }} {{ number_format($journal->apc_amount, 0, ',', '.') }}{{ $journal->apc_waiver_policy ? ' · Waiver' : '' }}
+                                </span>
+                                @endif
+                            </div>
+
+                            {{-- Deskripsi singkat --}}
+                            @if($journal->focus_scope || $journal->about_journal)
+                            <p class="text-xs text-slate-500 leading-relaxed line-clamp-2">
+                                {{ Str::limit(strip_tags($journal->focus_scope ?: $journal->about_journal), 180) }}
+                            </p>
+                            @endif
+
+                        </div>
+                    </div>
+
+                    {{-- Divider --}}
+                    <div class="border-t border-slate-100 mt-4 mb-3"></div>
+
+                    {{-- CTA Buttons --}}
+                    <div class="flex flex-wrap gap-2">
+                        @auth
+                        <a href="{{ route('submit') }}"
+                           class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all hover:shadow-md hover:-translate-y-px"
+                           style="background:linear-gradient(135deg,#1e40af,#1d4ed8);">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            Kirim Naskah
+                        </a>
+                        @else
+                        <a href="{{ route('login') }}"
+                           class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all hover:shadow-md hover:-translate-y-px"
+                           style="background:linear-gradient(135deg,#1e40af,#1d4ed8);">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            Kirim Naskah
+                        </a>
+                        @endauth
+                        <a href="{{ route('journals.issues', $journal->slug) }}"
+                           class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-slate-600 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                            Arsip Terbitan
+                        </a>
+                        @if($journal->wa_contact)
+                        <a href="https://wa.me/{{ preg_replace('/\D/', '', $journal->wa_contact) }}" target="_blank"
+                           class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all hover:shadow-md hover:-translate-y-px"
+                           style="background:linear-gradient(135deg,#16a34a,#15803d);">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.998 2C6.477 2 2 6.484 2 12.017c0 1.99.521 3.848 1.427 5.449L2.036 22l4.66-1.366A9.987 9.987 0 0011.998 22c5.521 0 9.998-4.484 9.998-10.017C21.996 6.484 17.519 2 11.998 2z"/></svg>
+                            Chat Pengelola
+                        </a>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            {{-- ── END JOURNAL INFO CARD ──────────────────────────────────── --}}
 
             {{-- Current Issue: OJS TOC Style --}}
             @if($currentIssue)
@@ -560,6 +640,91 @@
 
         </div>{{-- end sidebar --}}
     </div>
+
+    {{-- Indexed By & Sponsors --}}
+    @if(!empty($indexedBy) || !empty($sponsors))
+    @php
+    // Map indexer name → local SVG file (relative to public/images/indexers/)
+    $indexerLogos = [
+        'Google Scholar'   => 'google-scholar.svg',
+        'GARUDA'           => 'garuda.svg',
+        'Crossref'         => 'crossref.svg',
+        'Scopus'           => 'scopus.svg',
+        'Web of Science'   => 'wos.svg',
+        'Scilit'           => 'scilit.svg',
+        'DOAJ'             => 'doaj.svg',
+        'Dimensions'       => 'dimensions.svg',
+        'Index Copernicus' => 'index-copernicus.svg',
+        'BASE'             => 'base.svg',
+        'SINTA'            => 'sinta.svg',
+        'ROAD'             => 'road.svg',
+        'PKP Index'        => 'pkp-index.svg',
+    ];
+    @endphp
+    <div class="mt-8 border-t border-slate-200 pt-8 space-y-6">
+        @if(!empty($indexedBy))
+        <div>
+            <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Terindeks Oleh</h3>
+            <div class="flex flex-wrap items-center gap-4">
+                @foreach($indexedBy as $idx)
+                @php
+                    $localSvg = $indexerLogos[$idx['name']] ?? null;
+                    $localPath = $localSvg ? public_path('images/indexers/' . $localSvg) : null;
+                    $hasLocalLogo = $localPath && file_exists($localPath);
+                @endphp
+                @if(!empty($idx['logo']))
+                {{-- Logo gambar yang diupload pengelola --}}
+                <a href="{{ $idx['url'] ?? '#' }}" target="_blank" rel="noopener"
+                   title="{{ $idx['name'] }}"
+                   class="block bg-white border border-slate-200 rounded-lg p-2 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                    <img src="{{ asset('storage/' . $idx['logo']) }}" alt="{{ $idx['name'] }}"
+                         class="h-8 w-auto object-contain max-w-[100px]">
+                </a>
+                @elseif($hasLocalLogo)
+                {{-- Logo SVG bawaan sistem --}}
+                <a href="{{ $idx['url'] ?? '#' }}" target="_blank" rel="noopener"
+                   title="{{ $idx['name'] }}"
+                   class="block hover:opacity-80 hover:-translate-y-0.5 transition-all">
+                    <img src="{{ asset('images/indexers/' . $localSvg) }}" alt="{{ $idx['name'] }}"
+                         class="h-10 w-auto object-contain" style="max-width:120px;">
+                </a>
+                @else
+                {{-- Fallback text badge --}}
+                <a href="{{ $idx['url'] ?? '#' }}" target="_blank" rel="noopener"
+                   class="inline-flex items-center px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-600 hover:border-blue-300 hover:text-blue-700 transition-all shadow-sm hover:-translate-y-0.5">
+                    {{ $idx['name'] }}
+                </a>
+                @endif
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        @if(!empty($sponsors))
+        <div>
+            <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Sponsor & Mitra</h3>
+            <div class="flex flex-wrap items-center gap-6">
+                @foreach($sponsors as $sp)
+                @if(!empty($sp['logo']))
+                <a href="{{ $sp['url'] ?? '#' }}" target="_blank" rel="noopener"
+                   class="block hover:opacity-80 transition-opacity">
+                    <img src="{{ asset('storage/' . $sp['logo']) }}" alt="{{ $sp['name'] }}"
+                         class="h-12 w-auto object-contain grayscale hover:grayscale-0 transition-all">
+                </a>
+                @else
+                <a href="{{ $sp['url'] ?? '#' }}" target="_blank" rel="noopener"
+                   class="inline-flex items-center px-4 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:border-orange-300 hover:text-orange-700 transition-all shadow-sm">
+                    {{ $sp['name'] }}
+                </a>
+                @endif
+                @endforeach
+            </div>
+        </div>
+        @endif
+    </div>
+    @endif
+
 </div>
+</div>{{-- end site-bg wrapper --}}
 
 </div>

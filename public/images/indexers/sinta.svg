@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 44" width="130" height="44">
+  <rect width="130" height="44" rx="5" fill="#fff" stroke="#f0f0f0" stroke-width="1"/>
+  <!-- Star/sparkle icon -->
+  <g transform="translate(8,8)">
+    <path d="M14 0 L16 10 L26 12 L16 14 L14 24 L12 14 L2 12 L12 10 Z" fill="#7B1FA2"/>
+  </g>
+  <text x="46" y="22" font-family="Arial,sans-serif" font-size="15" font-weight="900" fill="#7B1FA2">SINTA</text>
+  <text x="46" y="34" font-family="Arial,sans-serif" font-size="7" fill="#9C27B0">Science &amp; Technology Index</text>
+</svg>

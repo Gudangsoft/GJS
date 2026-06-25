@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 44" width="120" height="44">
+  <rect width="120" height="44" rx="5" fill="#fff" stroke="#f0f0f0" stroke-width="1"/>
+  <!-- Open book icon -->
+  <g transform="translate(8,10)">
+    <path d="M12 3C7 3 3 5 1 8v18c2-2.5 5.5-4 11-4s9 1.5 11 4V8c-2-3-5-5-11-5z" fill="none" stroke="#1CAE41" stroke-width="2" stroke-linejoin="round"/>
+    <line x1="12" y1="3" x2="12" y2="22" stroke="#1CAE41" stroke-width="1.5"/>
+  </g>
+  <text x="46" y="27" font-family="Arial,sans-serif" font-size="16" font-weight="900" fill="#1CAE41">DOAJ</text>
+</svg>

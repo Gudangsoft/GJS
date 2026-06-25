@@ -225,7 +225,7 @@
                 </div>
                 <p class="font-semibold text-slate-900 text-sm truncate">{{ $loa->article_title }}</p>
                 <p class="text-xs text-slate-400 mt-0.5">
-                    {{ is_array($loa->authors) ? implode(', ', $loa->authors) : $loa->authors }}
+                    {{ is_array($loa->authors) ? collect($loa->authors)->pluck('name')->filter()->implode(', ') : $loa->authors }}
                     &bull; Diterima: {{ $loa->acceptance_date?->format('d M Y') }}
                     @if($loa->volume) &bull; Vol. {{ $loa->volume }} @endif
                     @if($loa->number) No. {{ $loa->number }} @endif

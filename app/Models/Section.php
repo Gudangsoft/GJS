@@ -14,7 +14,7 @@ class Section extends Model
     protected $fillable = [
         'journal_id', 'title', 'abbrev', 'policy',
         'abstract_word_count', 'word_count', 'hide_title', 'hide_author',
-        'is_inactive', 'editor_restricted', 'submitter_restricted', 'sequence',
+        'is_inactive', 'editor_restricted', 'submitter_restricted', 'sequence', 'ojs_id',
     ];
 
     protected $casts = [

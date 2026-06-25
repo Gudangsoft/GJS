@@ -10,6 +10,7 @@ $navItems = [
     'privacy'             => ['label' => 'Kebijakan Privasi',         'icon' => 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'],
     'contact'             => ['label' => 'Kontak',                    'icon' => 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'],
 ];
+$isCustomPage = !empty($customPageData);
 @endphp
 
 {{-- Journal header strip --}}
@@ -89,6 +90,18 @@ $navItems = [
                         </a>
                     </li>
                     @endforeach
+                    {{-- Halaman kustom --}}
+                    @foreach($customPages as $cp)
+                    <li>
+                        <a href="{{ route('journals.page', [$journal->slug, $cp['slug']]) }}"
+                           class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors {{ $page === $cp['slug'] ? 'bg-blue-600 text-white font-semibold' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700' }}">
+                            <svg class="w-4 h-4 shrink-0 {{ $page === $cp['slug'] ? 'text-blue-200' : 'text-slate-400' }}" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            {{ $cp['title'] }}
+                        </a>
+                    </li>
+                    @endforeach
                 </ul>
             </nav>
         </div>
@@ -99,7 +112,9 @@ $navItems = [
 
                 {{-- Page header --}}
                 <div class="px-6 py-5 border-b border-slate-100" style="background:linear-gradient(135deg,#eff6ff,#f8fafc);">
-                    <h1 class="text-xl font-black text-slate-900">{{ $pageConfig['title'] }}</h1>
+                    <h1 class="text-xl font-black text-slate-900">
+                        {{ $isCustomPage ? $customPageData['title'] : ($presetConfig[$page]['title'] ?? 'Halaman Jurnal') }}
+                    </h1>
                     <p class="text-sm text-blue-600 mt-0.5">{{ $journal->name }}</p>
                 </div>
 
@@ -254,6 +269,12 @@ $navItems = [
                     @if(!$journal->contact_name && !$journal->email && !$journal->mailing_address)
                     <p class="text-slate-400 text-sm italic">Informasi kontak belum diisi.</p>
                     @endif
+
+                    @elseif($isCustomPage)
+                    {{-- Halaman kustom --}}
+                    <div class="prose prose-sm max-w-none text-slate-700 leading-relaxed">
+                        {!! $customPageData['content'] !!}
+                    </div>
 
                     @endif
 

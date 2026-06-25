@@ -26,8 +26,12 @@ class Dashboard extends Component
 
     public function getManagedJournals()
     {
-        return Journal::whereHas('managers', fn ($q) => $q->where('users.id', auth()->id()))
-            ->orWhereHas('editors', fn ($q) => $q->where('users.id', auth()->id()))
+        $user = auth()->user();
+        if ($user->hasAnyRole(['super_admin', 'admin'])) {
+            return Journal::orderBy('name')->get();
+        }
+        return Journal::whereHas('managers', fn ($q) => $q->where('users.id', $user->id))
+            ->orWhereHas('editors', fn ($q) => $q->where('users.id', $user->id))
             ->orderBy('name')->get();
     }
 

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 44" width="130" height="44">
+  <rect width="130" height="44" rx="5" fill="#fff" stroke="#f0f0f0" stroke-width="1"/>
+  <!-- Orange S mark -->
+  <text x="10" y="32" font-family="Georgia,serif" font-size="30" font-weight="900" fill="#FF6C00">S</text>
+  <text x="38" y="27" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#FF6C00">copus</text>
+  <text x="38" y="38" font-family="Arial,sans-serif" font-size="7" fill="#aaa">by Elsevier</text>
+</svg>

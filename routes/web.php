@@ -86,6 +86,7 @@ Route::middleware(['auth', 'verified', 'journal.access:editor'])->group(function
     Route::get('/manager/sections',      \App\Livewire\JournalManager\Sections::class)->name('manager.sections');
     Route::get('/manager/announcements', \App\Livewire\JournalManager\Announcements::class)->name('manager.announcements');
     Route::get('/manager/plugins',       \App\Livewire\JournalManager\Plugins::class)->name('manager.plugins');
+    Route::get('/manager/menu',          \App\Livewire\JournalManager\Menu::class)->name('manager.menu');
     Route::get('/manager/users',         \App\Livewire\JournalManager\Users::class)->name('manager.users');
     Route::get('/manager/loa',           \App\Livewire\JournalManager\Loa::class)->name('manager.loa');
     Route::get('/manager/email-blast',   \App\Livewire\JournalManager\EmailBlast::class)->name('manager.email-blast');
@@ -93,7 +94,9 @@ Route::middleware(['auth', 'verified', 'journal.access:editor'])->group(function
 
     // Manager-only (pengelola only, not regular editor)
     Route::middleware('journal.access:manager')->group(function () {
-        Route::get('/manager/settings', \App\Livewire\JournalManager\Settings::class)->name('manager.settings');
+        Route::get('/manager/settings',   \App\Livewire\JournalManager\Settings::class)->name('manager.settings');
+        Route::get('/manager/pages',      \App\Livewire\JournalManager\Pages::class)->name('manager.pages');
+        Route::get('/manager/ojs-import', \App\Livewire\JournalManager\OjsImport::class)->name('manager.ojs-import');
     });
 
     Route::get('/loa/{loa}/preview', function (\App\Models\LetterOfAcceptance $loa) {
@@ -111,11 +114,16 @@ Route::middleware(['auth', 'verified', 'journal.access:editor'])->group(function
     Route::post('/manager/switch-journal', function (\Illuminate\Http\Request $req) {
         $journalId = (int) $req->input('journal_id');
         $user = auth()->user();
-        $allowed = \App\Models\Journal::whereHas('managers', fn($q) => $q->where('users.id', $user->id))
-            ->orWhereHas('editors', fn($q) => $q->where('users.id', $user->id))
-            ->pluck('id');
-        if ($allowed->contains($journalId)) {
-            session(['manager_active_journal' => $journalId]);
+        if ($user->hasAnyRole(['super_admin', 'admin'])) {
+            $exists = \App\Models\Journal::where('id', $journalId)->exists();
+            if ($exists) session(['manager_active_journal' => $journalId]);
+        } else {
+            $allowed = \App\Models\Journal::whereHas('managers', fn($q) => $q->where('users.id', $user->id))
+                ->orWhereHas('editors', fn($q) => $q->where('users.id', $user->id))
+                ->pluck('id');
+            if ($allowed->contains($journalId)) {
+                session(['manager_active_journal' => $journalId]);
+            }
         }
         return redirect()->back();
     })->name('manager.switch-journal');

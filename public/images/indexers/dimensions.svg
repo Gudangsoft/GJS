@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" width="160" height="44">
+  <rect width="160" height="44" rx="5" fill="#fff" stroke="#f0f0f0" stroke-width="1"/>
+  <!-- D mark -->
+  <rect x="8" y="8" width="10" height="28" rx="2" fill="#2980b9"/>
+  <path d="M18 8 Q32 8 32 22 Q32 36 18 36 Z" fill="#2980b9"/>
+  <text x="42" y="27" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#2980b9">Dimensions</text>
+</svg>

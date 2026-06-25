@@ -13,6 +13,20 @@ $qrOpts = new QROptions([
 ]);
 $qrSvg = (new QRCode($qrOpts))->render($qrUrl);
 $wmText = strtoupper($loa->journal->name_abbrev ?: Str::limit($loa->journal->name, 20, ''));
+
+// Header jurnal (banner)
+$hs         = $loa->journal->settings ?? [];
+$hBgType    = $hs['header_bg_type']   ?? 'default';
+$hBgColor   = $hs['header_bg_color']  ?? '#1e3a5f';
+$hBgColor2  = $hs['header_bg_color2'] ?? '#1e40af';
+$hLight     = (bool)($hs['header_text_light'] ?? true);
+$hasImage   = $loa->journal->homepage_image && $hBgType === 'image';
+$hasColor   = in_array($hBgType, ['color','gradient']);
+$headerBgStyle = $hBgType === 'gradient'
+    ? "background:linear-gradient(135deg,{$hBgColor},{$hBgColor2});"
+    : "background:{$hBgColor};";
+$txtMain  = $hLight ? '#fff'   : '#0f172a';
+$txtMuted = $hLight ? 'rgba(255,255,255,.8)' : '#64748b';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -93,6 +107,23 @@ $wmText = strtoupper($loa->journal->name_abbrev ?: Str::limit($loa->journal->nam
         }
 
         /* ── KOP SURAT ── */
+        /* Banner gambar — breakout dari padding halaman */
+        .kop-banner {
+            margin: -22mm -20mm 0 -20mm;
+            line-height: 0; overflow: hidden;
+        }
+        .kop-banner img {
+            display: block; width: 100%; height: auto;
+            max-height: 48mm; object-fit: cover; object-position: top;
+        }
+        /* Banner warna/gradien */
+        .kop-color-band {
+            margin: -22mm -20mm 0 -20mm;
+            padding: 9mm 20mm 8mm;
+        }
+        .kop-color-band h1 { font-size: 14pt; font-weight: bold; line-height: 1.3; margin: 0; }
+        .kop-color-band p  { font-size: 8.5pt; margin: 3px 0 0; opacity: .85; }
+        /* Fallback: kop teks klasik (tanpa banner) */
         .header {
             display: flex; align-items: center; gap: 16px;
             border-bottom: 3px solid #1e3a5f;
@@ -173,7 +204,27 @@ $wmText = strtoupper($loa->journal->name_abbrev ?: Str::limit($loa->journal->nam
     <div class="watermark-3">{{ $wmText }}</div>
     <div class="watermark-pattern"></div>
 
-    {{-- KOP SURAT --}}
+    {{-- KOP SURAT — menggunakan header jurnal --}}
+    @if($hasImage)
+    {{-- Mode: banner gambar --}}
+    <div class="kop-banner">
+        <img src="{{ asset('storage/' . $loa->journal->homepage_image) }}" alt="{{ $loa->journal->name }}">
+    </div>
+    <div style="border-bottom:3px solid #1e3a5f;margin-bottom:22px;margin-top:8px;"></div>
+    @elseif($hasColor)
+    {{-- Mode: warna / gradien --}}
+    <div class="kop-color-band" style="{{ $headerBgStyle }}">
+        <h1 style="color:{{ $txtMain }}">{{ $loa->journal->name }}</h1>
+        <p style="color:{{ $txtMuted }}">
+            @if($loa->journal->issn_print)ISSN: {{ $loa->journal->issn_print }}&ensp;@endif
+            @if($loa->journal->issn_online)e-ISSN: {{ $loa->journal->issn_online }}&ensp;@endif
+            @if($loa->journal->publisher)· {{ $loa->journal->publisher }}@endif
+        </p>
+    </div>
+    <div style="border-bottom:3px solid {{ $hBgColor }};margin-bottom:22px;margin-top:6px;"></div>
+
+    @else
+    {{-- Mode default: kop teks klasik --}}
     <div class="header">
         @if($loa->journal->logo)
         <img src="{{ Storage::disk('public')->url($loa->journal->logo) }}" class="header-logo" alt="">
@@ -190,6 +241,7 @@ $wmText = strtoupper($loa->journal->name_abbrev ?: Str::limit($loa->journal->nam
             @if($loa->journal->url)<p style="color:#2563eb;">{{ $loa->journal->url }}</p>@endif
         </div>
     </div>
+    @endif
 
     {{-- NOMOR & JUDUL LOA --}}
     <div class="loa-meta">

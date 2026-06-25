@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 44" width="120" height="44">
+  <rect width="120" height="44" rx="5" fill="#fff" stroke="#f0f0f0" stroke-width="1"/>
+  <rect x="8" y="8" width="28" height="28" rx="4" fill="#00796b"/>
+  <text x="22" y="27" font-family="Arial,sans-serif" font-size="11" font-weight="900" fill="#fff" text-anchor="middle">ROAD</text>
+  <text x="46" y="20" font-family="Arial,sans-serif" font-size="12" font-weight="900" fill="#00796b">ROAD</text>
+  <text x="46" y="33" font-family="Arial,sans-serif" font-size="6.5" fill="#888">ISSN International</text>
+</svg>

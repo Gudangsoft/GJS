@@ -115,21 +115,55 @@ class Settings extends Component
     public int   $publication_freq_count = 1;
 
     // Header Jurnal (disimpan di settings JSON + homepage_image)
-    public string $header_bg_type    = 'default'; // default|color|gradient|image
+    public string $header_bg_type    = 'default';
     public string $header_bg_color   = '#1e3a8a';
     public string $header_bg_color2  = '#4338ca';
     public bool   $header_text_light = true;
     public string $header_tagline    = '';
 
+    // Background Website Jurnal
+    public string $site_bg_color = '#f1f5f9';
+
+    // Indeksasi (disimpan di settings JSON)
+    public array  $indexed_by        = [];   // [{name, url, logo}]
+    public string $new_indexer_name  = '';
+    public string $new_indexer_url   = '';
+    public $new_indexer_logo         = null;
+
+    // Sponsor & Mitra (disimpan di settings JSON)
+    public array  $sponsors          = [];   // [{name, url, logo}]
+    public string $new_sponsor_name  = '';
+    public string $new_sponsor_url   = '';
+    public $new_sponsor_logo         = null;
+
+    // Menu Jurnal (disimpan di settings JSON)
+    public bool   $menu_show_issues        = true;
+    public bool   $menu_show_announcements = true;
+    public bool   $menu_show_about         = true;
+    public bool   $menu_show_browse        = true;
+    public array  $custom_menu_items       = [];  // [{label, url, target}]
+    public string $new_menu_label          = '';
+    public string $new_menu_url            = '';
+    public string $new_menu_target         = '_self';
+
     // Status
     public bool $enabled             = true;
     public bool $disable_submissions = false;
 
+    private function resolveJournals()
+    {
+        $user = auth()->user();
+        if ($user->hasAnyRole(['super_admin', 'admin'])) {
+            return Journal::orderBy('name')->get();
+        }
+        return Journal::whereHas('managers', fn($q) => $q->where('users.id', $user->id))
+            ->orWhereHas('editors', fn($q) => $q->where('users.id', $user->id))
+            ->get();
+    }
+
     public function mount(): void
     {
-        $journals = Journal::whereHas('managers', fn($q) => $q->where('users.id', auth()->id()))
-            ->orWhereHas('editors', fn($q) => $q->where('users.id', auth()->id()))
-            ->get();
+        $journals = $this->resolveJournals();
 
         $activeId      = session('manager_active_journal');
         $this->journal = $journals->firstWhere('id', $activeId) ?? $journals->first();
@@ -214,13 +248,21 @@ class Settings extends Component
         $this->custom_footer_html = $j->custom_footer_html ?? '';
 
         $s = $j->settings ?? [];
-        $this->publication_months    = $s['publication_months']    ?? [];
+        $this->publication_months     = $s['publication_months']    ?? [];
         $this->publication_freq_count = (int)($s['publication_freq_count'] ?? 1);
         $this->header_bg_type    = $s['header_bg_type']   ?? 'default';
         $this->header_bg_color   = $s['header_bg_color']  ?? '#1e3a8a';
         $this->header_bg_color2  = $s['header_bg_color2'] ?? '#4338ca';
         $this->header_text_light = (bool)($s['header_text_light'] ?? true);
         $this->header_tagline    = $s['header_tagline']   ?? '';
+        $this->site_bg_color     = $s['site_bg_color']    ?? '#f1f5f9';
+        $this->indexed_by        = $s['indexed_by']        ?? [];
+        $this->sponsors          = $s['sponsors']          ?? [];
+        $this->menu_show_issues        = (bool)($s['menu_show_issues']        ?? true);
+        $this->menu_show_announcements = (bool)($s['menu_show_announcements'] ?? true);
+        $this->menu_show_about         = (bool)($s['menu_show_about']         ?? true);
+        $this->menu_show_browse        = (bool)($s['menu_show_browse']        ?? true);
+        $this->custom_menu_items       = $s['custom_menu_items']              ?? [];
 
         $this->enabled             = (bool)$j->enabled;
         $this->disable_submissions = (bool)$j->disable_submissions;
@@ -296,6 +338,12 @@ class Settings extends Component
             'publication_months.*'    => 'integer|between:1,12',
             'publication_freq_count'  => 'nullable|integer|in:1,2,3,4,6,12',
             'newHeaderBanner'       => 'nullable|image|max:4096',
+            'new_indexer_logo'      => 'nullable|image|max:2048',
+            'new_sponsor_logo'      => 'nullable|image|max:2048',
+            'site_bg_color'         => 'nullable|string|max:20',
+            'new_menu_label'        => 'nullable|string|max:60',
+            'new_menu_url'          => 'nullable|string|max:500',
+            'new_menu_target'       => 'nullable|in:_self,_blank',
             'header_bg_type'        => 'nullable|string|in:default,color,gradient,image',
             'header_bg_color'       => 'nullable|string|max:20',
             'header_bg_color2'      => 'nullable|string|max:20',
@@ -417,11 +465,151 @@ class Settings extends Component
             'header_bg_color2'  => $this->header_bg_color2,
             'header_text_light' => $this->header_text_light,
             'header_tagline'    => $this->header_tagline,
+            'site_bg_color'     => $this->site_bg_color,
+            'indexed_by'        => $this->indexed_by,
+            'sponsors'          => $this->sponsors,
+            'menu_show_issues'        => $this->menu_show_issues,
+            'menu_show_announcements' => $this->menu_show_announcements,
+            'menu_show_about'         => $this->menu_show_about,
+            'menu_show_browse'        => $this->menu_show_browse,
+            'custom_menu_items'       => $this->custom_menu_items,
         ]);
 
         $this->journal->update($updateData);
 
         $this->dispatch('toast', message: 'Pengaturan jurnal berhasil disimpan.', type: 'success');
+    }
+
+    private function getActiveJournal(): ?Journal
+    {
+        $journals = $this->resolveJournals();
+        $activeId = session('manager_active_journal');
+        return $journals->firstWhere('id', $activeId) ?? $journals->first();
+    }
+
+    private function persistLists(): void
+    {
+        $journal = $this->journal ?? $this->getActiveJournal();
+        if (!$journal) return;
+        $journal->refresh();
+        $journal->update([
+            'settings' => array_merge($journal->settings ?? [], [
+                'indexed_by' => $this->indexed_by,
+                'sponsors'   => $this->sponsors,
+            ]),
+        ]);
+        $this->journal = $journal;
+    }
+
+    public function addPresetIndexer(string $name, string $url): void
+    {
+        $exists = collect($this->indexed_by)->pluck('name')->contains($name);
+        if ($exists) return;
+        $this->indexed_by[] = ['name' => $name, 'url' => $url, 'logo' => null];
+        $this->persistLists();
+    }
+
+    public function addIndexer(): void
+    {
+        $this->validateOnly('new_indexer_logo');
+        $name = trim($this->new_indexer_name);
+        if (!$name) return;
+
+        $logo = null;
+        if ($this->new_indexer_logo) {
+            $logo = $this->new_indexer_logo->store('journals/indexers', 'public');
+            $this->new_indexer_logo = null;
+        }
+
+        $this->indexed_by[] = [
+            'name' => $name,
+            'url'  => trim($this->new_indexer_url) ?: null,
+            'logo' => $logo,
+        ];
+        $this->new_indexer_name = '';
+        $this->new_indexer_url  = '';
+        $this->persistLists();
+    }
+
+    public function removeIndexer(int $i): void
+    {
+        $item = $this->indexed_by[$i] ?? null;
+        if ($item && isset($item['logo']) && $item['logo']) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($item['logo']);
+        }
+        array_splice($this->indexed_by, $i, 1);
+        $this->persistLists();
+    }
+
+    public function addSponsor(): void
+    {
+        $this->validateOnly('new_sponsor_logo');
+        $name = trim($this->new_sponsor_name);
+        if (!$name) return;
+
+        $logo = null;
+        if ($this->new_sponsor_logo) {
+            $logo = $this->new_sponsor_logo->store('journals/sponsors', 'public');
+            $this->new_sponsor_logo = null;
+        }
+
+        $this->sponsors[] = [
+            'name' => $name,
+            'url'  => trim($this->new_sponsor_url) ?: null,
+            'logo' => $logo,
+        ];
+        $this->new_sponsor_name = '';
+        $this->new_sponsor_url  = '';
+        $this->persistLists();
+        $this->dispatch('toast', message: 'Sponsor "' . $name . '" berhasil ditambahkan.', type: 'success');
+    }
+
+    public function removeSponsor(int $i): void
+    {
+        $item = $this->sponsors[$i] ?? null;
+        if ($item && isset($item['logo']) && $item['logo']) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($item['logo']);
+        }
+        array_splice($this->sponsors, $i, 1);
+        $this->persistLists();
+        $this->dispatch('toast', message: 'Sponsor dihapus.', type: 'success');
+    }
+
+    public function addMenuItem(): void
+    {
+        $label = trim($this->new_menu_label);
+        $url   = trim($this->new_menu_url);
+        if (!$label || !$url) return;
+        $this->custom_menu_items[] = [
+            'label'  => $label,
+            'url'    => $url,
+            'target' => $this->new_menu_target ?: '_self',
+        ];
+        $this->new_menu_label  = '';
+        $this->new_menu_url    = '';
+        $this->new_menu_target = '_self';
+    }
+
+    public function removeMenuItem(int $i): void
+    {
+        array_splice($this->custom_menu_items, $i, 1);
+    }
+
+    public function moveMenuItemUp(int $i): void
+    {
+        if ($i > 0) {
+            [$this->custom_menu_items[$i - 1], $this->custom_menu_items[$i]] =
+                [$this->custom_menu_items[$i], $this->custom_menu_items[$i - 1]];
+        }
+    }
+
+    public function moveMenuItemDown(int $i): void
+    {
+        $last = count($this->custom_menu_items) - 1;
+        if ($i < $last) {
+            [$this->custom_menu_items[$i], $this->custom_menu_items[$i + 1]] =
+                [$this->custom_menu_items[$i + 1], $this->custom_menu_items[$i]];
+        }
     }
 
     public function toggleMonth(int $month): void

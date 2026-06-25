@@ -15,7 +15,7 @@ class Issue extends Model
         'journal_id', 'volume', 'number', 'year', 'title', 'description',
         'cover_image', 'cover_image_alt_text', 'published', 'current',
         'show_volume', 'show_number', 'show_year', 'show_title',
-        'access_status', 'doi', 'date_published', 'date_notified',
+        'access_status', 'doi', 'date_published', 'ojs_id', 'date_notified',
     ];
 
     protected $casts = [

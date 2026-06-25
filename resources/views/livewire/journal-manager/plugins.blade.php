@@ -22,9 +22,9 @@
         }
     }"
     x-init="$nextTick(() => initSortable())"
-    @livewire:morphed.window="$nextTick(() => initSortable())"
+    x-on:livewire:morphed.window="$nextTick(() => initSortable())"
 >
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
+<script src="{{ asset('js/sortable.min.js') }}"></script>
 
 <div class="px-6 py-5 border-b border-slate-200 bg-white">
     <h1 class="text-xl font-bold text-slate-900">Plugin Sidebar</h1>

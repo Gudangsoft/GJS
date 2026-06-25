@@ -861,6 +861,186 @@
         </div>
     </div>
 
+    {{-- Background Website --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-3 border-b border-slate-100 flex items-center gap-2" style="background:#fafaf9;">
+            <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+            <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Background Halaman Jurnal</h2>
+        </div>
+        <div class="p-6 space-y-4">
+            <p class="text-xs text-slate-500">Warna background area konten halaman jurnal (di bawah header).</p>
+            <div class="flex items-center gap-3 flex-wrap">
+                <input type="color" wire:model.live="site_bg_color"
+                       class="w-10 h-10 rounded-lg border border-slate-200 cursor-pointer p-0.5">
+                <input type="text" wire:model.live="site_bg_color"
+                       placeholder="#f1f5f9"
+                       class="w-36 px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400 font-mono">
+                <div class="flex gap-1.5 flex-wrap">
+                    @foreach(['#f8fafc','#f1f5f9','#fafaf9','#fff7ed','#f0fdf4','#eff6ff','#fdf4ff','#ffffff','#1e293b'] as $c)
+                    <button type="button" wire:click="$set('site_bg_color','{{ $c }}')"
+                            class="w-7 h-7 rounded-lg border-2 border-white shadow ring-1 ring-slate-200 hover:scale-110 transition-transform"
+                            style="background:{{ $c }};" title="{{ $c }}">
+                    </button>
+                    @endforeach
+                </div>
+            </div>
+            <div class="rounded-xl p-4 border border-slate-200 text-xs text-slate-500"
+                 style="background:{{ $site_bg_color }};">
+                Pratinjau: ini tampilan background halaman jurnal Anda
+            </div>
+        </div>
+    </div>
+
+    {{-- Terindeks Oleh --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-3 border-b border-slate-100 flex items-center gap-2" style="background:#eff6ff;">
+            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <h2 class="text-xs font-bold text-blue-800 uppercase tracking-wider">Terindeks Oleh (Indexed By)</h2>
+        </div>
+        <div class="p-6 space-y-4">
+            <p class="text-xs text-slate-500">Tambahkan database/lembaga yang mengindeks jurnal ini. Akan tampil sebagai logo di halaman jurnal.</p>
+            <div>
+                <p class="text-xs font-semibold text-slate-600 mb-3">Tambah cepat:</p>
+                <div class="flex flex-wrap gap-2">
+                    @foreach([
+                        ['Google Scholar','https://scholar.google.com','#4285F4'],
+                        ['GARUDA','https://garuda.kemdikbud.go.id','#c0392b'],
+                        ['Crossref','https://www.crossref.org','#e67e22'],
+                        ['Scopus','https://www.scopus.com','#ff6c00'],
+                        ['Web of Science','https://clarivate.com/webofsciencegroup','#1a5276'],
+                        ['Scilit','https://www.scilit.net','#00897b'],
+                        ['DOAJ','https://doaj.org','#27ae60'],
+                        ['Dimensions','https://www.dimensions.ai','#2980b9'],
+                        ['Index Copernicus','https://indexcopernicus.com','#922b21'],
+                        ['BASE','https://www.base-search.net','#1a237e'],
+                        ['SINTA','https://sinta.kemdikbud.go.id','#7b1fa2'],
+                        ['ROAD','https://road.issn.org','#00796b'],
+                        ['PKP Index','https://index.pkp.sfu.ca','#ad1457'],
+                        ['OpenAlex','https://openalex.org','#0277bd'],
+                    ] as [$iname,$iurl,$icolor])
+                    @php $alreadyAdded = collect($indexed_by)->pluck('name')->contains($iname); @endphp
+                    @if($alreadyAdded)
+                    <span class="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg font-bold text-white"
+                          style="background:{{ $icolor }};opacity:.6;">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        {{ $iname }}
+                    </span>
+                    @else
+                    <button type="button"
+                            wire:click="addPresetIndexer('{{ $iname }}','{{ $iurl }}')"
+                            class="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg font-bold text-white hover:opacity-90 hover:-translate-y-px transition-all shadow-sm"
+                            style="background:{{ $icolor }};">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        {{ $iname }}
+                    </button>
+                    @endif
+                    @endforeach
+                </div>
+            </div>
+            @if(!empty($indexed_by))
+            <div class="space-y-2">
+                @foreach($indexed_by as $ii => $item)
+                <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    @if(!empty($item['logo']))
+                    <img src="{{ asset('storage/' . $item['logo']) }}" alt="{{ $item['name'] }}"
+                         class="w-10 h-10 object-contain rounded border border-slate-200 bg-white p-1 shrink-0">
+                    @else
+                    <div class="w-10 h-10 rounded border border-slate-200 bg-blue-50 flex items-center justify-center shrink-0">
+                        <span class="text-xs font-black text-blue-700">{{ strtoupper(substr($item['name'],0,2)) }}</span>
+                    </div>
+                    @endif
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-slate-800 truncate">{{ $item['name'] }}</p>
+                        @if(!empty($item['url']))<p class="text-xs text-slate-400 truncate">{{ $item['url'] }}</p>@endif
+                    </div>
+                    <button type="button" wire:click="removeIndexer({{ $ii }})"
+                            class="p-1.5 rounded-lg text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                @endforeach
+            </div>
+            @endif
+            <div class="border border-dashed border-blue-300 rounded-xl p-4 space-y-3" style="background:#eff6ff;">
+                <p class="text-xs font-semibold text-blue-700">Tambah dengan Logo</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input wire:model="new_indexer_name" type="text" placeholder="Nama (contoh: PubMed)"
+                           class="px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <input wire:model="new_indexer_url" type="text" placeholder="URL (opsional)"
+                           class="px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="flex-1">
+                        <input wire:model="new_indexer_logo" type="file" accept="image/*"
+                               class="block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                        @error('new_indexer_logo')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+                    <button type="button" wire:click="addIndexer"
+                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        Tambah
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Sponsor & Mitra --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-3 border-b border-slate-100 flex items-center gap-2" style="background:#fff7ed;">
+            <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            <h2 class="text-xs font-bold text-orange-800 uppercase tracking-wider">Sponsor & Mitra Jurnal</h2>
+        </div>
+        <div class="p-6 space-y-4">
+            <p class="text-xs text-slate-500">Tambahkan logo sponsor dan mitra yang mendukung jurnal ini.</p>
+            @if(!empty($sponsors))
+            <div class="space-y-2">
+                @foreach($sponsors as $si => $sp)
+                <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    @if(!empty($sp['logo']))
+                    <img src="{{ asset('storage/' . $sp['logo']) }}" alt="{{ $sp['name'] }}"
+                         class="w-12 h-10 object-contain rounded border border-slate-200 bg-white p-1 shrink-0">
+                    @else
+                    <div class="w-12 h-10 rounded border border-slate-200 bg-orange-50 flex items-center justify-center shrink-0">
+                        <span class="text-xs font-black text-orange-700">{{ strtoupper(substr($sp['name'],0,2)) }}</span>
+                    </div>
+                    @endif
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-slate-800 truncate">{{ $sp['name'] }}</p>
+                        @if(!empty($sp['url']))<p class="text-xs text-slate-400 truncate">{{ $sp['url'] }}</p>@endif
+                    </div>
+                    <button type="button" wire:click="removeSponsor({{ $si }})"
+                            class="p-1.5 rounded-lg text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                @endforeach
+            </div>
+            @endif
+            <div class="border border-dashed border-orange-300 rounded-xl p-4 space-y-3" style="background:#fff7ed;">
+                <p class="text-xs font-semibold text-orange-700">Tambah Sponsor / Mitra</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input wire:model.live="new_sponsor_name" type="text" placeholder="Nama organisasi / sponsor"
+                           class="px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-400">
+                    <input wire:model.live="new_sponsor_url" type="text" placeholder="Website (opsional)"
+                           class="px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-400">
+                </div>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="flex-1">
+                        <input wire:model="new_sponsor_logo" type="file" accept="image/*"
+                               class="block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer">
+                        @error('new_sponsor_logo')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+                    <button type="button" wire:click="addSponsor"
+                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-orange-500 text-white text-sm font-semibold rounded-lg hover:bg-orange-600 transition-colors shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        Tambah
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- 7. Status Jurnal --}}
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-6 py-3 border-b border-slate-100" style="background:#f0f5ff;">
