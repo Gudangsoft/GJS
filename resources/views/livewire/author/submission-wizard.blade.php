@@ -118,11 +118,54 @@
                     @error('abstract')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Kata Kunci <span class="text-slate-400">(pisahkan dengan koma)</span></label>
-                    <input type="text" wire:model="keywordsInput" placeholder="kata kunci 1, kata kunci 2, ..."
+                <div x-data="{
+                    suggestions: [],
+                    showSuggestions: false,
+                    async fetchSuggestions(val) {
+                        const parts = val.split(',');
+                        const last = parts[parts.length - 1].trim();
+                        if (last.length < 2) { this.suggestions = []; return; }
+                        const res = await fetch('/api/v1/keywords/suggest?q=' + encodeURIComponent(last) + '&locale=' + (document.querySelector('[wire\\:model=\"locale\"]')?.value || 'id'));
+                        const data = await res.json();
+                        this.suggestions = data.items || [];
+                        this.showSuggestions = this.suggestions.length > 0;
+                    },
+                    addSuggestion(kw) {
+                        const el = document.querySelector('[wire\\:model=\"keywordsInput\"]');
+                        const parts = el.value.split(',');
+                        parts[parts.length - 1] = ' ' + kw;
+                        el.value = parts.join(',') + ', ';
+                        el.dispatchEvent(new Event('input'));
+                        @this.set('keywordsInput', el.value);
+                        this.suggestions = [];
+                        this.showSuggestions = false;
+                        el.focus();
+                    }
+                }" class="relative">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">
+                        Kata Kunci <span class="text-slate-400">(pisahkan dengan koma)</span>
+                    </label>
+                    <input type="text" wire:model="keywordsInput"
+                           placeholder="kata kunci 1, kata kunci 2, ..."
+                           @input="fetchSuggestions($event.target.value)"
+                           @blur="setTimeout(() => showSuggestions = false, 200)"
+                           @focus="fetchSuggestions($event.target.value)"
                            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <p class="mt-1 text-xs text-slate-400">Minimal 3 kata kunci</p>
+                    {{-- Autocomplete dropdown --}}
+                    <div x-show="showSuggestions" x-cloak
+                         class="absolute z-20 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
+                        <template x-for="kw in suggestions" :key="kw">
+                            <button type="button"
+                                    @mousedown.prevent="addSuggestion(kw)"
+                                    class="w-full text-left px-3 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 transition-colors flex items-center gap-2">
+                                <svg style="width:.75rem;height:.75rem;color:#94a3b8;flex-shrink:0;" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.293 3.293a1 1 0 011.414 0L17 9.586V17a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3H9v3a1 1 0 01-1 1H4a1 1 0 01-1-1V9.586l6.293-6.293z"/>
+                                </svg>
+                                <span x-text="kw"></span>
+                            </button>
+                        </template>
+                    </div>
+                    <p class="mt-1 text-xs text-slate-400">Minimal 3 kata kunci. Mulai mengetik untuk saran otomatis.</p>
                 </div>
 
                 <div>

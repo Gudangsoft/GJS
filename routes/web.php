@@ -13,6 +13,7 @@ use App\Livewire\Editor\Dashboard as EditorDashboard;
 use App\Livewire\JournalManager\Dashboard as JournalManagerDashboard;
 use App\Livewire\Editor\SubmissionReview;
 use App\Livewire\Reader\ArticleDetail;
+use App\Livewire\Reader\AuthorProfile;
 use App\Livewire\Reader\IssueArchive;
 use App\Livewire\Reader\IssueToc;
 use App\Livewire\Reader\JournalBrowse;
@@ -28,6 +29,9 @@ use Illuminate\Support\Facades\Route;
 
 // ─── Public Reader Portal ────────────────────────────────────────────────────
 Route::get('/', JournalIndex::class)->name('home');
+
+// ─── Public Author Profiles ───────────────────────────────────────────────────
+Route::get('/authors/{author}', AuthorProfile::class)->name('authors.show');
 
 
 // ─── Public LOA Verification (no auth required — QR code accessible to anyone) ──
@@ -63,13 +67,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard/author',          Dashboard::class)->name('dashboard.author');
     Route::get('/submit',                    SubmissionWizard::class)->name('submit');
     Route::get('/submissions/{submission}',  SubmissionDetail::class)->name('submissions.show');
+    Route::get('/notifications',             \App\Livewire\NotificationsPage::class)->name('notifications.index');
+    Route::get('/copy-editing',              \App\Livewire\Author\CopyEditingFeedback::class)->name('author.copy-editing');
 });
 
 // ─── Journal Manager Area ─────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'journal.access:editor'])->group(function () {
     Route::get('/manager/dashboard',     \App\Livewire\JournalManager\Dashboard::class)->name('manager.dashboard');
     Route::get('/manager/submissions',   \App\Livewire\JournalManager\Submissions::class)->name('manager.submissions');
-    Route::get('/manager/reviews',       \App\Livewire\JournalManager\Reviews::class)->name('manager.reviews');
+    Route::get('/manager/reviews',        \App\Livewire\JournalManager\Reviews::class)->name('manager.reviews');
+    Route::get('/manager/copy-editing',   \App\Livewire\JournalManager\CopyEditing::class)->name('manager.copy-editing');
     Route::get('/manager/issues',        \App\Livewire\JournalManager\Issues::class)->name('manager.issues');
     Route::get('/manager/sections',      \App\Livewire\JournalManager\Sections::class)->name('manager.sections');
     Route::get('/manager/announcements', \App\Livewire\JournalManager\Announcements::class)->name('manager.announcements');

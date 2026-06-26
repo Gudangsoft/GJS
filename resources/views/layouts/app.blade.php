@@ -155,6 +155,8 @@
                 <a href="{{ route('login') }}" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors hidden sm:inline-block">Masuk</a>
                 <a href="{{ route('register') }}" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">Daftar</a>
                 @else
+                {{-- Notification Bell --}}
+                <livewire:notification-bell />
                 {{-- User dropdown (desktop) --}}
                 <div class="relative hidden md:block">
                     <button @click="open = !open" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors">

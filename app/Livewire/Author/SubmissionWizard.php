@@ -136,6 +136,11 @@ class SubmissionWizard extends Component
             'submitted_at'       => now(),
         ]);
 
+        // Record keyword usage for controlled vocabulary
+        if (!empty($keywords)) {
+            \App\Models\Keyword::recordUsage($keywords, $this->locale);
+        }
+
         foreach ($this->contributors as $seq => $data) {
             SubmissionContributor::create([
                 'submission_id'    => $submission->id,

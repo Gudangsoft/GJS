@@ -80,6 +80,11 @@ class Submission extends Model
         return $this->hasOne(Article::class);
     }
 
+    public function copyEditTask(): HasOne
+    {
+        return $this->hasOne(\App\Models\CopyEditTask::class);
+    }
+
     public function letterOfAcceptances(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(\App\Models\LetterOfAcceptance::class);

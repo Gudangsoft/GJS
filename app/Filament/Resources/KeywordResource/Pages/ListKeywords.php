@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Filament\Resources\KeywordResource\Pages;
+
+use App\Filament\Resources\KeywordResource;
+use Filament\Actions\CreateAction;
+use Filament\Resources\Pages\ListRecords;
+
+class ListKeywords extends ListRecords
+{
+    protected static string $resource = KeywordResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [CreateAction::make()->label('Tambah Kata Kunci')];
+    }
+}

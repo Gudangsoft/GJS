@@ -12,7 +12,7 @@ class Section extends Model
     use HasFactory;
 
     protected $fillable = [
-        'journal_id', 'title', 'abbrev', 'policy',
+        'journal_id', 'title', 'abbrev', 'policy', 'reviewer_guidelines',
         'abstract_word_count', 'word_count', 'hide_title', 'hide_author',
         'is_inactive', 'editor_restricted', 'submitter_restricted', 'sequence', 'ojs_id',
     ];

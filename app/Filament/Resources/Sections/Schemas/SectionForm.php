@@ -43,6 +43,12 @@ class SectionForm
                         ->label('Kebijakan Seksi')
                         ->rows(4)
                         ->columnSpanFull(),
+
+                    Textarea::make('reviewer_guidelines')
+                        ->label('Panduan Reviewer')
+                        ->helperText('Petunjuk khusus untuk reviewer yang menilai naskah di seksi ini. Ditampilkan saat reviewer menerima tugas review.')
+                        ->rows(5)
+                        ->columnSpanFull(),
                 ]),
 
                 Section::make('Pengaturan')->schema([

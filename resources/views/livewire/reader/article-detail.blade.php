@@ -144,9 +144,17 @@
                     </div>
                     <div class="min-w-0">
                         <div class="flex items-center gap-1.5 flex-wrap">
+                            @php $authorUser = \App\Models\User::where('email', $contributor->email)->first(); @endphp
+                            @if($authorUser)
+                            <a href="{{ route('authors.show', $authorUser) }}"
+                               class="text-sm font-bold text-blue-700 hover:text-blue-900 hover:underline transition-colors">
+                                {{ $contributor->full_name }}
+                            </a>
+                            @else
                             <span class="text-sm font-bold text-slate-900">
                                 {{ $contributor->full_name }}
                             </span>
+                            @endif
                             @if($contributor->primary_contact)
                             <span title="Penulis korespondensi"
                                   class="text-xs font-bold px-1.5 py-0.5 rounded"
