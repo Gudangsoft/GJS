@@ -44,9 +44,13 @@ $activeJournal = $managedJournals->firstWhere("id", $activeJournalId) ?? $manage
     </button>
 
     <a href="{{ route("manager.dashboard") }}" class="flex items-center gap-2 mr-2">
+        @if(!empty($brandLogo))
+        <img src="{{ $brandLogo }}" alt="{{ $brandName }}" class="h-7 w-auto object-contain">
+        @else
         <div class="w-7 h-7 bg-blue-500 rounded-lg flex items-center justify-center shrink-0">
-            <span class="text-white font-black text-xs">GJS</span>
+            <span class="text-white font-black text-xs">{{ $brandAbbrev }}</span>
         </div>
+        @endif
         <span class="text-white font-bold text-sm hidden sm:block">Panel Pengelola</span>
     </a>
 

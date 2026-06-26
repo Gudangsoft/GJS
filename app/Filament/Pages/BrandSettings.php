@@ -6,6 +6,8 @@ use App\Models\Setting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -36,12 +38,16 @@ class BrandSettings extends Page
         $b = Setting::getGroup('brand');
         $s = Setting::getGroup('seo');
 
+        $defaultName = config('app.name', 'GJS');
+        $defaultAbbrev = strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $defaultName), 0, 3)) ?: 'GJS';
+
         $this->form->fill([
             // ── brand ──────────────────────────────────────────────────────────
-            'site_name'        => $b['site_name']        ?? config('app.name', 'GJS'),
+            'site_name'        => $b['site_name']        ?? $defaultName,
+            'abbrev'           => $b['abbrev']           ?? $defaultAbbrev,
             'tagline'          => $b['tagline']          ?? '',
             'description'      => $b['description']      ?? '',
-            'copyright'        => $b['copyright']        ?? '© ' . date('Y') . ' GJS. All rights reserved.',
+            'copyright'        => $b['copyright']        ?? '© ' . date('Y') . ' ' . ($b['site_name'] ?? $defaultName) . '. Seluruh hak dilindungi.',
             'contact_email'    => $b['contact_email']    ?? '',
             'contact_phone'    => $b['contact_phone']    ?? '',
             'contact_address'  => $b['contact_address']  ?? '',
@@ -54,7 +60,15 @@ class BrandSettings extends Page
             'social_linkedin'  => $b['social_linkedin']  ?? '',
             'social_instagram' => $b['social_instagram'] ?? '',
             'social_youtube'   => $b['social_youtube']   ?? '',
+            'social_whatsapp'  => $b['social_whatsapp']  ?? '',
             'social_github'    => $b['social_github']    ?? '',
+
+            // ── footer ─────────────────────────────────────────────────────────
+            'footer_tagline'       => $b['footer_tagline']       ?? ($b['description'] ?? ''),
+            'footer_show_indexing' => ($b['footer_show_indexing'] ?? '1') === '1',
+            'footer_show_social'   => ($b['footer_show_social']   ?? '0') === '1',
+            'footer_col_title'     => $b['footer_col_title']      ?? '',
+            'footer_links'         => json_decode($b['footer_links'] ?? '[]', true) ?: [],
 
             // ── seo ────────────────────────────────────────────────────────────
             'meta_keywords'          => $s['meta_keywords']          ?? '',
@@ -107,7 +121,7 @@ class BrandSettings extends Page
                         ->schema([
 
                             Section::make('Identitas Utama')
-                                ->description('Nama, tagline, dan deskripsi singkat platform.')
+                                ->description('Nama, singkatan, tagline, dan deskripsi singkat platform.')
                                 ->columns(2)
                                 ->schema([
                                     TextInput::make('site_name')
@@ -115,10 +129,20 @@ class BrandSettings extends Page
                                         ->required()->maxLength(100)
                                         ->placeholder('Go Journal System'),
 
+                                    TextInput::make('abbrev')
+                                        ->label('Singkatan / Inisial (maks. 5 huruf)')
+                                        ->maxLength(5)
+                                        ->placeholder('GJS')
+                                        ->helperText('Tampil sebagai badge ikon di header & footer bila logo tidak tersedia'),
+
                                     TextInput::make('tagline')
                                         ->label('Tagline / Slogan')
                                         ->maxLength(150)
                                         ->placeholder('Platform Manajemen Jurnal Ilmiah'),
+
+                                    TextInput::make('contact_email')
+                                        ->label('Email Kontak')
+                                        ->email()->placeholder('info@gjs.ac.id'),
 
                                     Textarea::make('description')
                                         ->label('Deskripsi Singkat')
@@ -126,9 +150,9 @@ class BrandSettings extends Page
                                         ->rows(2)->maxLength(300)->columnSpanFull(),
 
                                     Textarea::make('copyright')
-                                        ->label('Teks Copyright (footer)')
-                                        ->rows(2)->columnSpanFull()
-                                        ->placeholder('© 2026 GJS. All rights reserved.'),
+                                        ->label('Teks Hak Cipta')
+                                        ->rows(1)->columnSpanFull()
+                                        ->placeholder('© 2026 GJS. Seluruh hak dilindungi.'),
                                 ]),
 
                             Section::make('Logo & Gambar')
@@ -164,11 +188,9 @@ class BrandSettings extends Page
                                         ->helperText('Warna tombol, link, dan aksen utama'),
                                 ]),
 
-                            Section::make('Kontak')
-                                ->columns(2)
+                            Section::make('Kontak Lanjutan')
+                                ->columns(2)->collapsible()->collapsed()
                                 ->schema([
-                                    TextInput::make('contact_email')->label('Email Kontak')
-                                        ->email()->placeholder('info@gjs.ac.id'),
                                     TextInput::make('contact_phone')->label('Telepon / WA')
                                         ->tel()->placeholder('+62 811 234 5678'),
                                     Textarea::make('contact_address')->label('Alamat')
@@ -177,18 +199,76 @@ class BrandSettings extends Page
                                 ]),
 
                             Section::make('Media Sosial')
-                                ->columns(2)->collapsible()
+                                ->columns(2)->collapsible()->collapsed()
                                 ->schema([
                                     TextInput::make('social_twitter')->label('Twitter / X')->url(),
                                     TextInput::make('social_facebook')->label('Facebook')->url(),
                                     TextInput::make('social_linkedin')->label('LinkedIn')->url(),
                                     TextInput::make('social_instagram')->label('Instagram')->url(),
                                     TextInput::make('social_youtube')->label('YouTube')->url(),
+                                    TextInput::make('social_whatsapp')->label('WhatsApp (link wa.me)')->url(),
                                     TextInput::make('social_github')->label('GitHub')->url(),
                                 ]),
                         ]),
 
-                    // ── Tab 2: SEO & Meta Tag ─────────────────────────────────
+                    // ── Tab 2: Footer ─────────────────────────────────────────
+                    Tab::make('Footer')
+                        ->icon('heroicon-o-bars-3-bottom-left')
+                        ->schema([
+
+                            Section::make('Konten Footer')
+                                ->description('Teks dan tampilan di bagian bawah setiap halaman publik.')
+                                ->columns(1)
+                                ->schema([
+                                    Textarea::make('footer_tagline')
+                                        ->label('Deskripsi Footer')
+                                        ->rows(2)
+                                        ->placeholder('Platform pengelolaan jurnal ilmiah Indonesia yang terbuka, aman, dan memenuhi standar internasional.')
+                                        ->helperText('Tampil di bawah logo pada kolom kiri footer. Kosongkan untuk menggunakan Deskripsi Singkat dari Tab 1.'),
+
+                                    Toggle::make('footer_show_indexing')
+                                        ->label('Tampilkan Badge Pengindeksan (Google Scholar, Crossref, OAI-PMH, DOAJ)')
+                                        ->default(true)
+                                        ->inline(false),
+
+                                    Toggle::make('footer_show_social')
+                                        ->label('Tampilkan Ikon Media Sosial di Footer')
+                                        ->default(false)
+                                        ->inline(false),
+                                ]),
+
+                            Section::make('Kolom Tautan Kustom')
+                                ->description('Tambahkan kolom tautan ekstra di footer (misal: Kebijakan, Panduan, dll.).')
+                                ->columns(1)
+                                ->collapsible()
+                                ->schema([
+                                    TextInput::make('footer_col_title')
+                                        ->label('Judul Kolom')
+                                        ->placeholder('Informasi')
+                                        ->maxLength(50),
+
+                                    Repeater::make('footer_links')
+                                        ->label('Tautan')
+                                        ->schema([
+                                            TextInput::make('label')
+                                                ->label('Teks Tautan')
+                                                ->required()
+                                                ->placeholder('Kebijakan Privasi'),
+                                            TextInput::make('url')
+                                                ->label('URL')
+                                                ->required()
+                                                ->url()
+                                                ->placeholder('https://...'),
+                                        ])
+                                        ->columns(2)
+                                        ->addActionLabel('Tambah Tautan')
+                                        ->reorderable()
+                                        ->collapsible()
+                                        ->defaultItems(0),
+                                ]),
+                        ]),
+
+                    // ── Tab 3: SEO & Meta Tag ─────────────────────────────────
                     Tab::make('SEO & Meta Tag')
                         ->icon('heroicon-o-magnifying-glass')
                         ->schema([
@@ -241,28 +321,25 @@ class BrandSettings extends Page
 
                                     TextInput::make('twitter_site')
                                         ->label('Twitter @handle Situs')
-                                        ->placeholder('@gjsjournal')
+                                        ->placeholder('gjsjournal')
                                         ->prefix('@'),
                                 ]),
 
                             Section::make('Verifikasi Mesin Pencari')
-                                ->description('Kode verifikasi dari masing-masing platform webmaster. Isi dengan nilai atribut content saja.')
+                                ->description('Isi nilai atribut content saja (bukan tag lengkap).')
                                 ->columns(2)
                                 ->schema([
                                     TextInput::make('google_search_console')
                                         ->label('Google Search Console')
-                                        ->placeholder('xxxxxxxxxxxxxxxxxxxxxx')
-                                        ->helperText('Isi content dari: <meta name="google-site-verification" content="...">'),
+                                        ->placeholder('xxxxxxxxxxxxxxxxxxxxxx'),
 
                                     TextInput::make('bing_verification')
                                         ->label('Bing Webmaster Tools')
-                                        ->placeholder('xxxxxxxxxxxxxxxxxxxxxx')
-                                        ->helperText('Isi content dari: <meta name="msvalidate.01" content="...">'),
+                                        ->placeholder('xxxxxxxxxxxxxxxxxxxxxx'),
 
                                     TextInput::make('yandex_verification')
                                         ->label('Yandex Webmaster')
-                                        ->placeholder('xxxxxxxxxxxxxxxxxxxxxx')
-                                        ->helperText('Isi content dari: <meta name="yandex-verification" content="...">'),
+                                        ->placeholder('xxxxxxxxxxxxxxxxxxxxxx'),
                                 ]),
 
                             Section::make('Google Analytics & Tag Manager')
@@ -270,45 +347,40 @@ class BrandSettings extends Page
                                 ->schema([
                                     TextInput::make('google_analytics_id')
                                         ->label('Google Analytics 4 — Measurement ID')
-                                        ->placeholder('G-XXXXXXXXXX')
-                                        ->helperText('Format: G-XXXXXXXXXX (GA4)'),
+                                        ->placeholder('G-XXXXXXXXXX'),
 
                                     TextInput::make('google_tag_manager')
                                         ->label('Google Tag Manager — Container ID')
-                                        ->placeholder('GTM-XXXXXXX')
-                                        ->helperText('Format: GTM-XXXXXXX (opsional, gunakan GTM atau GA langsung)'),
+                                        ->placeholder('GTM-XXXXXXX'),
                                 ]),
                         ]),
 
-                    // ── Tab 3: Google Scholar ─────────────────────────────────
+                    // ── Tab 4: Google Scholar ─────────────────────────────────
                     Tab::make('Google Scholar')
                         ->icon('heroicon-o-academic-cap')
                         ->schema([
 
                             Section::make('Pengindeksan Google Scholar')
-                                ->description('Google Scholar menggunakan meta tag citation_* pada halaman artikel untuk mengindeks jurnal ilmiah. Aktifkan fitur ini agar artikel GJS muncul di Google Scholar.')
+                                ->description('Google Scholar menggunakan meta tag citation_* pada halaman artikel untuk mengindeks jurnal ilmiah.')
                                 ->icon('heroicon-o-academic-cap')
                                 ->schema([
                                     Toggle::make('scholar_enabled')
                                         ->label('Aktifkan Citation Meta Tag (Google Scholar)')
-                                        ->helperText('Akan menambahkan meta tag citation_* pada setiap halaman artikel dan jurnal')
+                                        ->helperText('Menambahkan meta tag citation_* pada setiap halaman artikel')
                                         ->default(true)
                                         ->inline(false),
                                 ]),
 
-                            Section::make('Informasi Penerbit (Publisher)')
-                                ->description('Data institusi penerbit yang akan dimasukkan ke dalam meta tag citation_publisher.')
+                            Section::make('Informasi Penerbit')
                                 ->columns(2)
                                 ->schema([
                                     TextInput::make('scholar_publisher')
                                         ->label('Nama Penerbit (citation_publisher)')
-                                        ->placeholder('Universitas XYZ / Lembaga Penelitian ABC')
-                                        ->helperText('Tampil di Google Scholar sebagai publisher'),
+                                        ->placeholder('Universitas XYZ / Lembaga Penelitian ABC'),
 
                                     TextInput::make('scholar_repository_institution')
                                         ->label('Institusi Repository')
-                                        ->placeholder('Universitas XYZ')
-                                        ->helperText('Untuk tag: <meta name="citation_repository_institution">'),
+                                        ->placeholder('Universitas XYZ'),
 
                                     Select::make('scholar_language')
                                         ->label('Bahasa Default Artikel (citation_language)')
@@ -320,15 +392,13 @@ class BrandSettings extends Page
                                             'de' => 'de — German',
                                         ])
                                         ->default('id')
-                                        ->native(false)
-                                        ->helperText('Digunakan jika bahasa spesifik artikel tidak tersedia'),
+                                        ->native(false),
                                 ]),
 
                             Section::make('Panduan Citation Meta Tag')
-                                ->description('Referensi cepat meta tag yang akan di-generate secara otomatis pada halaman artikel.')
                                 ->collapsed()
                                 ->schema([
-                                    \Filament\Forms\Components\Placeholder::make('scholar_guide')
+                                    Placeholder::make('scholar_guide')
                                         ->label('')
                                         ->content(new \Illuminate\Support\HtmlString('
                                             <div class="text-sm text-gray-600 space-y-1 font-mono bg-gray-50 rounded p-3 border">
@@ -336,6 +406,7 @@ class BrandSettings extends Page
                                                 <p>&lt;meta name="<b>citation_title</b>" content="Judul Artikel"&gt;</p>
                                                 <p>&lt;meta name="<b>citation_author</b>" content="Nama Penulis"&gt; <span class="text-gray-400">(per penulis)</span></p>
                                                 <p>&lt;meta name="<b>citation_journal_title</b>" content="Nama Jurnal"&gt;</p>
+                                                <p>&lt;meta name="<b>citation_publisher</b>" content="Nama Penerbit"&gt;</p>
                                                 <p>&lt;meta name="<b>citation_issn</b>" content="XXXX-XXXX"&gt;</p>
                                                 <p>&lt;meta name="<b>citation_volume</b>" content="1"&gt;</p>
                                                 <p>&lt;meta name="<b>citation_issue</b>" content="1"&gt;</p>
@@ -343,7 +414,6 @@ class BrandSettings extends Page
                                                 <p>&lt;meta name="<b>citation_doi</b>" content="10.XXXXX/..."&gt;</p>
                                                 <p>&lt;meta name="<b>citation_pdf_url</b>" content="https://..."&gt;</p>
                                                 <p>&lt;meta name="<b>citation_abstract_html_url</b>" content="https://..."&gt;</p>
-                                                <p>&lt;meta name="<b>citation_publisher</b>" content="Nama Penerbit"&gt;</p>
                                                 <p>&lt;meta name="<b>citation_language</b>" content="id"&gt;</p>
                                             </div>
                                         ')),
@@ -373,13 +443,14 @@ class BrandSettings extends Page
             return;
         }
 
-        // Pisahkan ke dua group
         $brandKeys = [
-            'site_name','tagline','description','copyright',
+            'site_name','abbrev','tagline','description','copyright',
             'contact_email','contact_phone','contact_address',
             'logo','favicon','og_image','primary_color',
             'social_twitter','social_facebook','social_linkedin',
-            'social_instagram','social_youtube','social_github',
+            'social_instagram','social_youtube','social_whatsapp','social_github',
+            'footer_tagline','footer_show_indexing','footer_show_social',
+            'footer_col_title','footer_links',
         ];
         $seoKeys = [
             'meta_keywords','meta_robots','og_locale','twitter_card','twitter_site',
@@ -391,10 +462,20 @@ class BrandSettings extends Page
         $brandData = array_intersect_key($data, array_flip($brandKeys));
         $seoData   = array_intersect_key($data, array_flip($seoKeys));
 
-        $seoData['scholar_enabled'] = $seoData['scholar_enabled'] ? '1' : '0';
+        // Konversi boolean ke string
+        $brandData['footer_show_indexing'] = $brandData['footer_show_indexing'] ? '1' : '0';
+        $brandData['footer_show_social']   = $brandData['footer_show_social']   ? '1' : '0';
+        $seoData['scholar_enabled']        = $seoData['scholar_enabled']        ? '1' : '0';
+
+        // Encode footer_links ke JSON
+        $brandData['footer_links'] = json_encode($brandData['footer_links'] ?? []);
 
         Setting::setGroup('brand', $brandData);
         Setting::setGroup('seo',   $seoData);
+
+        // Flush brand cache agar View Composer mengambil data terbaru
+        Setting::forgetGroup('brand');
+        Setting::forgetGroup('seo');
 
         Notification::make()
             ->title('Pengaturan brand & SEO berhasil disimpan')

@@ -32,17 +32,19 @@ class SidebarBlocksTable
                     ->label('Jenis')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'journal_info'     => '📋 Info Jurnal',
-                        'submission'       => '📝 Kirim Naskah',
-                        'article_template' => '📄 Template',
-                        'statistics'       => '📊 Statistik',
-                        'focus_scope'      => '🎯 Fokus & Scope',
-                        'custom_html'      => '🔧 HTML Bebas',
+                        'journal_info'     => 'Info Jurnal',
+                        'accreditation'    => 'Akreditasi',
+                        'submission'       => 'Kirim Naskah',
+                        'article_template' => 'Template',
+                        'statistics'       => 'Statistik',
+                        'focus_scope'      => 'Fokus & Scope',
+                        'custom_html'      => 'HTML Bebas',
                         default            => $state,
                     })
                     ->color(fn (string $state): string => match ($state) {
                         'journal_info'     => 'primary',
-                        'submission'       => 'success',
+                        'accreditation'    => 'success',
+                        'submission'       => 'warning',
                         'article_template' => 'warning',
                         'statistics'       => 'info',
                         'focus_scope'      => 'primary',
@@ -79,6 +81,7 @@ class SidebarBlocksTable
                     ->label('Jenis Blok')
                     ->options([
                         'journal_info'     => 'Informasi Jurnal',
+                        'accreditation'    => 'Akreditasi & Indeksasi',
                         'submission'       => 'Kirim Naskah',
                         'article_template' => 'Template Artikel',
                         'statistics'       => 'Statistik Jurnal',

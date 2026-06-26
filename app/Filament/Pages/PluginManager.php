@@ -8,103 +8,115 @@ use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Collection;
-use Livewire\Attributes\On;
 
 class PluginManager extends Page
 {
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-puzzle-piece';
-    protected static ?string $navigationLabel  = 'Plugin Manager';
-    protected static string|\UnitEnum|null $navigationGroup = 'Pengaturan';
-    protected static ?int    $navigationSort   = 5;
-    protected static ?string $title            = 'Plugin Manager';
-    protected string         $view             = 'filament.pages.plugin-manager';
+    protected static string|\BackedEnum|null $navigationIcon  = 'heroicon-o-puzzle-piece';
+    protected static ?string $navigationLabel                = 'Plugin Manager';
+    protected static string|\UnitEnum|null $navigationGroup  = 'Pengaturan';
+    protected static ?int    $navigationSort                  = 5;
+    protected static ?string $title                          = 'Plugin Manager — Sidebar Jurnal';
+    protected string         $view                           = 'filament.pages.plugin-manager';
 
     public ?int    $selectedJournalId = null;
-    public ?string $installType       = null;
+    public ?string $confirmInstallType = null;
 
-    /** Available plugin definitions */
     public static function availablePlugins(): array
     {
         return [
             [
                 'type'        => 'journal_info',
                 'name'        => 'Informasi Jurnal',
-                'description' => 'Menampilkan nama, ISSN cetak, e-ISSN, penerbit, dan mode peer review jurnal.',
+                'description' => 'Nama, ISSN cetak/online, penerbit, mode peer review.',
                 'icon'        => 'clipboard-document-list',
                 'color'       => '#1d4ed8',
                 'bg'          => '#eff6ff',
+                'unique'      => true,
                 'default_settings' => [
-                    'show_issn_print' => true, 'show_issn_online' => true,
-                    'show_publisher' => true,  'show_review_mode' => true,
-                    'show_frequency' => false,
+                    'show_issn_print'   => true,
+                    'show_issn_online'  => true,
+                    'show_publisher'    => true,
+                    'show_review_mode'  => true,
+                    'show_frequency'    => false,
                 ],
             ],
             [
                 'type'        => 'accreditation',
                 'name'        => 'Akreditasi & Indeksasi',
-                'description' => 'Badge SINTA, nomor SK akreditasi, periode, dan daftar indeksasi (Garuda, DOAJ, dll.).',
+                'description' => 'Badge SINTA, nomor SK, periode akreditasi, dan indeks (Garuda, DOAJ, dll.).',
                 'icon'        => 'academic-cap',
                 'color'       => '#15803d',
                 'bg'          => '#f0fdf4',
+                'unique'      => true,
                 'default_settings' => [
-                    'show_sinta' => true, 'show_accreditation_no' => true,
-                    'show_garuda' => true, 'show_google_scholar' => true,
-                    'show_sinta_score' => true, 'show_doaj' => false,
+                    'show_sinta'            => true,
+                    'show_accreditation_no' => true,
+                    'show_garuda'           => true,
+                    'show_google_scholar'   => true,
+                    'show_sinta_score'      => true,
+                    'show_doaj'             => false,
                 ],
             ],
             [
                 'type'        => 'submission',
                 'name'        => 'Kirim Naskah',
-                'description' => 'Tombol ajakan submit dengan teks call-for-papers yang dapat dikustomisasi.',
+                'description' => 'Tombol call-for-papers dengan teks yang dapat dikustomisasi.',
                 'icon'        => 'pencil-square',
                 'color'       => '#7c3aed',
                 'bg'          => '#faf5ff',
+                'unique'      => true,
                 'default_settings' => [
                     'call_text'    => 'Jurnal kami membuka penerimaan naskah ilmiah secara berkala.',
                     'button_label' => 'Kirim Naskah',
                 ],
             ],
             [
+                'type'        => 'focus_scope',
+                'name'        => 'Fokus & Ruang Lingkup',
+                'description' => 'Teks Fokus & Ruang Lingkup dari profil jurnal, tampil otomatis.',
+                'icon'        => 'magnifying-glass-circle',
+                'color'       => '#0f766e',
+                'bg'          => '#f0fdfa',
+                'unique'      => true,
+                'default_settings' => [],
+            ],
+            [
+                'type'        => 'statistics',
+                'name'        => 'Statistik Jurnal',
+                'description' => 'Total artikel, terbitan, tayangan, unduhan, dan sitasi jurnal.',
+                'icon'        => 'chart-bar',
+                'color'       => '#0891b2',
+                'bg'          => '#ecfeff',
+                'unique'      => true,
+                'default_settings' => [
+                    'show_articles'   => true,
+                    'show_issues'     => true,
+                    'show_views'      => false,
+                    'show_downloads'  => false,
+                    'show_citations'  => false,
+                ],
+            ],
+            [
                 'type'        => 'article_template',
                 'name'        => 'Template Artikel',
-                'description' => 'Tombol unduh template Word (.docx) dan panduan penulisan PDF bagi penulis.',
+                'description' => 'Tombol unduh template DOCX dan panduan penulisan PDF.',
                 'icon'        => 'document-arrow-down',
                 'color'       => '#b45309',
                 'bg'          => '#fffbeb',
+                'unique'      => false,
                 'default_settings' => [
                     'label_docx' => 'Unduh Template (DOCX)',
                     'label_pdf'  => 'Panduan Penulisan (PDF)',
                 ],
             ],
             [
-                'type'        => 'statistics',
-                'name'        => 'Statistik Jurnal',
-                'description' => 'Menampilkan total artikel, terbitan, tayangan, unduhan, dan sitasi jurnal.',
-                'icon'        => 'chart-bar',
-                'color'       => '#0891b2',
-                'bg'          => '#ecfeff',
-                'default_settings' => [
-                    'show_articles' => true, 'show_issues' => true,
-                    'show_views' => true,    'show_downloads' => true,
-                    'show_citations' => true,
-                ],
-            ],
-            [
-                'type'        => 'focus_scope',
-                'name'        => 'Fokus & Ruang Lingkup',
-                'description' => 'Menampilkan teks Fokus & Ruang Lingkup dari profil jurnal secara otomatis.',
-                'icon'        => 'magnifying-glass-circle',
-                'color'       => '#0f766e',
-                'bg'          => '#f0fdfa',
-                'default_settings' => [],
-            ],
-            [
                 'type'        => 'custom_html',
                 'name'        => 'Konten Bebas (HTML)',
-                'description' => 'Blok konten fleksibel dengan rich text editor — untuk pengumuman, banner, atau info khusus.',
+                'description' => 'Blok konten bebas — untuk pengumuman, banner, atau info khusus.',
                 'icon'        => 'code-bracket',
                 'color'       => '#475569',
                 'bg'          => '#f8fafc',
+                'unique'      => false,
                 'default_settings' => ['html' => ''],
             ],
         ];
@@ -112,7 +124,7 @@ class PluginManager extends Page
 
     public function getJournals(): Collection
     {
-        return Journal::orderBy('name')->get(['id', 'name', 'name_abbrev', 'sinta_level']);
+        return Journal::orderBy('name')->get(['id', 'name', 'name_abbrev', 'sinta_level', 'logo']);
     }
 
     public function getActiveBlocks(): Collection
@@ -125,6 +137,16 @@ class PluginManager extends Page
             ->get();
     }
 
+    public function getInstalledCounts(): array
+    {
+        if (! $this->selectedJournalId) return [];
+        return JournalSidebarBlock::where('journal_id', $this->selectedJournalId)
+            ->selectRaw('type, COUNT(*) as cnt')
+            ->groupBy('type')
+            ->pluck('cnt', 'type')
+            ->toArray();
+    }
+
     public function installPlugin(string $type): void
     {
         if (! $this->selectedJournalId) {
@@ -135,7 +157,8 @@ class PluginManager extends Page
         $plugin = collect(self::availablePlugins())->firstWhere('type', $type);
         if (! $plugin) return;
 
-        $maxOrder = JournalSidebarBlock::where('journal_id', $this->selectedJournalId)->max('sort_order') ?? 0;
+        $maxOrder = JournalSidebarBlock::where('journal_id', $this->selectedJournalId)
+            ->max('sort_order') ?? 0;
 
         JournalSidebarBlock::create([
             'journal_id' => $this->selectedJournalId,
@@ -148,8 +171,47 @@ class PluginManager extends Page
 
         Notification::make()
             ->title('Plugin "' . $plugin['name'] . '" berhasil dipasang')
+            ->body('Klik ikon ⚙ untuk mengkonfigurasi plugin.')
             ->success()
             ->send();
+    }
+
+    public function installAll(): void
+    {
+        if (! $this->selectedJournalId) {
+            Notification::make()->title('Pilih jurnal terlebih dahulu')->warning()->send();
+            return;
+        }
+
+        $installed = 0;
+        $order = JournalSidebarBlock::where('journal_id', $this->selectedJournalId)
+            ->max('sort_order') ?? 0;
+
+        $existingTypes = JournalSidebarBlock::where('journal_id', $this->selectedJournalId)
+            ->pluck('type')->toArray();
+
+        foreach (self::availablePlugins() as $plugin) {
+            if ($plugin['type'] === 'custom_html') continue;
+            if (in_array($plugin['type'], $existingTypes)) continue;
+
+            JournalSidebarBlock::create([
+                'journal_id' => $this->selectedJournalId,
+                'type'       => $plugin['type'],
+                'title'      => null,
+                'settings'   => $plugin['default_settings'],
+                'enabled'    => true,
+                'sort_order' => ++$order,
+            ]);
+            $installed++;
+        }
+
+        if ($installed === 0) {
+            Notification::make()->title('Semua plugin sudah terpasang')->info()->send();
+        } else {
+            Notification::make()
+                ->title("{$installed} plugin berhasil dipasang sekaligus")
+                ->success()->send();
+        }
     }
 
     public function toggleBlock(int $blockId): void
@@ -158,7 +220,7 @@ class PluginManager extends Page
         if ($block && $block->journal_id === $this->selectedJournalId) {
             $block->update(['enabled' => ! $block->enabled]);
             Notification::make()
-                ->title($block->enabled ? 'Blok diaktifkan' : 'Blok dinonaktifkan')
+                ->title($block->enabled ? 'Plugin diaktifkan' : 'Plugin dinonaktifkan')
                 ->success()->send();
         }
     }
@@ -167,8 +229,9 @@ class PluginManager extends Page
     {
         $block = JournalSidebarBlock::find($blockId);
         if ($block && $block->journal_id === $this->selectedJournalId) {
+            $name = $block->getDisplayTitle();
             $block->delete();
-            Notification::make()->title('Blok dihapus')->success()->send();
+            Notification::make()->title("Plugin \"{$name}\" dihapus")->success()->send();
         }
     }
 
@@ -196,5 +259,30 @@ class PluginManager extends Page
             [$block->sort_order, $next->sort_order] = [$next->sort_order, $block->sort_order];
             $block->save(); $next->save();
         }
+    }
+
+    protected function getViewData(): array
+    {
+        return [
+            'journals'        => $this->getJournals(),
+            'activeBlocks'    => $this->getActiveBlocks(),
+            'installedCounts' => $this->getInstalledCounts(),
+            'allPlugins'      => static::availablePlugins(),
+        ];
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('install_all')
+                ->label('Pasang Semua Plugin')
+                ->icon('heroicon-o-squares-plus')
+                ->color('gray')
+                ->visible(fn () => (bool) $this->selectedJournalId)
+                ->requiresConfirmation()
+                ->modalHeading('Pasang semua plugin?')
+                ->modalDescription('Semua plugin yang belum terpasang (kecuali Konten Bebas) akan dipasang sekaligus ke jurnal yang dipilih.')
+                ->action('installAll'),
+        ];
     }
 }

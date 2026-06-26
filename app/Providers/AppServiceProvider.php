@@ -3,12 +3,14 @@
 namespace App\Providers;
 
 use App\Models\Article;
+use App\Models\Setting;
 use App\Models\Submission;
 use App\Observers\ArticleObserver;
 use App\Observers\SubmissionObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use SocialiteProviders\Manager\SocialiteWasCalled;
@@ -44,5 +46,44 @@ class AppServiceProvider extends ServiceProvider
         // Model observers
         Submission::observe(SubmissionObserver::class);
         Article::observe(ArticleObserver::class);
+
+        // Share brand variables with all public-facing layouts
+        View::composer(
+            ['layouts.app', 'layouts.auth', 'layouts.manager', 'errors.layout'],
+            function ($view) {
+                static $bd = null;
+                if ($bd === null) {
+                    try {
+                        $bd = Setting::getGroup('brand');
+                    } catch (\Throwable) {
+                        $bd = [];
+                    }
+                }
+
+                $defaultName   = config('app.name');
+                $defaultAbbrev = strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $defaultName), 0, 3)) ?: 'APP';
+
+                $view->with([
+                    'brandName'          => $bd['site_name']              ?? $defaultName,
+                    'brandAbbrev'        => $bd['abbrev']                 ?? $defaultAbbrev,
+                    'brandLogo'          => isset($bd['logo']) && $bd['logo'] ? asset('storage/' . $bd['logo']) : null,
+                    'brandFavicon'       => isset($bd['favicon']) && $bd['favicon'] ? asset('storage/' . $bd['favicon']) : null,
+                    'brandCopyright'     => $bd['copyright']              ?? '',
+                    'brandFooterTagline' => $bd['footer_tagline']         ?? ($bd['description'] ?? ''),
+                    'brandFooterIdx'     => ($bd['footer_show_indexing']  ?? '1') === '1',
+                    'brandFooterSoc'     => ($bd['footer_show_social']    ?? '0') === '1',
+                    'brandFooterColTitle'=> $bd['footer_col_title']       ?? '',
+                    'brandFooterLinks'   => json_decode($bd['footer_links'] ?? '[]', true) ?: [],
+                    'brandSocials'       => [
+                        'facebook'  => $bd['social_facebook']  ?? '',
+                        'twitter'   => $bd['social_twitter']   ?? '',
+                        'instagram' => $bd['social_instagram'] ?? '',
+                        'linkedin'  => $bd['social_linkedin']  ?? '',
+                        'youtube'   => $bd['social_youtube']   ?? '',
+                        'whatsapp'  => $bd['social_whatsapp']  ?? '',
+                    ],
+                ]);
+            }
+        );
     }
 }

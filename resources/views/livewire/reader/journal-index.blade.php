@@ -26,7 +26,7 @@ $lightBg = ['#eff6ff','#f0fdf4','#faf5ff','#fff1f2','#fffbeb','#ecfeff'];
         <h1 class="font-black leading-tight mb-5" style="font-size:clamp(2.2rem,5vw,3.5rem);color:#ffffff;">
             Publikasikan Riset Anda<br>
             <span style="background:linear-gradient(90deg,#60a5fa,#a78bfa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
-                di Platform GJS
+                di Platform {{ \App\Models\Setting::get('brand.site_name', config('app.name')) }}
             </span>
         </h1>
 
@@ -248,7 +248,7 @@ $lightBg = ['#eff6ff','#f0fdf4','#faf5ff','#fff1f2','#fffbeb','#ecfeff'];
     <div class="max-w-6xl mx-auto">
         <div class="text-center mb-12">
             <p class="text-xs font-bold uppercase tracking-widest mb-1.5" style="color:#059669;">Keunggulan Platform</p>
-            <h2 class="font-black mb-3" style="font-size:1.875rem;color:#0f172a;">Kenapa Memilih GJS?</h2>
+            <h2 class="font-black mb-3" style="font-size:1.875rem;color:#0f172a;">Kenapa Memilih {{ \App\Models\Setting::get('brand.site_name', config('app.name')) }}?</h2>
             <p class="mx-auto leading-relaxed" style="color:#64748b;max-width:460px;font-size:.9375rem;">
                 Dirancang untuk seluruh ekosistem publikasi ilmiah Indonesia.
             </p>
@@ -326,7 +326,7 @@ $lightBg = ['#eff6ff','#f0fdf4','#faf5ff','#fff1f2','#fffbeb','#ecfeff'];
             🎓 Gratis untuk civitas akademika Indonesia
         </div>
         <h2 class="font-black mb-4 leading-snug" style="font-size:clamp(1.75rem,4vw,2.75rem);color:#ffffff;">
-            Bergabunglah dengan komunitas peneliti GJS
+            Bergabunglah dengan komunitas peneliti {{ \App\Models\Setting::get('brand.site_name', config('app.name')) }}
         </h2>
         <p class="mb-8 leading-relaxed" style="color:rgba(191,219,254,1);font-size:1rem;line-height:1.75;">
             Submission mudah, review transparan, dan publikasi terindeks internasional.

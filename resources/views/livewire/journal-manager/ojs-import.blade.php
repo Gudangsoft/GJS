@@ -3,11 +3,9 @@
 {{-- ── Header ──────────────────────────────────────────────────────────────── --}}
 <div class="flex items-start justify-between gap-4">
     <div>
-        <h1 class="text-xl font-bold text-slate-800">Import Jurnal</h1>
+        <h1 class="text-xl font-bold text-slate-800">Import / Export Jurnal</h1>
         <p class="text-sm text-slate-500 mt-1">
-            Import artikel &amp; edisi ke jurnal
-            <span class="font-semibold text-slate-700">{{ $journal?->name ?? '(belum dipilih)' }}</span>
-            dari sumber eksternal.
+            Jurnal: <span class="font-semibold text-slate-700">{{ $journal?->name ?? '(belum dipilih)' }}</span>
         </p>
     </div>
     @if($done)
@@ -17,6 +15,140 @@
     </button>
     @endif
 </div>
+
+{{-- ── Mode toggle: Import | Export ────────────────────────────────────────── --}}
+<div class="flex gap-1 p-1 bg-slate-100 rounded-xl w-fit">
+    <button type="button" wire:click="$set('mode','import')"
+            class="px-5 py-2 text-sm font-semibold rounded-lg transition-all
+                {{ $mode === 'import' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
+        <span class="flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+            </svg>
+            Import
+        </span>
+    </button>
+    <button type="button" wire:click="$set('mode','export')"
+            class="px-5 py-2 text-sm font-semibold rounded-lg transition-all
+                {{ $mode === 'export' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
+        <span class="flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 7.5m0 0L7.5 12m4.5-4.5V21"/>
+            </svg>
+            Export
+        </span>
+    </button>
+</div>
+
+{{-- ══════════════════════════════════════════════════════════════════════════ --}}
+{{-- ── EXPORT MODE ─────────────────────────────────────────────────────────── --}}
+@if($mode === 'export')
+
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50">
+        <h2 class="text-sm font-bold text-slate-800">Plugin Import/Export</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Pilih plugin untuk mengekspor data jurnal ke berbagai format standar</p>
+    </div>
+
+    {{-- Plugin list --}}
+    <div class="divide-y divide-slate-100">
+        @foreach($exportPlugins as $plugin)
+        <div class="flex items-start gap-4 px-6 py-4 hover:bg-slate-50/60 transition-colors"
+             wire:key="ep-{{ $plugin['key'] }}">
+
+            {{-- Icon --}}
+            <div style="width:2.5rem;height:2.5rem;border-radius:0.75rem;background:{{ $plugin['bg'] }};flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                <svg style="width:1.25rem;height:1.25rem;color:{{ $plugin['color'] }};" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="{{ $plugin['icon'] }}"/>
+                </svg>
+            </div>
+
+            {{-- Info --}}
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <a href="#" wire:click.prevent="$set('exportPlugin','{{ $plugin['key'] }}')"
+                       class="text-sm font-semibold text-blue-600 hover:underline">{{ $plugin['name'] }}</a>
+                    <span class="text-xs px-2 py-0.5 rounded-full font-medium
+                        {{ $plugin['mode'] === 'both'
+                            ? 'bg-purple-50 text-purple-600 border border-purple-200'
+                            : 'bg-emerald-50 text-emerald-600 border border-emerald-200' }}">
+                        {{ $plugin['mode'] === 'both' ? 'Import & Export' : 'Export' }}
+                    </span>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5">{{ $plugin['desc'] }}</p>
+
+                {{-- Expand if selected --}}
+                @if($exportPlugin === $plugin['key'])
+                <div class="mt-3 p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Filter Edisi <span class="text-slate-400 font-normal">(opsional)</span></label>
+                            <select wire:model.live="exportIssueId"
+                                    class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                <option value="">Semua edisi terpublikasi</option>
+                                @foreach($issueOptions as $id => $label)
+                                <option value="{{ $id }}">{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="flex items-end gap-2">
+                            <button type="button" wire:click="exportData"
+                                    wire:loading.attr="disabled"
+                                    style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;background:{{ $plugin['color'] }};color:#fff;font-size:0.8125rem;font-weight:700;border:none;cursor:pointer;white-space:nowrap;">
+                                <svg wire:loading.remove wire:target="exportData" style="width:1rem;height:1rem;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 7.5m0 0L7.5 12m4.5-4.5V21"/>
+                                </svg>
+                                <svg wire:loading wire:target="exportData" style="width:1rem;height:1rem;animation:spin 1s linear infinite;" fill="none" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" style="opacity:.25;"/>
+                                    <path fill="currentColor" d="M4 12a8 8 0 018-8v8z" style="opacity:.75;"/>
+                                </svg>
+                                <span wire:loading.remove wire:target="exportData">Ekspor XML</span>
+                                <span wire:loading wire:target="exportData">Mengekspor...</span>
+                            </button>
+                            <button type="button" wire:click="$set('exportPlugin','')"
+                                    style="padding:8px 10px;border-radius:8px;border:1px solid #e2e8f0;background:white;color:#94a3b8;cursor:pointer;">
+                                <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400 flex items-center gap-1">
+                        <svg style="width:0.875rem;height:0.875rem;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/>
+                        </svg>
+                        File XML akan diunduh ke komputer Anda. Upload file ke platform tujuan (CrossRef, DOAJ, PubMed, dll).
+                    </p>
+                </div>
+                @endif
+            </div>
+
+        </div>
+        @endforeach
+    </div>
+</div>
+
+{{-- Info box --}}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4">
+        <p class="text-xs font-bold text-blue-800 mb-1">CrossRef</p>
+        <p class="text-xs text-blue-700">Upload XML ke <span class="font-mono">submission.crossref.org</span> untuk mendaftarkan DOI artikel.</p>
+    </div>
+    <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
+        <p class="text-xs font-bold text-emerald-800 mb-1">DOAJ</p>
+        <p class="text-xs text-emerald-700">Upload XML ke panel DOAJ untuk memperbarui metadata artikel di direktori.</p>
+    </div>
+    <div class="bg-violet-50 border border-violet-200 rounded-2xl p-4">
+        <p class="text-xs font-bold text-violet-800 mb-1">PubMed / DataCite</p>
+        <p class="text-xs text-violet-700">Gunakan antarmuka masing-masing platform untuk mengunggah file XML yang diunduh.</p>
+    </div>
+</div>
+
+@endif {{-- end export mode --}}
+
+{{-- ══════════════════════════════════════════════════════════════════════════ --}}
+{{-- ── IMPORT MODE ─────────────────────────────────────────────────────────── --}}
+@if($mode === 'import')
 
 {{-- ── Method Tabs ──────────────────────────────────────────────────────────── --}}
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -333,5 +465,7 @@
         </div>
     </div>
 </div>
+
+@endif {{-- end import mode --}}
 
 </div>

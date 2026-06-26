@@ -25,11 +25,12 @@ class JournalSidebarBlock extends Model
     {
         return match ($this->type) {
             'journal_info'      => 'Informasi Jurnal',
+            'accreditation'     => 'Akreditasi & Indeksasi',
             'submission'        => 'Kirim Naskah',
             'article_template'  => 'Template Artikel',
             'statistics'        => 'Statistik Jurnal',
             'focus_scope'       => 'Fokus & Ruang Lingkup',
-            'custom_html'       => 'Informasi',
+            'custom_html'       => 'Konten Kustom',
             default             => 'Blok Sidebar',
         };
     }

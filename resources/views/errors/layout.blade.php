@@ -164,7 +164,7 @@
     </div>
 
     <div class="divider"></div>
-    <p class="brand">Jurnal Ilmiah &mdash; <span>GJS</span></p>
+    <p class="brand">Jurnal Ilmiah &mdash; <span>{{ \App\Models\Setting::get('brand.abbrev', \App\Models\Setting::get('brand.site_name', config('app.name'))) }}</span></p>
 </div>
 </body>
 </html>
