@@ -11,9 +11,10 @@ use Filament\Widgets\TableWidget as BaseWidget;
 class RecentSubmissionsWidget extends BaseWidget
 {
     protected static ?int $sort = 2;
+    protected static bool $isLazy = true;
     protected int|string|array $columnSpan = 'full';
     protected static ?string $heading = 'Naskah Terbaru';
-    protected ?string $pollingInterval = '60s';
+    protected ?string $pollingInterval = null;
 
     public function table(Table $table): Table
     {

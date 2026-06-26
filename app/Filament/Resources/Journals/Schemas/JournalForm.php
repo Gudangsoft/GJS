@@ -16,6 +16,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
+use Filament\Forms\Components\Placeholder;
 
 class JournalForm
 {
@@ -409,6 +410,94 @@ class JournalForm
                             ->toolbarButtons(['bold','italic','bulletList','link'])
                             ->columnSpanFull(),
                     ])->collapsible(),
+
+                ]),
+
+                // 10. BIAYA PUBLIKASI (APC)
+                Tab::make('APC & Biaya')->schema([
+
+                    Section::make('Article Processing Charge (APC)')
+                        ->description('Biaya yang dikenakan kepada penulis untuk memproses dan menerbitkan artikel.')
+                        ->schema([
+                            Grid::make(3)->schema([
+                                Toggle::make('apc_enabled')
+                                    ->label('Aktifkan APC')
+                                    ->helperText('Tampilkan info APC kepada penulis')
+                                    ->default(false)->inline(false),
+                                TextInput::make('apc_amount')
+                                    ->label('Besaran APC')
+                                    ->numeric()->minValue(0)->placeholder('0'),
+                                Select::make('apc_currency')
+                                    ->label('Mata Uang')
+                                    ->options([
+                                        'IDR' => 'IDR — Rupiah',
+                                        'USD' => 'USD — US Dollar',
+                                        'EUR' => 'EUR — Euro',
+                                        'MYR' => 'MYR — Ringgit',
+                                    ])
+                                    ->default('IDR'),
+                            ]),
+                            Textarea::make('apc_waiver_policy')
+                                ->label('Kebijakan Pengurangan / Waiver APC')
+                                ->rows(3)
+                                ->placeholder('Penulis dari negara berkembang dapat mengajukan keringanan biaya...')
+                                ->columnSpanFull(),
+                        ]),
+
+                ]),
+
+                // 11. INTEGRASI & API
+                Tab::make('Integrasi')->schema([
+
+                    Section::make('LOA — Letter of Acceptance')
+                        ->description('Nama dan jabatan penandatangan dokumen LOA.')
+                        ->icon('heroicon-o-document-check')
+                        ->schema([
+                            Grid::make(2)->schema([
+                                TextInput::make('loa_signer_name')
+                                    ->label('Nama Penandatangan')
+                                    ->placeholder('Prof. Dr. Budi Santoso, M.T.'),
+                                TextInput::make('loa_signer_title')
+                                    ->label('Jabatan Penandatangan')
+                                    ->placeholder('Ketua Editor / Editor-in-Chief'),
+                            ]),
+                        ]),
+
+                    Section::make('WhatsApp Notification')
+                        ->description('Notifikasi otomatis via WhatsApp API ke penulis dan editor.')
+                        ->icon('heroicon-o-chat-bubble-left-right')
+                        ->collapsible()
+                        ->schema([
+                            Grid::make(2)->schema([
+                                TextInput::make('wa_contact')
+                                    ->label('Nomor WA Kontak Jurnal')
+                                    ->tel()->placeholder('+628123456789'),
+                                TextInput::make('wa_sender_number')
+                                    ->label('Nomor WA Pengirim (API)')
+                                    ->tel()->placeholder('+628119876543'),
+                            ]),
+                            TextInput::make('wa_api_token')
+                                ->label('WA API Token / API Key')
+                                ->password()->revealable()
+                                ->placeholder('Token dari Fonnte / WA Business API')
+                                ->columnSpanFull(),
+                        ]),
+
+                    Section::make('Turnitin Plagiarism Check')
+                        ->description('Integrasi cek plagiarisme via Turnitin API.')
+                        ->icon('heroicon-o-shield-check')
+                        ->collapsible()
+                        ->schema([
+                            Grid::make(2)->schema([
+                                TextInput::make('turnitin_account_id')
+                                    ->label('Turnitin Account ID')
+                                    ->placeholder('abc123'),
+                                TextInput::make('turnitin_api_key')
+                                    ->label('Turnitin API Key')
+                                    ->password()->revealable()
+                                    ->placeholder('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'),
+                            ]),
+                        ]),
 
                 ]),
 

@@ -15,14 +15,15 @@ class CreateLetterOfAcceptance extends CreateRecord
     {
         $data['issued_by'] = auth()->id();
 
+        // Auto-generate LOA number if blank
         if (empty($data['loa_number']) && !empty($data['journal_id'])) {
             $journal = Journal::find($data['journal_id']);
-            if ($journal) $data['loa_number'] = LetterOfAcceptance::generateNumber($journal);
+            if ($journal) {
+                $data['loa_number'] = LetterOfAcceptance::generateNumber($journal);
+            }
         }
 
-        if (is_string($data['authors'] ?? null)) {
-            $data['authors'] = array_map('trim', explode(',', $data['authors']));
-        }
+        // authors is now a Repeater array [{name, affiliation}] — no conversion needed
 
         return $data;
     }

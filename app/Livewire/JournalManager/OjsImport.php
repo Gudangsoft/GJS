@@ -10,18 +10,31 @@ use Livewire\Component;
 #[Layout('layouts.manager')]
 class OjsImport extends Component
 {
-    public string $ojsUrl    = '';
-    public string $apiKey    = '';
-    public string $importWhat = 'all'; // all | issues | articles
+    /** Active method tab: oai | crossref | rest */
+    public string $method = 'oai';
 
-    public bool  $testing    = false;
-    public bool  $importing  = false;
-    public ?bool $connOk     = null;
-    public string $connMsg   = '';
+    // ── OAI-PMH config
+    public string $oaiUrl = '';
+    public string $oaiSet = '';
 
-    public array $importLog  = [];
-    public array $importStats = [];
-    public bool  $done       = false;
+    // ── CrossRef config
+    public string $crossrefIssn       = '';
+    public string $crossrefIssnOnline = '';
+
+    // ── OJS REST API config
+    public string $ojsUrl     = '';
+    public string $apiKey     = '';
+    public string $importWhat = 'all';
+
+    // ── Shared state
+    public ?bool  $connOk      = null;
+    public string $connMsg     = '';
+    public array  $importLog   = [];
+    public array  $importStats = [];
+    public bool   $done        = false;
+    public bool   $sslVerify   = true;
+
+    // ─────────────────────────────────────────────────────────────────────────
 
     private function activeJournal(): ?Journal
     {
@@ -42,14 +55,15 @@ class OjsImport extends Component
         $journal = $this->activeJournal();
         if ($journal?->url) {
             $this->ojsUrl = rtrim($journal->url, '/');
+            // Also preset OAI URL to common OJS OAI endpoint
+            $this->oaiUrl = rtrim($journal->url, '/') . '/oai';
         }
     }
 
+    // ─── Test connection ──────────────────────────────────────────────────────
+
     public function testConnection(): void
     {
-        $this->validate(['ojsUrl' => 'required|url']);
-
-        $this->testing = true;
         $this->connOk  = null;
         $this->connMsg = '';
 
@@ -57,62 +71,119 @@ class OjsImport extends Component
         if (!$journal) {
             $this->connOk  = false;
             $this->connMsg = 'Tidak ada jurnal aktif.';
-            $this->testing = false;
             return;
         }
 
-        $service = new OjsImportService($this->ojsUrl, $journal->id, $this->apiKey ?: null);
-        $result  = $service->testConnection();
+        $service = new OjsImportService($journal->id);
+        $service->setSslVerify($this->sslVerify);
 
+        match ($this->method) {
+            'oai' => $this->doTestOai($service),
+            'crossref' => $this->doTestCrossref($service),
+            'rest' => $this->doTestRest($service),
+        };
+    }
+
+    private function doTestOai(OjsImportService $svc): void
+    {
+        $this->validate(['oaiUrl' => 'required|url'], [], ['oaiUrl' => 'URL OAI-PMH']);
+        $result = $svc->testOaiConnection($this->oaiUrl);
         $this->connOk  = $result['ok'];
         $this->connMsg = $result['message'];
-        $this->testing = false;
     }
+
+    private function doTestCrossref(OjsImportService $svc): void
+    {
+        $this->validate(['crossrefIssn' => 'required'], [], ['crossrefIssn' => 'ISSN']);
+        $issn   = $this->crossrefIssnOnline ?: $this->crossrefIssn;
+        $result = $svc->testCrossrefByIssn($issn);
+        $this->connOk  = $result['ok'];
+        $this->connMsg = $result['message'];
+    }
+
+    private function doTestRest(OjsImportService $svc): void
+    {
+        $this->validate(['ojsUrl' => 'required|url'], [], ['ojsUrl' => 'URL OJS']);
+        $svc->setRestConfig($this->ojsUrl, $this->apiKey ?: null);
+        $result = $svc->testRestConnection();
+        $this->connOk  = $result['ok'];
+        $this->connMsg = $result['message'];
+    }
+
+    // ─── Start import ─────────────────────────────────────────────────────────
 
     public function startImport(): void
     {
-        $this->validate(['ojsUrl' => 'required|url']);
-
         $journal = $this->activeJournal();
         if (!$journal) {
             $this->dispatch('toast', message: 'Tidak ada jurnal aktif.', type: 'error');
             return;
         }
 
-        $this->importing  = true;
-        $this->done       = false;
-        $this->importLog  = [];
+        $this->done        = false;
+        $this->importLog   = [];
         $this->importStats = [];
 
-        $service = new OjsImportService($this->ojsUrl, $journal->id, $this->apiKey ?: null);
+        $service = new OjsImportService($journal->id);
+        $service->setSslVerify($this->sslVerify);
 
+        match ($this->method) {
+            'oai'      => $this->doImportOai($service),
+            'crossref' => $this->doImportCrossref($service),
+            'rest'     => $this->doImportRest($service),
+        };
+
+        $this->importLog   = $service->getLogs();
+        $this->importStats = [
+            'issuesCreated'   => $service->issuesCreated,
+            'sectionsCreated' => $service->sectionsCreated,
+            'articlesCreated' => $service->articlesCreated,
+            'articlesUpdated' => $service->articlesUpdated,
+            'errors'          => $service->errors,
+        ];
+        $this->done = true;
+
+        $total = $service->articlesCreated + $service->articlesUpdated;
+        $this->dispatch('toast',
+            message: "Import selesai: {$service->articlesCreated} artikel baru, {$service->articlesUpdated} diperbarui.",
+            type: $service->errors > 0 ? 'warning' : 'success'
+        );
+    }
+
+    private function doImportOai(OjsImportService $svc): void
+    {
+        $this->validate(['oaiUrl' => 'required|url'], [], ['oaiUrl' => 'URL OAI-PMH']);
+        $svc->importFromOai($this->oaiUrl, $this->oaiSet ?: null);
+    }
+
+    private function doImportCrossref(OjsImportService $svc): void
+    {
+        $this->validate(['crossrefIssn' => 'required'], [], ['crossrefIssn' => 'ISSN']);
+        $issn = $this->crossrefIssnOnline ?: $this->crossrefIssn;
+        $svc->importFromCrossref($issn);
+    }
+
+    private function doImportRest(OjsImportService $svc): void
+    {
+        $this->validate(['ojsUrl' => 'required|url'], [], ['ojsUrl' => 'URL OJS']);
+        $svc->setRestConfig($this->ojsUrl, $this->apiKey ?: null);
         $only = match ($this->importWhat) {
             'issues'   => ['sections', 'issues'],
             'articles' => ['sections', 'articles'],
             default    => ['sections', 'issues', 'articles'],
         };
+        $svc->importFromRest($only);
+    }
 
-        if (in_array('sections', $only))  $service->importSections();
-        if (in_array('issues', $only))    $service->importIssues();
-        if (in_array('articles', $only))  $service->importArticles();
+    // ─────────────────────────────────────────────────────────────────────────
 
-        $this->importLog   = $service->getLogs();
-        $this->importStats = [
-            'sectionsCreated'  => $service->sectionsCreated,
-            'issuesCreated'    => $service->issuesCreated,
-            'issuesUpdated'    => $service->issuesSkipped,
-            'articlesCreated'  => $service->articlesCreated,
-            'articlesUpdated'  => $service->articlesUpdated,
-            'errors'           => $service->errors,
-        ];
-
-        $this->importing = false;
-        $this->done      = true;
-
-        $this->dispatch('toast',
-            message: "Import selesai: {$service->articlesCreated} artikel baru, {$service->articlesUpdated} diperbarui.",
-            type: $service->errors > 0 ? 'warning' : 'success'
-        );
+    public function resetResult(): void
+    {
+        $this->connOk      = null;
+        $this->connMsg     = '';
+        $this->done        = false;
+        $this->importLog   = [];
+        $this->importStats = [];
     }
 
     public function render()

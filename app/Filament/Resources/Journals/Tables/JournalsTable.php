@@ -25,8 +25,11 @@ class JournalsTable
             ->columns([
                 ImageColumn::make('logo')
                     ->label('')
+                    ->disk('public')
                     ->circular()
-                    ->size(40),
+                    ->size(44)
+                    ->defaultImageUrl(fn () => 'https://ui-avatars.com/api/?name=J&background=3b82f6&color=fff&size=44')
+                    ->extraImgAttributes(['class' => 'object-contain']),
 
                 TextColumn::make('name')
                     ->label('Nama Jurnal')
@@ -117,6 +120,24 @@ class JournalsTable
                 IconColumn::make('enabled')
                     ->label('Publik')
                     ->boolean(),
+
+                TextColumn::make('sinta_level')
+                    ->label('SINTA')
+                    ->badge()
+                    ->color(fn ($state) => match($state) {
+                        'S1' => 'success',
+                        'S2' => 'info',
+                        'S3', 'S4' => 'warning',
+                        default => 'gray',
+                    })
+                    ->placeholder('—')
+                    ->toggleable(),
+
+                TextColumn::make('loa_signer_name')
+                    ->label('Penandatangan LOA')
+                    ->placeholder('⚠ Belum diisi')
+                    ->description(fn ($record) => $record->loa_signer_title)
+                    ->toggleable(),
 
                 TextColumn::make('created_at')
                     ->label('Dibuat')

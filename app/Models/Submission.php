@@ -80,6 +80,11 @@ class Submission extends Model
         return $this->hasOne(Article::class);
     }
 
+    public function letterOfAcceptances(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\LetterOfAcceptance::class);
+    }
+
     public function scopeForJournal($query, int $journalId)
     {
         return $query->where('journal_id', $journalId);

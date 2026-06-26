@@ -4,7 +4,15 @@
     <div class="flex items-center justify-between">
         <div>
             <h1 class="text-xl font-bold text-slate-900">Pengaturan Jurnal</h1>
-            <p class="text-sm text-slate-500 mt-0.5">Kelola profil dan konfigurasi jurnal Anda.</p>
+            <p class="text-sm text-slate-500 mt-0.5">
+                Jurnal aktif:
+                <span class="font-semibold text-blue-700">
+                    {{ $journal?->name ?? '(belum dipilih — pilih jurnal dari sidebar)' }}
+                </span>
+                @if($journalId > 0)
+                <span class="text-slate-400 text-xs ml-1">#{{ $journalId }}</span>
+                @endif
+            </p>
         </div>
         <button wire:click="save"
                 class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors">
@@ -1020,9 +1028,11 @@
             <div class="border border-dashed border-orange-300 rounded-xl p-4 space-y-3" style="background:#fff7ed;">
                 <p class="text-xs font-semibold text-orange-700">Tambah Sponsor / Mitra</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input wire:model.live="new_sponsor_name" type="text" placeholder="Nama organisasi / sponsor"
+                    <input wire:model.live="new_sponsor_name"
+                           type="text" placeholder="Nama organisasi / sponsor"
                            class="px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-400">
-                    <input wire:model.live="new_sponsor_url" type="text" placeholder="Website (opsional)"
+                    <input wire:model.live="new_sponsor_url"
+                           type="text" placeholder="Website (opsional)"
                            class="px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-400">
                 </div>
                 <div class="flex items-center gap-3 flex-wrap">

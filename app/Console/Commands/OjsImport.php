@@ -9,32 +9,29 @@ use Illuminate\Console\Command;
 class OjsImport extends Command
 {
     protected $signature = 'ojs:import
-        {--url=      : URL dasar OJS (contoh: https://jurnal.example.com/index.php/jiki)}
+        {--url=      : URL OAI-PMH atau REST API OJS}
         {--journal=  : ID atau slug jurnal di GJS}
-        {--api-key=  : API key OJS (opsional)}
-        {--only=     : Pilih: sections,issues,articles (default: semua)}
-        {--test      : Hanya tes koneksi ke OJS API}';
+        {--method=   : oai (default) | rest | crossref}
+        {--api-key=  : API key OJS REST (opsional)}
+        {--issn=     : ISSN jurnal (untuk metode crossref)}
+        {--only=     : Pilih: sections,issues,articles (hanya untuk metode rest)}
+        {--test      : Hanya tes koneksi}';
 
-    protected $description = 'Import data jurnal dari OJS 3.x via REST API';
+    protected $description = 'Import data jurnal dari OJS via OAI-PMH, CrossRef, atau REST API';
 
     public function handle(): int
     {
+        $method = $this->option('method') ?: 'oai';
         $url    = $this->option('url');
         $jParam = $this->option('journal');
         $apiKey = $this->option('api-key');
-        $test   = (bool) $this->option('test');
+        $issn   = $this->option('issn');
+        $test   = (bool)$this->option('test');
         $only   = $this->option('only')
             ? array_map('trim', explode(',', $this->option('only')))
             : ['sections', 'issues', 'articles'];
 
-        if (!$url) {
-            $url = $this->ask('URL dasar OJS (contoh: https://jurnal.example.com/index.php/jiki)');
-        }
-        if (!$url) {
-            $this->error('URL OJS diperlukan.');
-            return self::FAILURE;
-        }
-
+        // Resolve journal
         if (!$jParam) {
             $journals = Journal::orderBy('name')->get(['id', 'name', 'slug']);
             $choices  = $journals->map(fn($j) => "[{$j->id}] {$j->name} ({$j->slug})")->toArray();
@@ -52,52 +49,105 @@ class OjsImport extends Command
             return self::FAILURE;
         }
 
-        if ($apiKey === null) {
-            $apiKey = $this->ask('API key OJS (Enter untuk skip)') ?: null;
+        $service = new OjsImportService($gjsJournal->id);
+
+        $this->line("<fg=cyan>Metode   :</> {$method}");
+        $this->line("<fg=cyan>Jurnal GJS:</> [{$gjsJournal->id}] {$gjsJournal->name}");
+
+        // ── OAI-PMH
+        if ($method === 'oai') {
+            if (!$url) {
+                $url = $this->ask('URL OAI-PMH (contoh: https://jurnal.example.com/index.php/jiki/oai)');
+            }
+            if (!$url) { $this->error('URL OAI-PMH diperlukan.'); return self::FAILURE; }
+
+            $this->line("<fg=cyan>URL OAI  :</> {$url}");
+            $this->newLine();
+
+            $conn = $service->testOaiConnection($url);
+            if ($conn['ok']) {
+                $this->info('✓ ' . $conn['message']);
+            } else {
+                $this->error('✗ ' . $conn['message']);
+                return self::FAILURE;
+            }
+            if ($test) return self::SUCCESS;
+            if (!$this->confirm("Lanjutkan import ke '{$gjsJournal->name}'?", true)) return self::SUCCESS;
+
+            $this->newLine();
+            $this->line('<fg=cyan>▸ Mengimpor via OAI-PMH...</>');
+            $service->importFromOai($url, null, function ($type, $data) {
+                $this->getOutput()->write('.');
+            });
         }
 
-        $this->info("Jurnal GJS : [{$gjsJournal->id}] {$gjsJournal->name}");
-        $this->info("URL OJS    : {$url}");
-        $this->info("API Key    : " . ($apiKey ? str_repeat('*', max(0, strlen($apiKey) - 4)) . substr($apiKey, -4) : '(tidak ada)'));
-        $this->newLine();
+        // ── CrossRef
+        elseif ($method === 'crossref') {
+            if (!$issn) {
+                $issn = $this->ask('ISSN jurnal (cetak atau online)');
+            }
+            if (!$issn) { $this->error('ISSN diperlukan.'); return self::FAILURE; }
 
-        $service = new OjsImportService($url, $gjsJournal->id, $apiKey);
+            $this->line("<fg=cyan>ISSN     :</> {$issn}");
+            $this->newLine();
 
-        $conn = $service->testConnection();
-        if ($conn['ok']) {
-            $this->info('✓ ' . $conn['message']);
-        } else {
-            $this->error('✗ ' . $conn['message']);
-            return self::FAILURE;
+            $conn = $service->testCrossrefByIssn($issn);
+            if ($conn['ok']) {
+                $this->info('✓ ' . $conn['message']);
+            } else {
+                $this->error('✗ ' . $conn['message']);
+                return self::FAILURE;
+            }
+            if ($test) return self::SUCCESS;
+            if (!$this->confirm("Lanjutkan import ke '{$gjsJournal->name}'?", true)) return self::SUCCESS;
+
+            $this->newLine();
+            $this->line('<fg=cyan>▸ Mengimpor via CrossRef...</>');
+            $service->importFromCrossref($issn, function ($type, $data) {
+                $this->getOutput()->write('.');
+            });
         }
 
-        if ($test) return self::SUCCESS;
+        // ── OJS REST API
+        else {
+            if (!$url) {
+                $url = $this->ask('URL dasar OJS (contoh: https://jurnal.example.com/index.php/jiki)');
+            }
+            if (!$url) { $this->error('URL OJS diperlukan.'); return self::FAILURE; }
+            if ($apiKey === null) {
+                $apiKey = $this->ask('API key OJS (Enter untuk skip)') ?: null;
+            }
 
-        if (!$this->confirm("Lanjutkan import ke jurnal '{$gjsJournal->name}'?", true)) {
-            return self::SUCCESS;
+            $this->line("<fg=cyan>URL OJS  :</> {$url}");
+            $this->newLine();
+
+            $service->setRestConfig($url, $apiKey);
+            $conn = $service->testRestConnection();
+            if ($conn['ok']) {
+                $this->info('✓ ' . $conn['message']);
+            } else {
+                $this->error('✗ ' . $conn['message']);
+                return self::FAILURE;
+            }
+            if ($test) return self::SUCCESS;
+            if (!$this->confirm("Lanjutkan import ke '{$gjsJournal->name}'?", true)) return self::SUCCESS;
+
+            $this->newLine();
+            $service->importFromRest($only);
+            $this->line("  <fg=green>✓ Seksi: {$service->sectionsCreated} | Edisi: {$service->issuesCreated} | Artikel: {$service->articlesCreated} / diperbarui: {$service->articlesUpdated}</>");
         }
 
-        $this->newLine();
+        $this->newLine(2);
+        $this->table(
+            ['Metrik', 'Jumlah'],
+            [
+                ['Edisi baru',     $service->issuesCreated],
+                ['Artikel baru',   $service->articlesCreated],
+                ['Diperbarui',     $service->articlesUpdated],
+                ['Error',          $service->errors],
+            ]
+        );
 
-        if (in_array('sections', $only)) {
-            $this->line('<fg=cyan>▸ Mengimpor seksi...</>');
-            $service->importSections();
-            $this->line("  <fg=green>✓ Seksi baru: {$service->sectionsCreated}</>");
-        }
-
-        if (in_array('issues', $only)) {
-            $this->line('<fg=cyan>▸ Mengimpor edisi...</>');
-            $service->importIssues();
-            $this->line("  <fg=green>✓ Edisi baru: {$service->issuesCreated} | Diperbarui: {$service->issuesSkipped}</>");
-        }
-
-        if (in_array('articles', $only)) {
-            $this->line('<fg=cyan>▸ Mengimpor artikel...</>');
-            $service->importArticles();
-            $this->line("  <fg=green>✓ Artikel baru: {$service->articlesCreated} | Diperbarui: {$service->articlesUpdated} | Error: {$service->errors}</>");
-        }
-
-        $this->newLine();
         foreach ($service->getLogs() as $entry) {
             match ($entry['level']) {
                 'warn'  => $this->warn("  [{$entry['time']}] {$entry['msg']}"),

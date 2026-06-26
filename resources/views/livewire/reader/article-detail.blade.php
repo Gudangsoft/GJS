@@ -42,9 +42,20 @@
 @if($contributor->affiliation)<meta name="citation_author_institution" content="{{ $contributor->affiliation }}">@endif
 @if($contributor->orcid)<meta name="citation_author_orcid" content="https://orcid.org/{{ $contributor->orcid }}">@endif
 @endforeach
+@if(\App\Models\Setting::get('seo.scholar_enabled','1') === '1')
 <meta name="citation_journal_title" content="{{ $journal->name }}">
-@if($journal->issn_online)<meta name="citation_issn" content="{{ $journal->issn_online }}">
-@elseif($journal->issn_print)<meta name="citation_issn" content="{{ $journal->issn_print }}">@endif
+@php $scholPub = $journal->publisher ?? \App\Models\Setting::get('seo.scholar_publisher'); @endphp
+@if($scholPub)<meta name="citation_publisher" content="{{ $scholPub }}">@endif
+@php $scholInst = \App\Models\Setting::get('seo.scholar_repository_institution'); @endphp
+@if($scholInst)<meta name="citation_repository_institution" content="{{ $scholInst }}">@endif
+@if($journal->issn_online)
+<meta name="citation_issn" content="{{ $journal->issn_online }}">
+<meta name="citation_online_issn" content="{{ $journal->issn_online }}">
+@endif
+@if($journal->issn_print)
+<meta name="citation_print_issn" content="{{ $journal->issn_print }}">
+@if(!$journal->issn_online)<meta name="citation_issn" content="{{ $journal->issn_print }}">@endif
+@endif
 @if($article->issue)
 @if($article->issue->volume)<meta name="citation_volume" content="{{ $article->issue->volume }}">@endif
 @if($article->issue->number)<meta name="citation_issue" content="{{ $article->issue->number }}">@endif
@@ -56,18 +67,22 @@
 <meta name="citation_firstpage" content="{{ trim($pf) }}">
 @if($pl)<meta name="citation_lastpage" content="{{ trim($pl) }}">@endif
 @endif
-@if($article->doi)<meta name="citation_doi" content="{{ $article->doi }}">@endif
+@if($article->doi)
+<meta name="citation_doi" content="{{ $article->doi }}">
+<meta name="citation_id" content="doi:{{ $article->doi }}">
+@endif
 @if($article->submission->abstract)<meta name="citation_abstract" content="{{ strip_tags($article->submission->abstract) }}">@endif
 @if($article->submission->keywords)
 @foreach($article->submission->keywords as $kw)<meta name="citation_keyword" content="{{ $kw }}">@endforeach
 @endif
-<meta name="citation_language" content="{{ $article->submission->locale ?? 'id' }}">
+<meta name="citation_language" content="{{ $article->submission->locale ?? \App\Models\Setting::get('seo.scholar_language','id') }}">
 <meta name="citation_abstract_html_url" content="{{ route('journals.articles.show', [$journal->slug, $article->id]) }}">
 @foreach($articleGalleys as $galley)
 @if(str_contains(strtolower($galley->label),'pdf'))
 <meta name="citation_pdf_url" content="{{ route('journals.articles.galley', [$journal->slug, $article->id, $galley->id]) }}">
 @endif
 @endforeach
+@endif
 @endpush
 
 <div class="bg-slate-50 min-h-screen">

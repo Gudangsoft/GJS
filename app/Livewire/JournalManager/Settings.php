@@ -13,6 +13,7 @@ class Settings extends Component
     use WithFileUploads;
 
     public ?Journal $journal = null;
+    public int $journalId = 0; // int fallback — reliable Livewire serialization
 
     // File uploads
     public $newLogo        = null;
@@ -169,6 +170,7 @@ class Settings extends Component
         $this->journal = $journals->firstWhere('id', $activeId) ?? $journals->first();
 
         if (!$this->journal) return;
+        $this->journalId = $this->journal->id;
 
         $j = $this->journal;
         $this->name                  = $j->name ?? '';
@@ -489,16 +491,19 @@ class Settings extends Component
 
     private function persistLists(): void
     {
-        $journal = $this->journal ?? $this->getActiveJournal();
+        // journalId (int) is always reliably preserved by Livewire — use it first
+        $journal = ($this->journalId > 0)
+            ? Journal::find($this->journalId)
+            : ($this->journal ?? $this->getActiveJournal());
+
         if (!$journal) return;
-        $journal->refresh();
+
         $journal->update([
-            'settings' => array_merge($journal->settings ?? [], [
+            'settings' => array_merge($journal->fresh()->settings ?? [], [
                 'indexed_by' => $this->indexed_by,
                 'sponsors'   => $this->sponsors,
             ]),
         ]);
-        $this->journal = $journal;
     }
 
     public function addPresetIndexer(string $name, string $url): void

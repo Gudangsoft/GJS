@@ -29,18 +29,6 @@ use Illuminate\Support\Facades\Route;
 // ─── Public Reader Portal ────────────────────────────────────────────────────
 Route::get('/', JournalIndex::class)->name('home');
 
-Route::prefix('journals/{journal:slug}')->name('journals.')->group(function () {
-    Route::get('/',                                        JournalHome::class)->name('home');
-    Route::get('/issues',                                  IssueArchive::class)->name('issues');
-    Route::get('/issues/{issue}',                          IssueToc::class)->name('issues.show');
-    Route::get('/articles/{article}',                      ArticleDetail::class)->name('articles.show');
-    Route::get('/articles/{article}/galley/{galley}',      GalleyController::class)->name('articles.galley');
-    Route::get('/articles/{article}/galley/{galley}/view', GalleyViewerController::class)->name('articles.galley.view');
-    Route::get('/search',                                  JournalSearch::class)->name('search');
-    Route::get('/browse/{by}',                             JournalBrowse::class)->name('browse');
-    Route::get('/about/{page?}',                           JournalPage::class)->name('page');
-    Route::get('/oai',                                     JournalOaiController::class)->name('oai');
-});
 
 // ─── Public LOA Verification (no auth required — QR code accessible to anyone) ──
 Route::get('/loa/verify/{code}', function (string $code) {
@@ -165,3 +153,20 @@ Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('/robots.txt', function () {
     return response(view('robots')->render(), 200, ['Content-Type' => 'text/plain']);
 })->name('robots');
+
+// ─── Journal short URLs: /{slug}/... ─────────────────────────────────────────
+// Diletakkan PALING BAWAH — route lain (login, manager, dll) diproses lebih dulu.
+// Model binding otomatis 404 jika slug tidak cocok dengan jurnal mana pun.
+Route::prefix('{journal:slug}')->name('journals.')->group(function () {
+    Route::get('/',                                        JournalHome::class)->name('home');
+    Route::get('/issues',                                  IssueArchive::class)->name('issues');
+    Route::get('/issues/{issue}',                          IssueToc::class)->name('issues.show');
+    Route::get('/articles/{article}',                      ArticleDetail::class)->name('articles.show');
+    Route::get('/articles/{article}/galley/{galley}',      GalleyController::class)->name('articles.galley');
+    Route::get('/articles/{article}/galley/{galley}/view', GalleyViewerController::class)->name('articles.galley.view');
+    Route::get('/search',                                  JournalSearch::class)->name('search');
+    Route::get('/browse/{by}',                             JournalBrowse::class)->name('browse');
+    Route::get('/about/{page?}',                           JournalPage::class)->name('page');
+    Route::get('/oai',                                     JournalOaiController::class)->name('oai');
+});
+

@@ -4,15 +4,108 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? config('app.name') }}</title>
-    <meta name="description" content="{{ $description ?? 'Platform jurnal ilmiah Indonesia' }}">
+
+    @php
+        $siteName    = \App\Models\Setting::get('brand.site_name', config('app.name'));
+        $siteDesc    = $description ?? \App\Models\Setting::get('brand.description', 'Platform jurnal ilmiah Indonesia');
+        $ogImage     = \App\Models\Setting::get('brand.og_image')
+                        ? asset('storage/' . \App\Models\Setting::get('brand.og_image'))
+                        : null;
+        $ogLocale    = \App\Models\Setting::get('seo.og_locale', 'id_ID');
+        $twCard      = \App\Models\Setting::get('seo.twitter_card', 'summary_large_image');
+        $twSite      = \App\Models\Setting::get('seo.twitter_site');
+        $robots      = $metaRobots ?? \App\Models\Setting::get('seo.meta_robots', 'index,follow');
+        $keywords    = $metaKeywords ?? \App\Models\Setting::get('seo.meta_keywords');
+        $pageTitle   = isset($title) ? $title . ' — ' . $siteName : $siteName;
+        $canonUrl    = request()->url();
+
+        // Verifikasi
+        $gsc     = \App\Models\Setting::get('seo.google_search_console');
+        $bing    = \App\Models\Setting::get('seo.bing_verification');
+        $yandex  = \App\Models\Setting::get('seo.yandex_verification');
+        $ga4     = \App\Models\Setting::get('seo.google_analytics_id');
+        $gtm     = \App\Models\Setting::get('seo.google_tag_manager');
+    @endphp
+
+    <title>{{ $pageTitle }}</title>
+
+    {{-- ── SEO Dasar ──────────────────────────────────────────────────────── --}}
+    <meta name="robots" content="{{ $robots }}">
+    <meta name="description" content="{{ $siteDesc }}">
+    @if($keywords)
+    <meta name="keywords" content="{{ $keywords }}">
+    @endif
+    <link rel="canonical" href="{{ $canonUrl }}">
+
+    {{-- ── Verifikasi Mesin Pencari ───────────────────────────────────────── --}}
+    @if($gsc)
+    <meta name="google-site-verification" content="{{ $gsc }}">
+    @endif
+    @if($bing)
+    <meta name="msvalidate.01" content="{{ $bing }}">
+    @endif
+    @if($yandex)
+    <meta name="yandex-verification" content="{{ $yandex }}">
+    @endif
+
+    {{-- ── Open Graph ─────────────────────────────────────────────────────── --}}
+    <meta property="og:type" content="{{ $ogType ?? 'website' }}">
+    <meta property="og:site_name" content="{{ $siteName }}">
+    <meta property="og:title" content="{{ $pageTitle }}">
+    <meta property="og:description" content="{{ $siteDesc }}">
+    <meta property="og:url" content="{{ $canonUrl }}">
+    <meta property="og:locale" content="{{ $ogLocale }}">
+    @if($ogImage)
+    <meta property="og:image" content="{{ $ogImage }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    @endif
+
+    {{-- ── Twitter Card ───────────────────────────────────────────────────── --}}
+    <meta name="twitter:card" content="{{ $twCard }}">
+    <meta name="twitter:title" content="{{ $pageTitle }}">
+    <meta name="twitter:description" content="{{ $siteDesc }}">
+    @if($twSite)
+    <meta name="twitter:site" content="@{{ ltrim($twSite, '@') }}">
+    @endif
+    @if($ogImage)
+    <meta name="twitter:image" content="{{ $ogImage }}">
+    @endif
+
+    {{-- ── Google Scholar Citation Meta Tag (per artikel, via @stack) ────── --}}
+    @stack('citation_meta')
+
+    {{-- ── Extra meta (per halaman) ──────────────────────────────────────── --}}
+    @stack('head_meta')
+
+    {{-- ── Favicon ─────────────────────────────────────────────────────────  --}}
+    @php $favicon = \App\Models\Setting::get('brand.favicon'); @endphp
+    @if($favicon)
+    <link rel="icon" href="{{ asset('storage/' . $favicon) }}">
+    @else
+    <link rel="icon" href="{{ asset('favicon.ico') }}">
+    @endif
+
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700&display=swap" rel="stylesheet">
+
     @livewireStyles
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head')
+
+    {{-- ── Google Tag Manager ─────────────────────────────────────────────── --}}
+    @if($gtm)
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','{{ $gtm }}');</script>
+    @elseif($ga4)
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $ga4 }}"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ $ga4 }}');</script>
+    @endif
 </head>
 <body class="h-full bg-slate-50 antialiased text-slate-800">
+{{-- GTM noscript --}}
+@if($gtm)
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $gtm }}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+@endif
 
 {{-- ── Top Navigation ─────────────────────────────────────────────────────── --}}
 <div x-data="{ open: false, mobileOpen: false }">
