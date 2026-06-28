@@ -24,7 +24,9 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     protected $fillable = [
         'salutation', 'first_name', 'last_name', 'email', 'password',
-        'orcid', 'affiliation', 'country', 'avatar', 'bio', 'url', 'phone',
+        'orcid', 'affiliation', 'position', 'department', 'country', 'avatar', 'bio', 'url', 'phone',
+        'google_scholar', 'scopus_id', 'researchgate', 'sinta_id', 'semantic_scholar',
+        'expertise_areas', 'h_index', 'total_citations',
         'locale', 'mailing_address', 'is_disabled',
         'last_login_at', 'last_login_ip', 'email_verified_at',
     ];
@@ -42,6 +44,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             'last_login_at' => 'datetime',
             'password' => 'hashed',
             'is_disabled' => 'boolean',
+            'expertise_areas' => 'array',
         ];
     }
 

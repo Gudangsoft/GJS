@@ -411,6 +411,41 @@
                 </div>
             </div>
 
+            {{-- ── Aktivitas Editorial ──────────────────────────────────────── --}}
+            <div class="rounded-2xl p-5" style="background:#fff;border:1px solid #e2e8f0;">
+                <h3 class="font-bold text-sm uppercase tracking-wide mb-4" style="color:#64748b;">Aktivitas Editorial</h3>
+
+                @if(empty($activityTimeline))
+                <p class="text-xs text-center py-4" style="color:#94a3b8;">Belum ada aktivitas.</p>
+                @else
+                <div style="position:relative;">
+                    {{-- Vertical line --}}
+                    <div style="position:absolute;left:.6875rem;top:.5rem;bottom:.5rem;width:2px;background:#f1f5f9;"></div>
+
+                    <div style="display:flex;flex-direction:column;gap:0;">
+                        @foreach($activityTimeline as $i => $ev)
+                        <div style="display:flex;gap:.875rem;position:relative;padding-bottom:{{ !$loop->last ? '1.125rem' : '0' }};">
+                            {{-- Dot --}}
+                            <div style="width:1.375rem;height:1.375rem;border-radius:50%;background:{{ $ev['color'] }}18;border:2px solid {{ $ev['color'] }};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.125rem;position:relative;z-index:1;">
+                                <svg style="width:.625rem;height:.625rem;color:{{ $ev['color'] }};" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="{{ $ev['icon'] }}"/>
+                                </svg>
+                            </div>
+                            {{-- Content --}}
+                            <div style="flex:1;min-width:0;">
+                                <p style="font-size:.8125rem;font-weight:700;color:#0f172a;margin:0 0 .125rem;line-height:1.35;">{{ $ev['label'] }}</p>
+                                @if($ev['note'])
+                                <p style="font-size:.72rem;color:#64748b;margin:0 0 .125rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $ev['note'] }}</p>
+                                @endif
+                                <p style="font-size:.7rem;color:#94a3b8;margin:0;">{{ $ev['at']->translatedFormat('d M Y, H:i') }}</p>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+            </div>
+
         </div>
     </div>
 </div>

@@ -138,8 +138,13 @@ Route::middleware(['auth', 'verified', 'journal.access:editor'])
 // ─── Reviewer Area ────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'journal.access:reviewer'])
     ->prefix('reviewer')->name('reviewer.')->group(function () {
-    Route::get('/dashboard',                      ReviewerDashboard::class)->name('dashboard');
-    Route::get('/assignments/{assignment}/review', ReviewForm::class)->name('review');
+    Route::get('/dashboard',                                ReviewerDashboard::class)->name('dashboard');
+    Route::get('/profil',                                   \App\Livewire\Reviewer\Profil::class)->name('profil');
+    Route::get('/dokumen',                                  \App\Livewire\Reviewer\Dokumen::class)->name('dokumen');
+    Route::get('/riwayat',                                  \App\Livewire\Reviewer\Riwayat::class)->name('riwayat');
+    Route::get('/assignments/{assignment}/review',          ReviewForm::class)->name('review');
+    Route::get('/assignments/{assignment}/surat-tugas',     [\App\Http\Controllers\Reviewer\ReviewDocumentController::class, 'suratTugas'])->name('surat-tugas');
+    Route::get('/assignments/{assignment}/sertifikat',      [\App\Http\Controllers\Reviewer\ReviewDocumentController::class, 'sertifikat'])->name('sertifikat');
 });
 
 // ─── Impersonation (super_admin only) ────────────────────────────────────────

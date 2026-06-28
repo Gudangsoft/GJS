@@ -5,7 +5,7 @@
     <div style="position:absolute;top:-4rem;right:-4rem;width:18rem;height:18rem;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none;"></div>
     <div style="position:absolute;bottom:-3rem;left:30%;width:12rem;height:12rem;border-radius:50%;background:rgba(255,255,255,.03);pointer-events:none;"></div>
 
-    <div style="max-width:72rem;margin:0 auto;padding:2.25rem 1.5rem 0;">
+    <div style="padding:2.25rem 1.5rem 0;">
         <div class="flex items-start justify-between gap-4 flex-wrap mb-6">
             <div>
                 <p style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#93c5fd;margin-bottom:.375rem;">Panel Reviewer</p>
@@ -60,7 +60,7 @@
     </div>
 </div>
 
-<div style="max-width:72rem;margin:0 auto;padding:1.5rem;">
+<div style="padding:1.5rem;">
 
 @if(session('success'))
 <div class="mb-5 flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold" style="background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;">
@@ -233,6 +233,11 @@
                             <svg style="width:.8125rem;height:.8125rem;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/></svg>
                             {{ $a->review ? 'Lanjutkan' : 'Mulai Review' }}
                         </a>
+                        <a href="{{ route('reviewer.surat-tugas', $a) }}" target="_blank"
+                           style="display:inline-flex;align-items:center;justify-content:center;gap:.35rem;font-size:.75rem;font-weight:600;color:#2563eb;text-decoration:none;padding:.375rem .75rem;border-radius:.5rem;border:1px solid #bfdbfe;background:#eff6ff;width:100%;">
+                            <svg style="width:.75rem;height:.75rem;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            Surat Tugas
+                        </a>
 
                         @elseif($a->status === 'completed')
                         <span style="display:inline-flex;align-items:center;justify-content:center;gap:.4rem;background:#f0fdf4;color:#059669;font-size:.8125rem;font-weight:700;padding:.5rem 1rem;border-radius:.625rem;border:1px solid #bbf7d0;width:100%;">
@@ -245,6 +250,11 @@
                             Lihat Review
                         </a>
                         @endif
+                        <a href="{{ route('reviewer.sertifikat', $a) }}" target="_blank"
+                           style="display:inline-flex;align-items:center;justify-content:center;gap:.35rem;font-size:.75rem;font-weight:700;color:#059669;text-decoration:none;padding:.375rem .75rem;border-radius:.5rem;border:1px solid #bbf7d0;background:#f0fdf4;width:100%;">
+                            <svg style="width:.75rem;height:.75rem;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 013.138-3.138zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                            Unduh Sertifikat
+                        </a>
 
                         @elseif(in_array($a->status, ['declined','cancelled']))
                         <span style="display:inline-flex;align-items:center;justify-content:center;gap:.4rem;background:#fef2f2;color:#dc2626;font-size:.8125rem;font-weight:700;padding:.5rem 1rem;border-radius:.625rem;border:1px solid #fecaca;width:100%;">

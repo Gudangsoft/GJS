@@ -4,7 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? "Panel Reviewer" }} — {{ config("app.name") }}</title>
+    @php
+    $siteName   = \App\Models\Setting::get('brand.site_name', config('app.name'));
+    $faviconRaw = \App\Models\Setting::get('brand.favicon');
+    $logoRaw    = \App\Models\Setting::get('brand.logo');
+    $brandLogo  = $logoRaw  ? asset('storage/' . $logoRaw)   : null;
+    $brandName  = $siteName;
+    $brandAbbrev = mb_strtoupper(mb_substr(preg_replace('/[^A-Za-z]/', '', $siteName), 0, 3)) ?: 'GJS';
+    @endphp
+    <title>{{ $title ?? "Panel Reviewer" }} — {{ $siteName }}</title>
+    @if($faviconRaw)
+    <link rel="icon" href="{{ asset('storage/' . $faviconRaw) }}">
+    @else
+    <link rel="icon" href="{{ asset('favicon.ico') }}">
+    @endif
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700&display=swap" rel="stylesheet">
     @livewireStyles
@@ -32,6 +45,13 @@ $navGroups = [
             'match' => 'reviewer/dashboard',
             'url'   => route('reviewer.dashboard'),
             'icon'  => 'M3 7h18M3 12h18M3 17h7',
+            'badge' => null,
+        ],
+        [
+            'label' => 'Profil Saya',
+            'match' => 'reviewer/profil',
+            'url'   => route('reviewer.profil'),
+            'icon'  => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
             'badge' => null,
         ],
     ],
@@ -66,6 +86,22 @@ $navGroups = [
             'match' => 'notifications',
             'url'   => route('notifications.index'),
             'icon'  => 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9',
+            'badge' => null,
+        ],
+    ],
+    'DOKUMEN & RIWAYAT' => [
+        [
+            'label' => 'Dokumen Saya',
+            'match' => 'reviewer/dokumen',
+            'url'   => route('reviewer.dokumen'),
+            'icon'  => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+            'badge' => null,
+        ],
+        [
+            'label' => 'Riwayat Review',
+            'match' => 'reviewer/riwayat',
+            'url'   => route('reviewer.riwayat'),
+            'icon'  => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
             'badge' => null,
         ],
     ],
@@ -136,10 +172,16 @@ $navGroups = [
     {{-- User menu --}}
     <div x-data="{ open: false }" class="relative">
         <button @click="open = !open" class="flex items-center gap-2 pl-2">
+            @if($user->avatar)
+            <img src="{{ Storage::url($user->avatar) }}"
+                 class="w-8 h-8 rounded-full object-cover"
+                 style="border:2px solid rgba(255,255,255,.3);">
+            @else
             <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
                  style="background:#059669;">
                 {{ strtoupper(substr($user->first_name, 0, 1)) }}{{ strtoupper(substr($user->last_name ?? '', 0, 1)) }}
             </div>
+            @endif
             <div class="hidden sm:block text-left">
                 <p class="text-white text-xs font-semibold leading-tight">{{ $user->first_name }}</p>
                 <p class="text-xs leading-tight" style="color:#6ee7b7;">Reviewer</p>
