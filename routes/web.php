@@ -61,6 +61,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         if ($user->hasAnyRole(['journal_manager', 'editor', 'super_admin'])) {
             return redirect()->route('manager.dashboard');
         }
+        if ($user->hasRole('reviewer') && !$user->hasRole('author')) {
+            return redirect()->route('reviewer.dashboard');
+        }
         return redirect()->route('dashboard.author');
     })->name('dashboard');
 
