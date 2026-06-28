@@ -6,7 +6,7 @@ use App\Models\ReviewAssignment;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
+#[Layout('layouts.reviewer')]
 class Dashboard extends Component
 {
     public string $tab = 'pending';

@@ -8,7 +8,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
+#[Layout('layouts.reviewer')]
 class ReviewForm extends Component
 {
     public ReviewAssignment $assignment;

@@ -1,7 +1,7 @@
 <div style="background:#f1f5f9;min-height:100vh;">
 
 {{-- ══ HERO HEADER ═══════════════════════════════════════════════════════════ --}}
-<div style="background:linear-gradient(135deg,#0c1a3a 0%,#1a3272 55%,#1d4ed8 100%);position:relative;overflow:hidden;">
+<div style="background:linear-gradient(135deg,#022c22 0%,#064e3b 55%,#059669 100%);position:relative;overflow:hidden;">
     <div style="position:absolute;top:-4rem;right:-4rem;width:18rem;height:18rem;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none;"></div>
     <div style="position:absolute;bottom:-3rem;left:30%;width:12rem;height:12rem;border-radius:50%;background:rgba(255,255,255,.03);pointer-events:none;"></div>
 
@@ -83,11 +83,11 @@
                 ['tab' => 'declined',  'label' => 'Ditolak',   'count' => $counts['declined'],  'dot' => null],
             ] as $t)
             <button wire:click="setTab('{{ $t['tab'] }}')"
-                    style="flex:1;padding:.875rem .5rem;font-size:.8125rem;font-weight:700;border:none;background:transparent;cursor:pointer;transition:all .15s;color:{{ $tab === $t['tab'] ? '#1d4ed8' : '#64748b' }};border-bottom:2px solid {{ $tab === $t['tab'] ? '#1d4ed8' : 'transparent' }};margin-bottom:-1px;">
+                    style="flex:1;padding:.875rem .5rem;font-size:.8125rem;font-weight:700;border:none;background:transparent;cursor:pointer;transition:all .15s;color:{{ $tab === $t['tab'] ? '#059669' : '#64748b' }};border-bottom:2px solid {{ $tab === $t['tab'] ? '#059669' : 'transparent' }};margin-bottom:-1px;">
                 <span style="display:inline-flex;align-items:center;gap:.375rem;">
                     {{ $t['label'] }}
                     @if($t['count'] > 0)
-                    <span style="font-size:.6875rem;font-weight:800;background:{{ $tab === $t['tab'] ? '#1d4ed8' : '#e2e8f0' }};color:{{ $tab === $t['tab'] ? '#fff' : '#64748b' }};border-radius:.375rem;padding:.125rem .375rem;line-height:1.4;">{{ $t['count'] }}</span>
+                    <span style="font-size:.6875rem;font-weight:800;background:{{ $tab === $t['tab'] ? '#059669' : '#e2e8f0' }};color:{{ $tab === $t['tab'] ? '#fff' : '#64748b' }};border-radius:.375rem;padding:.125rem .375rem;line-height:1.4;">{{ $t['count'] }}</span>
                     @endif
                     @if($t['dot'])
                     <span style="width:.4375rem;height:.4375rem;border-radius:50%;background:{{ $t['dot'] }};display:inline-block;"></span>
@@ -153,7 +153,7 @@
                         {{-- Meta badges --}}
                         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin-bottom:.625rem;">
                             @if($a->submission->journal)
-                            <span style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;background:#eff6ff;color:#1d4ed8;border-radius:.375rem;padding:.2rem .5rem;">
+                            <span style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;background:#f0fdf4;color:#059669;border-radius:.375rem;padding:.2rem .5rem;">
                                 {{ $a->submission->journal->name_abbrev ?? Str::limit($a->submission->journal->name,18) }}
                             </span>
                             @endif
@@ -229,7 +229,7 @@
 
                         @elseif($a->status === 'accepted')
                         <a href="{{ route('reviewer.review', $a) }}"
-                           style="display:inline-flex;align-items:center;justify-content:center;gap:.4rem;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-size:.8125rem;font-weight:700;padding:.5rem 1.25rem;border-radius:.625rem;text-decoration:none;white-space:nowrap;width:100%;">
+                           style="display:inline-flex;align-items:center;justify-content:center;gap:.4rem;background:linear-gradient(135deg,#059669,#047857);color:#fff;font-size:.8125rem;font-weight:700;padding:.5rem 1.25rem;border-radius:.625rem;text-decoration:none;white-space:nowrap;width:100%;">
                             <svg style="width:.8125rem;height:.8125rem;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/></svg>
                             {{ $a->review ? 'Lanjutkan' : 'Mulai Review' }}
                         </a>
@@ -286,7 +286,7 @@
             @php $days = now()->diffInDays($d->date_due, false); @endphp
             <div style="padding:.75rem 1.125rem;border-bottom:1px solid #f8fafc;display:flex;align-items:center;gap:.75rem;">
                 <div style="text-align:center;width:2.75rem;flex-shrink:0;">
-                    <div style="font-size:1.125rem;font-weight:800;line-height:1;color:{{ $days <= 3 ? '#dc2626' : ($days <= 7 ? '#ea580c' : '#1d4ed8') }};">
+                    <div style="font-size:1.125rem;font-weight:800;line-height:1;color:{{ $days <= 3 ? '#dc2626' : ($days <= 7 ? '#ea580c' : '#059669') }};">
                         {{ $d->date_due->format('d') }}
                     </div>
                     <div style="font-size:.625rem;font-weight:700;text-transform:uppercase;color:#94a3b8;margin-top:.1rem;">
@@ -314,7 +314,7 @@
         </div>
         <div style="padding:1.125rem;">
             <div style="display:flex;align-items:center;gap:.875rem;margin-bottom:1rem;">
-                <div style="width:3rem;height:3rem;border-radius:50%;background:linear-gradient(135deg,#1d4ed8,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.125rem;font-weight:800;flex-shrink:0;">
+                <div style="width:3rem;height:3rem;border-radius:50%;background:linear-gradient(135deg,#059669,#047857);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.125rem;font-weight:800;flex-shrink:0;">
                     {{ strtoupper(substr(auth()->user()->first_name,0,1)) }}
                 </div>
                 <div style="min-width:0;">
