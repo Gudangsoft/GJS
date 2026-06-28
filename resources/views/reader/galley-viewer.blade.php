@@ -76,7 +76,8 @@
         </a>
         @endif
 
-        {{-- Download button --}}
+        @if(!($htmlContent ?? null))
+        {{-- Download button — only for non-HTML galleys --}}
         <a href="{{ route('journals.articles.galley', [$journal->slug, $article->id, $galley->id]) }}?dl=1"
            style="
                display:inline-flex;align-items:center;gap:6px;
@@ -93,12 +94,133 @@
             </svg>
             Unduh
         </a>
+        @else
+        {{-- Font size toggle for HTML reader --}}
+        <div style="display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.1);border-radius:.5rem;padding:3px;">
+            <button onclick="changeFontSize(-1)" title="Perkecil teks"
+                    style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:.375rem;border:none;background:transparent;color:#cbd5e1;cursor:pointer;font-size:1rem;font-weight:700;line-height:1;"
+                    onmouseover="this.style.background='rgba(255,255,255,.15)'"
+                    onmouseout="this.style.background='transparent'">A−</button>
+            <button onclick="changeFontSize(1)" title="Perbesar teks"
+                    style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:.375rem;border:none;background:transparent;color:#cbd5e1;cursor:pointer;font-size:1.125rem;font-weight:700;line-height:1;"
+                    onmouseover="this.style.background='rgba(255,255,255,.15)'"
+                    onmouseout="this.style.background='transparent'">A+</button>
+        </div>
+        @endif
     </div>
 
-    {{-- ── PDF FRAME ────────────────────────────────────────────────────── --}}
-    {{-- $pdfUrl = direct storage URL (avoids single-threaded PHP server deadlock) --}}
+    {{-- ── HTML ARTICLE READER ─────────────────────────────────────────── --}}
+    @if($htmlContent ?? null)
+    <div id="htmlReader" style="
+        flex:1;
+        overflow-y:auto;
+        background:#f8fafc;
+        padding:0;
+    ">
+        <div id="htmlBody" style="
+            max-width:52rem;
+            margin:0 auto;
+            padding:2.5rem 1.5rem 4rem;
+            font-family:'Georgia','Times New Roman',serif;
+            font-size:1.0625rem;
+            line-height:1.85;
+            color:#1e293b;
+        ">
+            {{-- Article meta header --}}
+            <div style="text-align:center;margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:2px solid #e2e8f0;">
+                @if($article->submission->section)
+                <div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#2563eb;margin-bottom:.75rem;">
+                    {{ $article->submission->section->title ?? '' }}
+                </div>
+                @endif
+                <h1 style="font-size:1.5rem;font-weight:700;line-height:1.3;color:#0f172a;margin:0 0 1rem;font-family:'Instrument Sans',system-ui,sans-serif;">
+                    {{ $article->submission->title }}
+                </h1>
+                @if($article->submission->subtitle)
+                <p style="font-size:1rem;color:#475569;margin:0 0 1rem;font-style:italic;font-family:'Instrument Sans',system-ui,sans-serif;">
+                    {{ $article->submission->subtitle }}
+                </p>
+                @endif
+                <div style="font-size:.875rem;color:#64748b;font-family:'Instrument Sans',system-ui,sans-serif;">
+                    @foreach($article->submission->contributors as $i => $c)
+                    <span>{{ $c->full_name }}@if($c->affiliation) <span style="color:#94a3b8;font-size:.8rem;">({{ $c->affiliation }})</span>@endif</span>@if(!$loop->last), @endif
+                    @endforeach
+                </div>
+                @if($article->doi)
+                <div style="margin-top:.75rem;font-size:.8125rem;font-family:'Instrument Sans',system-ui,sans-serif;">
+                    <a href="https://doi.org/{{ $article->doi }}" style="color:#2563eb;">https://doi.org/{{ $article->doi }}</a>
+                </div>
+                @endif
+            </div>
 
-    @if($pdfUrl)
+            {{-- Abstract --}}
+            @if($article->submission->abstract)
+            <div style="background:#eff6ff;border-left:4px solid #2563eb;padding:1.25rem 1.5rem;margin-bottom:2rem;border-radius:0 .5rem .5rem 0;">
+                <p style="font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#1d4ed8;margin:0 0 .5rem;font-family:'Instrument Sans',system-ui,sans-serif;">Abstrak</p>
+                <p style="margin:0;font-size:.9375rem;color:#1e3a8a;line-height:1.7;">{!! $article->submission->abstract !!}</p>
+            </div>
+            @endif
+
+            {{-- HTML content --}}
+            <div class="article-html-content">
+                {!! $htmlContent !!}
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .article-html-content h1,.article-html-content h2,.article-html-content h3,
+        .article-html-content h4,.article-html-content h5 {
+            font-family:'Instrument Sans',system-ui,sans-serif;
+            color:#0f172a;margin-top:2rem;margin-bottom:.75rem;line-height:1.3;
+        }
+        .article-html-content h2 { font-size:1.25rem;font-weight:700; }
+        .article-html-content h3 { font-size:1.0625rem;font-weight:700; }
+        .article-html-content p { margin:0 0 1.2rem; }
+        .article-html-content table {
+            width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:.9rem;
+            font-family:'Instrument Sans',system-ui,sans-serif;
+        }
+        .article-html-content th {
+            background:#1e3a8a;color:#fff;padding:.6rem .875rem;text-align:left;font-size:.8125rem;
+        }
+        .article-html-content td { padding:.55rem .875rem;border-bottom:1px solid #e2e8f0; }
+        .article-html-content tr:nth-child(even) td { background:#f8fafc; }
+        .article-html-content figure { margin:2rem 0;text-align:center; }
+        .article-html-content figure img { max-width:100%;border-radius:.5rem;box-shadow:0 4px 16px rgba(0,0,0,.1); }
+        .article-html-content figcaption {
+            font-size:.8125rem;color:#64748b;margin-top:.5rem;
+            font-family:'Instrument Sans',system-ui,sans-serif;font-style:italic;
+        }
+        .article-html-content img { max-width:100%;height:auto; }
+        .article-html-content blockquote {
+            border-left:3px solid #cbd5e1;padding-left:1.25rem;margin:1.5rem 0;
+            color:#475569;font-style:italic;
+        }
+        .article-html-content a { color:#2563eb;text-decoration:underline; }
+        .article-html-content sup { font-size:.7em;line-height:0; }
+        .article-html-content .references, .article-html-content #references {
+            font-size:.875rem;line-height:1.7;
+        }
+    </style>
+
+    <script>
+        var baseFontSize = 17;
+        function changeFontSize(delta) {
+            baseFontSize = Math.max(13, Math.min(24, baseFontSize + delta));
+            document.getElementById('htmlBody').style.fontSize = baseFontSize + 'px';
+        }
+        // Show issue button on desktop
+        (function() {
+            var btn = document.getElementById('btn-issue');
+            function applyWidth() { if (btn) btn.style.display = window.innerWidth >= 768 ? 'inline-flex' : 'none'; }
+            applyWidth();
+            window.addEventListener('resize', applyWidth);
+        })();
+    </script>
+
+    {{-- ── PDF FRAME ────────────────────────────────────────────────────── --}}
+    @elseif($pdfUrl)
     <iframe
         id="pdfFrame"
         src="{{ $pdfUrl }}"

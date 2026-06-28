@@ -81,12 +81,25 @@
                     @if($sub->submitted_at) · {{ $sub->submitted_at->format('d M Y') }}@endif
                 </p>
             </div>
-            <a href="{{ route('editor.submissions.review', $sub->id) }}"
-               class="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg text-white transition-colors shrink-0"
-               style="background:#1d4ed8;">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                Kelola
-            </a>
+            <div class="flex items-center gap-2 shrink-0">
+                {{-- Galley link for production/published articles --}}
+                @if(in_array($sub->status, ['production','scheduled','published']) && $sub->article)
+                <a href="{{ route('manager.article-galleys', $sub->article->id) }}"
+                   class="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+                   style="background:#ecfeff;color:#0891b2;border:1px solid #a5f3fc;">
+                    <svg style="width:.75rem;height:.75rem;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"/>
+                    </svg>
+                    Galley
+                </a>
+                @endif
+                <a href="{{ route('editor.submissions.review', $sub->id) }}"
+                   class="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg text-white transition-colors"
+                   style="background:#1d4ed8;">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    Kelola
+                </a>
+            </div>
         </div>
         @endforeach
     </div>

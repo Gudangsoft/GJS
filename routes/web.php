@@ -77,6 +77,7 @@ Route::middleware(['auth', 'verified', 'journal.access:editor'])->group(function
     Route::get('/manager/submissions',   \App\Livewire\JournalManager\Submissions::class)->name('manager.submissions');
     Route::get('/manager/reviews',        \App\Livewire\JournalManager\Reviews::class)->name('manager.reviews');
     Route::get('/manager/copy-editing',   \App\Livewire\JournalManager\CopyEditing::class)->name('manager.copy-editing');
+    Route::get('/manager/articles/{article}/galleys', \App\Livewire\JournalManager\ArticleGalleys::class)->name('manager.article-galleys');
     Route::get('/manager/issues',        \App\Livewire\JournalManager\Issues::class)->name('manager.issues');
     Route::get('/manager/sections',      \App\Livewire\JournalManager\Sections::class)->name('manager.sections');
     Route::get('/manager/announcements', \App\Livewire\JournalManager\Announcements::class)->name('manager.announcements');

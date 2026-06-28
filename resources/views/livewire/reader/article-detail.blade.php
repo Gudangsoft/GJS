@@ -912,11 +912,24 @@
             @if($articleGalleys->isNotEmpty())
                 @foreach($articleGalleys as $galley)
                 @php
-                    $hasFile = !empty($galley->remote_url) || !empty($galley->submission_file_id);
-                    $isPdf   = $hasFile && str_contains(strtolower($galley->label), 'pdf');
+                    $hasFile = !empty($galley->remote_url) || !empty($galley->submission_file_id) || !empty($galley->html_content);
+                    $isPdf   = $hasFile && str_contains(strtolower($galley->label), 'pdf') && empty($galley->html_content);
+                    $isHtml  = $hasFile && ($galley->isHtml());
                 @endphp
                 @if($hasFile)
-                    @if($isPdf)
+                    @if($isHtml)
+                    <a href="{{ route('journals.articles.galley.view', [$journal->slug, $article->id, $galley->id]) }}"
+                       class="flex items-center gap-3 w-full px-4 py-3 rounded-xl font-semibold text-sm transition-all hover:brightness-110 active:scale-95"
+                       style="background:linear-gradient(135deg,#0891b2,#0e7490);color:#fff;">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"/>
+                        </svg>
+                        <span class="flex-1">Baca {{ $galley->label }}</span>
+                        @if($galley->views > 0)
+                        <span class="text-cyan-200 text-xs font-normal">{{ number_format($galley->views) }}×</span>
+                        @endif
+                    </a>
+                    @elseif($isPdf)
                     <a href="{{ route('journals.articles.galley.view', [$journal->slug, $article->id, $galley->id]) }}"
                        class="flex items-center gap-3 w-full px-4 py-3 rounded-xl font-semibold text-sm transition-all hover:brightness-110 active:scale-95"
                        style="background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;">

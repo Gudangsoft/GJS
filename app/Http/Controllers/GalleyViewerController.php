@@ -18,8 +18,21 @@ class GalleyViewerController extends Controller
 
         $article->loadMissing(['submission.contributors', 'issue']);
 
-        // Resolve the direct public storage URL so the iframe doesn't need to
-        // go through the PHP router (avoids single-threaded server deadlock).
+        // HTML galley — render inline
+        if ($galley->isHtml()) {
+            $galley->increment('views');
+            $article->increment('downloads');
+            return view('reader.galley-viewer', [
+                'journal'     => $journal,
+                'article'     => $article,
+                'galley'      => $galley,
+                'pdfUrl'      => null,
+                'htmlContent' => $galley->html_content,
+            ]);
+        }
+
+        // Resolve direct storage URL so the iframe doesn't go through the PHP router
+        // (avoids single-threaded server deadlock with built-in dev server).
         $pdfUrl = null;
         if ($galley->remote_url) {
             $pdfUrl = $galley->remote_url;
@@ -31,10 +44,11 @@ class GalleyViewerController extends Controller
         }
 
         return view('reader.galley-viewer', [
-            'journal' => $journal,
-            'article' => $article,
-            'galley'  => $galley,
-            'pdfUrl'  => $pdfUrl,
+            'journal'     => $journal,
+            'article'     => $article,
+            'galley'      => $galley,
+            'pdfUrl'      => $pdfUrl,
+            'htmlContent' => null,
         ]);
     }
 }

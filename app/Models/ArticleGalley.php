@@ -12,7 +12,7 @@ class ArticleGalley extends Model
 
     protected $fillable = [
         'article_id', 'label', 'locale', 'submission_file_id',
-        'remote_url', 'sequence', 'is_approved', 'views',
+        'remote_url', 'html_content', 'sequence', 'is_approved', 'views',
     ];
 
     protected $casts = [
@@ -27,5 +27,17 @@ class ArticleGalley extends Model
     public function file(): BelongsTo
     {
         return $this->belongsTo(SubmissionFile::class, 'submission_file_id');
+    }
+
+    public function isHtml(): bool
+    {
+        return str_contains(strtolower($this->label), 'html') || !empty($this->html_content);
+    }
+
+    public function hasContent(): bool
+    {
+        return !empty($this->remote_url)
+            || !empty($this->submission_file_id)
+            || !empty($this->html_content);
     }
 }
