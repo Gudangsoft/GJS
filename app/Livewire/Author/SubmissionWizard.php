@@ -15,7 +15,7 @@ use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
-#[Layout('layouts.app')]
+#[Layout('layouts.author')]
 #[Title('Kirim Naskah Baru')]
 class SubmissionWizard extends Component
 {
@@ -31,7 +31,8 @@ class SubmissionWizard extends Component
     // Step 2 – Metadata
     public string $title         = '';
     public string $subtitle      = '';
-    public string $abstract      = '';
+    public string $abstractId    = '';
+    public string $abstractEn    = '';
     public string $keywordsInput = '';
     public string $locale        = 'id';
 
@@ -129,7 +130,10 @@ class SubmissionWizard extends Component
             'status'             => 'submitted',
             'title'              => $this->sanitizePlain($this->title),
             'subtitle'           => $this->sanitizePlain($this->subtitle) ?: null,
-            'abstract'           => $this->sanitizeRich($this->abstract),
+            'abstract'           => array_filter([
+                'id' => $this->sanitizeRich($this->abstractId),
+                'en' => $this->sanitizeRich($this->abstractEn) ?: null,
+            ]),
             'keywords'           => $keywords ?: null,
             'locale'             => $this->locale,
             'competing_interests'=> $this->sanitizePlain($this->competingInterests) ?: null,
@@ -196,13 +200,15 @@ class SubmissionWizard extends Component
                 'sectionId.required' => 'Pilih seksi naskah.',
             ]),
             2 => $this->validate([
-                'title'    => 'required|string|min:10|max:500',
-                'abstract' => 'required|string|min:50|max:5000',
+                'title'      => 'required|string|min:10|max:500',
+                'abstractId' => 'required|string|min:50|max:5000',
+                'abstractEn' => 'nullable|string|max:5000',
             ], [
-                'title.required'    => 'Judul naskah wajib diisi.',
-                'title.min'         => 'Judul terlalu pendek (minimal 10 karakter).',
-                'abstract.required' => 'Abstrak wajib diisi.',
-                'abstract.min'      => 'Abstrak terlalu pendek (minimal 50 karakter).',
+                'title.required'      => 'Judul naskah wajib diisi.',
+                'title.min'           => 'Judul terlalu pendek (minimal 10 karakter).',
+                'abstractId.required' => 'Abstrak (Bahasa Indonesia) wajib diisi.',
+                'abstractId.min'      => 'Abstrak terlalu pendek (minimal 50 karakter).',
+                'abstractEn.max'      => 'Abstrak Bahasa Inggris terlalu panjang (maks 5000 karakter).',
             ]),
             3 => $this->validate([
                 'contributors'              => 'required|array|min:1',

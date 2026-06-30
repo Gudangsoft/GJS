@@ -234,7 +234,7 @@ class Settings extends Component
 
         $checklist = $j->submission_checklist;
         $this->submission_checklist = is_array($checklist)
-            ? implode("\n", $checklist)
+            ? implode("\n", array_map(fn($c) => is_array($c) ? ($c['item'] ?? $c['content'] ?? '') : (string)$c, $checklist))
             : ($checklist ?? '');
 
         $this->sinta_score     = (string)($j->sinta_score ?? '');
@@ -410,7 +410,10 @@ class Settings extends Component
             'requires_reviewer_competinginterests' => $this->requires_reviewer_competinginterests,
             'num_weeks_per_response' => $this->num_weeks_per_response ?: null,
             'submission_checklist'  => $this->submission_checklist
-                ? array_values(array_filter(array_map('trim', explode("\n", $this->submission_checklist))))
+                ? array_values(array_filter(
+                    array_map(fn($line) => ['item' => trim($line)], explode("\n", $this->submission_checklist)),
+                    fn($c) => $c['item'] !== ''
+                  ))
                 : null,
             'sinta_score'     => $this->sinta_score ?: null,
             'sinta_score_3yr' => $this->sinta_score_3yr ?: null,

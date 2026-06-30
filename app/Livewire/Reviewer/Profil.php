@@ -99,7 +99,7 @@ class Profil extends Component
             'h_index'          => 'nullable|integer|min:0|max:9999',
             'total_citations'  => 'nullable|integer|min:0',
             'bio'              => 'nullable|string|max:3000',
-            'photo'            => 'nullable|image|max:2048',
+            'photo'            => 'nullable|image|max:4096',
         ]);
 
         $user = auth()->user();

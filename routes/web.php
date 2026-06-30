@@ -27,6 +27,26 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 
+// ─── Language Switcher ────────────────────────────────────────────────────────
+Route::get('/language/{locale}', function (string $locale) {
+    $available = json_decode(
+        \App\Models\Setting::get('language.available', '["id","en"]'),
+        true
+    ) ?? ['id', 'en'];
+
+    if (!in_array($locale, $available)) {
+        abort(404);
+    }
+
+    session(['locale' => $locale]);
+
+    if (Auth::check()) {
+        Auth::user()->update(['locale' => $locale]);
+    }
+
+    return redirect()->back()->withHeaders(['Vary' => 'Accept-Language']);
+})->name('language.switch')->middleware('web');
+
 // ─── Public Reader Portal ────────────────────────────────────────────────────
 Route::get('/', JournalIndex::class)->name('home');
 
@@ -68,6 +88,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::get('/dashboard/author',          Dashboard::class)->name('dashboard.author');
+    Route::get('/dashboard/author/profil',   \App\Livewire\Author\Profil::class)->name('author.profil');
     Route::get('/submit',                    SubmissionWizard::class)->name('submit');
     Route::get('/submissions/{submission}',  SubmissionDetail::class)->name('submissions.show');
     Route::get('/notifications',             \App\Livewire\NotificationsPage::class)->name('notifications.index');

@@ -87,13 +87,13 @@
 
 <div class="bg-slate-50 min-h-screen">
 
-{{-- ── BREADCRUMB ──────────────────────────────────────────────────────── --}}
-<div class="bg-white border-b border-slate-200">
+@include('reader.partials.journal-header', ['activeTab' => 'issues'])
+
+{{-- Breadcrumb --}}
+<div class="bg-white border-b border-slate-100">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
         <nav class="flex items-center gap-1.5 text-xs text-slate-400 flex-wrap">
-            <a href="{{ route('home') }}" class="hover:text-blue-600 transition-colors">Beranda</a>
-            <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-            <a href="{{ route('journals.home', $journal->slug) }}" class="hover:text-blue-600 transition-colors truncate max-w-[140px]">{{ $journal->name_abbrev ?? $journal->name }}</a>
+            <a href="{{ route('journals.home', $journal->slug) }}" class="hover:text-blue-600 transition-colors">{{ $journal->name_abbrev ?? $journal->name }}</a>
             <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
             @if($article->issue)
             <a href="{{ route('journals.issues.show', [$journal->slug, $article->issue->id]) }}" class="hover:text-blue-600 transition-colors">{{ $article->issue->getLabel() }}</a>
@@ -156,7 +156,7 @@
                             </span>
                             @endif
                             @if($contributor->primary_contact)
-                            <span title="Penulis korespondensi"
+                            <span title="{{ __('site.corresponding_author') }}"
                                   class="text-xs font-bold px-1.5 py-0.5 rounded"
                                   style="background:#eff6ff;color:#2563eb;">✉</span>
                             @endif
@@ -195,18 +195,18 @@
                 @if($article->date_published)
                 <span class="flex items-center gap-1">
                     <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25"/></svg>
-                    {{ $article->date_published->format('d F Y') }}
+                    {{ $article->date_published->translatedFormat('d F Y') }}
                 </span>
                 @endif
                 @if($article->pages)
                 <span class="text-slate-300">·</span>
-                <span>Hal. {{ $article->pages }}</span>
+                <span>{{ __('site.pages_abbrev') }} {{ $article->pages }}</span>
                 @endif
                 @if($article->access_status === 'open')
                 <span class="text-slate-300">·</span>
                 <span class="inline-flex items-center gap-1 font-semibold" style="color:#16a34a;">
                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"/></svg>
-                    Akses Terbuka
+                    {{ __('site.open_access_label') }}
                 </span>
                 @endif
             </div>
@@ -238,8 +238,8 @@
                 <div class="flex items-center gap-1.5 pr-3">
                     <div class="w-2 h-2 rounded-full bg-blue-400 shrink-0"></div>
                     <div>
-                        <p class="text-slate-400">Dikirim</p>
-                        <p class="font-semibold text-slate-700">{{ $article->submission->submitted_at->format('d M Y') }}</p>
+                        <p class="text-slate-400">{{ __('site.submitted_label') }}</p>
+                        <p class="font-semibold text-slate-700">{{ $article->submission->submitted_at->translatedFormat('d M Y') }}</p>
                     </div>
                 </div>
                 <div class="w-8 border-t border-dashed border-slate-300 mr-3"></div>
@@ -248,8 +248,8 @@
                 <div class="flex items-center gap-1.5">
                     <div class="w-2 h-2 rounded-full bg-green-500 shrink-0"></div>
                     <div>
-                        <p class="text-slate-400">Diterbitkan</p>
-                        <p class="font-semibold text-slate-700">{{ $article->date_published->format('d M Y') }}</p>
+                        <p class="text-slate-400">{{ __('site.published_label') }}</p>
+                        <p class="font-semibold text-slate-700">{{ $article->date_published->translatedFormat('d M Y') }}</p>
                     </div>
                 </div>
                 @endif
@@ -265,7 +265,7 @@
 
         <div class="flex items-center gap-2.5 mb-4">
             <div class="w-1 h-5 rounded-full shrink-0" style="background:linear-gradient(180deg,#1d4ed8,#6d28d9)"></div>
-            <h2 class="text-xs font-bold text-slate-600 uppercase tracking-widest">Abstrak</h2>
+            <h2 class="text-xs font-bold text-slate-600 uppercase tracking-widest">{{ __('site.abstract') }}</h2>
         </div>
 
         <div class="text-slate-700 leading-relaxed text-sm sm:text-[.9375rem]">
@@ -275,7 +275,7 @@
         {{-- Keywords --}}
         @if($article->submission->keywords)
         <div class="mt-5 pt-5 border-t border-slate-100">
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2.5">Kata Kunci</p>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2.5">{{ __('site.keywords') }}</p>
             <div class="flex flex-wrap gap-2">
                 @foreach($article->submission->keywords as $kw)
                 <a href="{{ route('journals.search', $journal->slug) }}?kw={{ urlencode($kw) }}"
@@ -291,7 +291,7 @@
         {{-- Disciplines --}}
         @if($article->submission->disciplines)
         <div class="mt-4 pt-4 border-t border-slate-100">
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2.5">Disiplin Ilmu</p>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2.5">{{ __('site.disciplines') }}</p>
             <div class="flex flex-wrap gap-2">
                 @foreach($article->submission->disciplines as $d)
                 <span class="text-xs font-medium px-3 py-1.5 rounded-full"
@@ -336,7 +336,7 @@
 
         <div class="flex items-center gap-2.5 px-6 sm:px-8 pt-6 pb-4">
             <div class="w-1 h-5 rounded-full shrink-0" style="background:linear-gradient(180deg,#1d4ed8,#6d28d9)"></div>
-            <h2 class="text-xs font-bold text-slate-600 uppercase tracking-widest">Penulis</h2>
+            <h2 class="text-xs font-bold text-slate-600 uppercase tracking-widest">{{ __('site.authors') }}</h2>
         </div>
 
         <div class="divide-y divide-slate-100">
@@ -408,7 +408,7 @@
                                 onmouseover="this.style.background='#e2e8f0'"
                                 onmouseout="this.style.background=this.getAttribute('data-bg')"
                                 x-init="$el.setAttribute('data-bg', open ? '#eff6ff' : '#f1f5f9')">
-                            <span x-text="open ? 'Sembunyikan' : 'Lihat artikel lainnya'">Lihat artikel lainnya</span>
+                            <span x-text="open ? '{{ __('site.hide') }}' : '{{ __('site.view_other_articles') }}'">{{ __('site.view_other_articles') }}</span>
                             <svg class="w-3 h-3 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''"
                                  fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
@@ -431,7 +431,7 @@
                  x-cloak
                  class="mt-4 ml-16 space-y-2">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    Artikel lain dalam jurnal ini
+                    {{ __('site.other_articles_by') }}
                 </p>
                 @foreach($stat['others'] as $other)
                 <a href="{{ route('journals.articles.show', [$journal->slug, $other->id]) }}"
@@ -472,7 +472,7 @@
 
         <div class="flex items-center gap-2.5 mb-5">
             <div class="w-1 h-5 rounded-full shrink-0 bg-slate-300"></div>
-            <h2 class="text-xs font-bold text-slate-600 uppercase tracking-widest">Biografi Penulis</h2>
+            <h2 class="text-xs font-bold text-slate-600 uppercase tracking-widest">{{ __('site.author_biographies') }}</h2>
         </div>
 
         <div class="space-y-5">
@@ -618,7 +618,7 @@
         {{-- Header --}}
         <div class="flex items-center gap-2.5 px-6 sm:px-7 pt-6">
             <div class="w-1 h-5 rounded-full shrink-0 bg-slate-300"></div>
-            <h2 class="text-xs font-bold text-slate-600 uppercase tracking-widest flex-1">Cara Mengutip</h2>
+            <h2 class="text-xs font-bold text-slate-600 uppercase tracking-widest flex-1">{{ __('site.how_to_cite') }}</h2>
         </div>
 
         {{-- Active citation display --}}
@@ -629,12 +629,12 @@
                     <div class="text-xs leading-relaxed rounded-xl px-4 py-3.5 pr-16"
                          style="background:#f8fafc;border:1px solid #e2e8f0;color:#334155;font-family:ui-monospace,monospace;white-space:pre-wrap;">{{ $text }}</div>
                     <button
-                        @click="navigator.clipboard.writeText('{{ addslashes($text) }}').then(()=>{ $el.textContent='✓'; setTimeout(()=>{ $el.textContent='Salin' },1500) })"
+                        @click="navigator.clipboard.writeText('{{ addslashes($text) }}').then(()=>{ $el.textContent='✓'; setTimeout(()=>{ $el.textContent='{{ __('site.copy') }}' },1500) })"
                         class="absolute top-2.5 right-2.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
                         style="background:#e2e8f0;color:#475569;"
                         onmouseover="this.style.background='#cbd5e1'"
                         onmouseout="this.style.background='#e2e8f0'">
-                        Salin
+                        {{ __('site.copy') }}
                     </button>
                 </div>
             </div>
@@ -644,7 +644,7 @@
             <button @click="open = !open"
                     class="mt-3 flex items-center justify-between w-full text-xs font-semibold px-3 py-2.5 rounded-lg transition-colors"
                     style="background:#f1f5f9;color:#475569;">
-                <span x-text="open ? 'Sembunyikan Format Lain' : 'Format Kutipan Lainnya'">Format Kutipan Lainnya</span>
+                <span x-text="open ? '{{ __('site.hide_formats') }}' : '{{ __('site.other_formats') }}'">{{ __('site.other_formats') }}</span>
                 <svg class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''"
                      fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
@@ -690,7 +690,7 @@
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-7">
         <div class="flex items-center gap-2.5 mb-3">
             <div class="w-1 h-5 rounded-full shrink-0 bg-slate-300"></div>
-            <h2 class="text-xs font-bold text-slate-600 uppercase tracking-widest">Pernyataan Konflik Kepentingan</h2>
+            <h2 class="text-xs font-bold text-slate-600 uppercase tracking-widest">{{ __('site.conflict_of_interest') }}</h2>
         </div>
         <div class="text-sm text-slate-600 leading-relaxed prose prose-sm max-w-none">
             {{ strip_tags($article->submission->competing_interests) }}
@@ -764,7 +764,7 @@
 
         <div class="flex items-center gap-2.5 mb-5">
             <div class="w-1 h-5 rounded-full shrink-0 bg-slate-300"></div>
-            <h2 class="text-xs font-bold text-slate-600 uppercase tracking-widest">Statistik Artikel</h2>
+            <h2 class="text-xs font-bold text-slate-600 uppercase tracking-widest">{{ __('site.article_statistics') }}</h2>
         </div>
 
         {{-- Three metric chips ─────────────────────────────────────────── --}}
@@ -773,21 +773,21 @@
                 <div class="text-2xl font-black" style="color:#1d4ed8;">{{ number_format($statViews) }}</div>
                 <div class="text-xs font-semibold mt-1 flex items-center justify-center gap-1" style="color:#3b82f6;">
                     <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    Dilihat
+                    {{ __('site.views_label') }}
                 </div>
             </div>
             <div class="text-center py-4 rounded-xl" style="background:#fff1f2;">
                 <div class="text-2xl font-black" style="color:#dc2626;">{{ number_format($statDownloads) }}</div>
                 <div class="text-xs font-semibold mt-1 flex items-center justify-center gap-1" style="color:#ef4444;">
                     <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
-                    Diunduh
+                    {{ __('site.downloads_label') }}
                 </div>
             </div>
             <div class="text-center py-4 rounded-xl" style="background:#fefce8;">
                 <div class="text-2xl font-black" style="color:#ca8a04;">{{ number_format($statCitations) }}</div>
                 <div class="text-xs font-semibold mt-1 flex items-center justify-center gap-1" style="color:#eab308;">
                     <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z"/></svg>
-                    Sitasi
+                    {{ __('site.citations_label') }}
                 </div>
             </div>
         </div>
@@ -797,7 +797,7 @@
         <div>
             <p class="text-xs font-semibold text-slate-500 mb-3 flex items-center gap-1.5">
                 <svg class="w-3.5 h-3.5 text-yellow-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
-                Jumlah Sitasi per Tahun
+                {{ __('site.citations_per_year') }}
             </p>
             <div class="overflow-x-auto -mx-1 px-1">
                 <svg xmlns="http://www.w3.org/2000/svg"
@@ -891,7 +891,7 @@
                 </svg>
             </div>
             <p class="text-center text-xs text-slate-400 mt-1">
-                Total <span class="font-bold text-yellow-600">{{ number_format($statCitations) }}</span> sitasi diterima
+                Total <span class="font-bold text-yellow-600">{{ number_format($statCitations) }}</span> {{ __('site.total_citations') }}
             </p>
         </div>
         @endif
@@ -906,7 +906,7 @@
     {{-- ── FULL TEXT ─────────────────────────────────────────────────── --}}
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-4 py-2.5" style="background:linear-gradient(135deg,#1e3a8a,#1d4ed8);">
-            <p class="text-xs font-bold text-white uppercase tracking-widest">Teks Lengkap</p>
+            <p class="text-xs font-bold text-white uppercase tracking-widest">{{ __('site.full_text') }}</p>
         </div>
         <div class="p-4 flex flex-col gap-2">
             @if($articleGalleys->isNotEmpty())
@@ -924,7 +924,7 @@
                         <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"/>
                         </svg>
-                        <span class="flex-1">Baca {{ $galley->label }}</span>
+                        <span class="flex-1">{{ __('site.read_galley') }} {{ $galley->label }}</span>
                         @if($galley->views > 0)
                         <span class="text-cyan-200 text-xs font-normal">{{ number_format($galley->views) }}×</span>
                         @endif
@@ -936,7 +936,7 @@
                         <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
                         </svg>
-                        <span class="flex-1">Baca {{ $galley->label }}</span>
+                        <span class="flex-1">{{ __('site.read_galley') }} {{ $galley->label }}</span>
                         @if($galley->views > 0)
                         <span class="text-red-200 text-xs font-normal">{{ number_format($galley->views) }}×</span>
                         @endif
@@ -945,7 +945,7 @@
                        class="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors"
                        style="background:#fff1f2;color:#b91c1c;border:1px solid #fecaca;">
                         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
-                        Unduh {{ $galley->label }}
+                        {{ __('site.download_galley') }} {{ $galley->label }}
                     </a>
                     @else
                     <a href="{{ route('journals.articles.galley', [$journal->slug, $article->id, $galley->id]) }}"
@@ -968,7 +968,7 @@
                 @endif
                 @endforeach
             @else
-            <div class="text-center py-5 text-sm text-slate-400">File belum tersedia.</div>
+            <div class="text-center py-5 text-sm text-slate-400">{{ __('site.file_not_available') }}</div>
             @endif
         </div>
     </div>
@@ -976,14 +976,14 @@
     {{-- ── ARTICLE INFO ──────────────────────────────────────────────── --}}
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-4 py-2.5" style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Informasi Artikel</p>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">{{ __('site.article_info') }}</p>
         </div>
         <div class="p-4">
             <dl class="space-y-3 text-sm">
 
                 @if($article->issue)
                 <div>
-                    <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Terbitan</dt>
+                    <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">{{ __('site.issue') }}</dt>
                     <dd>
                         <a href="{{ route('journals.issues.show', [$journal->slug, $article->issue->id]) }}"
                            class="font-semibold hover:underline" style="color:#1d4ed8;">
@@ -995,28 +995,28 @@
 
                 @if($article->section)
                 <div>
-                    <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Rubrik</dt>
+                    <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">{{ __('site.section_label') }}</dt>
                     <dd class="font-medium text-slate-700">{{ $article->section->title }}</dd>
                 </div>
                 @endif
 
                 @if($article->submission->submitted_at)
                 <div>
-                    <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Dikirim</dt>
-                    <dd class="font-medium text-slate-700">{{ $article->submission->submitted_at->format('d F Y') }}</dd>
+                    <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">{{ __('site.submitted_label') }}</dt>
+                    <dd class="font-medium text-slate-700">{{ $article->submission->submitted_at->translatedFormat('d F Y') }}</dd>
                 </div>
                 @endif
 
                 @if($article->date_published)
                 <div>
-                    <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Diterbitkan</dt>
-                    <dd class="font-medium text-slate-700">{{ $article->date_published->format('d F Y') }}</dd>
+                    <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">{{ __('site.published_label') }}</dt>
+                    <dd class="font-medium text-slate-700">{{ $article->date_published->translatedFormat('d F Y') }}</dd>
                 </div>
                 @endif
 
                 @if($article->pages)
                 <div>
-                    <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Halaman</dt>
+                    <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">{{ __('site.pages') }}</dt>
                     <dd class="font-medium text-slate-700">{{ $article->pages }}</dd>
                 </div>
                 @endif
@@ -1036,15 +1036,15 @@
                 <div class="pt-2.5 border-t border-slate-100 grid grid-cols-3 gap-2">
                     <div class="text-center rounded-lg py-2" style="background:#eff6ff;">
                         <div class="text-base font-black" style="color:#1d4ed8;">{{ number_format($article->views) }}</div>
-                        <div class="text-xs" style="color:#3b82f6;">Dilihat</div>
+                        <div class="text-xs" style="color:#3b82f6;">{{ __('site.views_label') }}</div>
                     </div>
                     <div class="text-center rounded-lg py-2" style="background:#fff1f2;">
                         <div class="text-base font-black" style="color:#dc2626;">{{ number_format($article->downloads) }}</div>
-                        <div class="text-xs" style="color:#ef4444;">Diunduh</div>
+                        <div class="text-xs" style="color:#ef4444;">{{ __('site.downloads_label') }}</div>
                     </div>
                     <div class="text-center rounded-lg py-2" style="background:#fefce8;">
                         <div class="text-base font-black" style="color:#ca8a04;">{{ number_format($article->citations ?? 0) }}</div>
-                        <div class="text-xs" style="color:#eab308;">Sitasi</div>
+                        <div class="text-xs" style="color:#eab308;">{{ __('site.citations_label') }}</div>
                     </div>
                 </div>
 
@@ -1067,7 +1067,7 @@
     @endphp
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-4 py-2.5" style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Lisensi</p>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">{{ __('site.license_label') }}</p>
         </div>
         <div class="p-4">
             <a href="{{ $licInfo['url'] }}" target="_blank" rel="noopener"
@@ -1079,11 +1079,11 @@
                 <span class="text-sm font-bold text-slate-700 ml-1">{{ $licInfo['label'] }}</span>
             </a>
             <p class="text-xs text-slate-400 leading-relaxed">
-                Artikel ini dilisensikan di bawah
+                {{ __('site.license_text') }}
                 <a href="{{ $licInfo['url'] }}" target="_blank" rel="noopener"
                    class="text-blue-600 hover:underline">{{ $licInfo['name'] }}</a>.
                 @if($journal->copyright_holder)
-                Hak cipta © {{ now()->year }} {{ $journal->copyright_holder }}.
+                {{ __('site.copyright_notice') }} {{ now()->year }} {{ $journal->copyright_holder }}.
                 @endif
             </p>
         </div>
@@ -1092,7 +1092,7 @@
     {{-- ── METADATA & SHARE ─────────────────────────────────────────── --}}
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-4 py-2.5" style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Metadata & Bagikan</p>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">{{ __('site.metadata_share') }}</p>
         </div>
         <div class="p-4 flex flex-col gap-2">
             @if($article->doi)
@@ -1116,10 +1116,10 @@
                     <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                     X / Twitter
                 </a>
-                <button onclick="navigator.clipboard.writeText(window.location.href).then(()=>{this.textContent='✓ Tersalin';setTimeout(()=>this.textContent='Salin URL',1500)})"
+                <button onclick="navigator.clipboard.writeText(window.location.href).then(()=>{this.textContent='{{ __('site.url_copied') }}';setTimeout(()=>this.textContent='{{ __('site.copy_url') }}',1500)})"
                         class="flex-1 text-xs font-semibold px-3 py-2 rounded-lg transition-colors"
                         style="background:#f1f5f9;color:#475569;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
-                    Salin URL
+                    {{ __('site.copy_url') }}
                 </button>
             </div>
         </div>

@@ -10,10 +10,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Translatable\HasTranslations;
 
 class Submission extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity, HasTranslations;
+
+    public array $translatable = [
+        'title', 'subtitle', 'abstract', 'competing_interests',
+    ];
 
     protected $fillable = [
         'journal_id', 'section_id', 'user_id', 'status',

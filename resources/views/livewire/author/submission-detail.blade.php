@@ -174,10 +174,21 @@ $totalRounds = $submission->reviewRounds->count();
         <div class="lg:col-span-2 space-y-6">
 
             {{-- Abstrak --}}
-            @if($submission->abstract)
+            @if($submission->getTranslation('abstract', 'id', false) || $submission->getTranslation('abstract', 'en', false))
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
                 <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Abstrak</h2>
-                <p class="text-sm text-slate-700 leading-relaxed">{{ $submission->abstract }}</p>
+                @if($submission->getTranslation('abstract', 'id', false))
+                <div class="mb-3">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">🇮🇩 Bahasa Indonesia</span>
+                    <p class="mt-1 text-sm text-slate-700 leading-relaxed">{{ $submission->getTranslation('abstract', 'id', false) }}</p>
+                </div>
+                @endif
+                @if($submission->getTranslation('abstract', 'en', false))
+                <div class="@if($submission->getTranslation('abstract', 'id', false)) pt-3 border-t border-slate-100 @endif">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">🇬🇧 English</span>
+                    <p class="mt-1 text-sm text-slate-700 leading-relaxed">{{ $submission->getTranslation('abstract', 'en', false) }}</p>
+                </div>
+                @endif
                 @if($submission->keywords)
                 <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap gap-2">
                     @foreach($submission->keywords as $kw)

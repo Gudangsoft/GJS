@@ -11,7 +11,7 @@
         <div style="position:relative;flex-shrink:0;">
             @if($currentAvatar)
                 <img src="{{ Storage::url($currentAvatar) }}" alt="Foto"
-                     style="width:5.5rem;height:5.5rem;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.3);">
+                     style="width:5.5rem;height:5.5rem;border-radius:50%;object-fit:contain;background:#fff;border:3px solid rgba(255,255,255,.3);">
             @else
                 <div style="width:5.5rem;height:5.5rem;border-radius:50%;background:rgba(255,255,255,.15);border:3px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800;color:#fff;">
                     {{ strtoupper(substr($first_name,0,1)) }}{{ strtoupper(substr($last_name,0,1)) }}
@@ -68,45 +68,63 @@
 
             {{-- ── Foto Profil ───────────────────────────────────────────────── --}}
             <div style="background:#fff;border-radius:1rem;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.05);padding:1.375rem;">
-                <h2 style="font-size:.875rem;font-weight:700;color:#0f172a;margin:0 0 1rem;display:flex;align-items:center;gap:.5rem;">
+                <h2 style="font-size:.875rem;font-weight:700;color:#0f172a;margin:0 0 1.125rem;display:flex;align-items:center;gap:.5rem;">
                     <svg style="width:1rem;height:1rem;color:#059669;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     Foto Profil
                 </h2>
 
-                <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">
-                    {{-- Preview --}}
-                    <div style="flex-shrink:0;">
-                        @if($photo)
-                            <img src="{{ $photo->temporaryUrl() }}" alt="Preview"
-                                 style="width:6rem;height:6rem;border-radius:.75rem;object-fit:cover;border:2px solid #e2e8f0;">
-                        @elseif($currentAvatar)
-                            <img src="{{ Storage::url($currentAvatar) }}" alt="Foto"
-                                 style="width:6rem;height:6rem;border-radius:.75rem;object-fit:cover;border:2px solid #e2e8f0;">
-                        @else
-                            <div style="width:6rem;height:6rem;border-radius:.75rem;background:#f0fdf4;border:2px dashed #86efac;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.25rem;">
-                                <svg style="width:1.75rem;height:1.75rem;color:#86efac;" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
-                                <span style="font-size:.65rem;color:#86efac;font-weight:600;">Belum ada foto</span>
-                            </div>
-                        @endif
-                    </div>
+                <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+                    {{-- Avatar preview --}}
+                    <label for="photoInput" style="flex-shrink:0;position:relative;cursor:pointer;">
+                        <div style="width:7rem;height:7rem;border-radius:50%;overflow:hidden;border:3px solid #e2e8f0;box-shadow:0 4px 16px rgba(0,0,0,.1);background:#fff;">
+                            @if($photo)
+                                <img src="{{ $photo->temporaryUrl() }}" style="width:100%;height:100%;object-fit:contain;display:block;">
+                            @elseif($currentAvatar)
+                                <img src="{{ Storage::url($currentAvatar) }}" style="width:100%;height:100%;object-fit:contain;display:block;">
+                            @else
+                                <div style="width:100%;height:100%;background:#f0fdf4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.25rem;">
+                                    <svg style="width:2rem;height:2rem;color:#86efac;" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+                                    <span style="font-size:.6rem;color:#86efac;font-weight:600;">Belum ada foto</span>
+                                </div>
+                            @endif
+                        </div>
+                        <div style="position:absolute;bottom:.25rem;right:.25rem;width:1.75rem;height:1.75rem;background:#059669;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.2);">
+                            <svg style="width:.875rem;height:.875rem;color:#fff;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"/></svg>
+                        </div>
+                    </label>
 
-                    {{-- Upload area --}}
-                    <div style="flex:1;">
-                        <label style="display:block;font-size:.8125rem;font-weight:600;color:#374151;margin-bottom:.5rem;">Upload foto baru</label>
-                        <label for="photo-upload"
-                               style="display:flex;align-items:center;gap:.625rem;padding:.625rem 1rem;background:#f8fafc;border:1.5px dashed #cbd5e1;border-radius:.625rem;cursor:pointer;transition:border-color .15s;"
-                               onmouseover="this.style.borderColor='#059669';this.style.background='#f0fdf4'"
-                               onmouseout="this.style.borderColor='#cbd5e1';this.style.background='#f8fafc'">
-                            <svg style="width:1.25rem;height:1.25rem;color:#94a3b8;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
-                            <span style="font-size:.8125rem;color:#64748b;">
-                                @if($photo) {{ $photo->getClientOriginalName() }} @else Pilih foto (JPG/PNG, maks 2MB) @endif
-                            </span>
-                            <input id="photo-upload" wire:model="photo" type="file" accept="image/*" style="display:none;">
+                    {{-- Controls --}}
+                    <div style="flex:1;min-width:0;">
+                        <p style="font-size:.9375rem;font-weight:700;color:#0f172a;margin:0 0 .25rem;">Ubah Foto Profil</p>
+                        <p style="font-size:.8rem;color:#64748b;margin:0 0 .875rem;line-height:1.5;">Klik foto atau tombol di bawah, pilih gambar, lalu klik <strong>Simpan</strong>.</p>
+
+                        <label for="photoInput"
+                               style="display:inline-flex;align-items:center;gap:.5rem;padding:.5rem 1rem;background:#059669;color:#fff;border-radius:.5rem;font-size:.8125rem;font-weight:600;cursor:pointer;">
+                            <svg style="width:.875rem;height:.875rem;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                            Pilih Foto
                         </label>
+                        <input type="file" id="photoInput" wire:model="photo" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none;">
+
+                        {{-- Upload progress --}}
+                        <div wire:loading wire:target="photo" style="margin-top:.75rem;display:flex;align-items:center;gap:.5rem;">
+                            <svg style="width:.875rem;height:.875rem;color:#059669;animation:spin .8s linear infinite;" fill="none" viewBox="0 0 24 24">
+                                <circle style="opacity:.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                <path style="opacity:.75;" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                            </svg>
+                            <span style="font-size:.8rem;color:#059669;font-weight:600;">Memuat foto...</span>
+                        </div>
+
+                        @if($photo)
+                        <div style="margin-top:.625rem;display:flex;align-items:center;gap:.4rem;font-size:.8rem;font-weight:600;color:#059669;">
+                            <svg style="width:.875rem;height:.875rem;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Foto dipilih — klik Simpan untuk menyimpan
+                        </div>
+                        @endif
+
                         @error('photo')
-                        <p style="color:#ef4444;font-size:.75rem;margin-top:.25rem;">{{ $message }}</p>
+                        <p style="color:#ef4444;font-size:.75rem;margin-top:.375rem;">{{ $message }}</p>
                         @enderror
-                        <p style="font-size:.75rem;color:#94a3b8;margin-top:.375rem;">Format: JPG, PNG, WebP. Ukuran maks 2MB. Rasio 1:1 direkomendasikan.</p>
+                        <p style="font-size:.72rem;color:#94a3b8;margin-top:.5rem;">JPG, PNG, WebP · Maks 4MB</p>
                     </div>
                 </div>
             </div>
@@ -391,10 +409,10 @@
                 <div style="padding:0 1.125rem;margin-top:-2rem;">
                     @if($photo)
                         <img src="{{ $photo->temporaryUrl() }}"
-                             style="width:4rem;height:4rem;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.15);">
+                             style="width:4rem;height:4rem;border-radius:50%;object-fit:contain;background:#fff;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.15);">
                     @elseif($currentAvatar)
                         <img src="{{ Storage::url($currentAvatar) }}"
-                             style="width:4rem;height:4rem;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.15);">
+                             style="width:4rem;height:4rem;border-radius:50%;object-fit:contain;background:#fff;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.15);">
                     @else
                         <div style="width:4rem;height:4rem;border-radius:50%;background:linear-gradient(135deg,#059669,#047857);display:flex;align-items:center;justify-content:center;font-size:1.375rem;font-weight:800;color:#fff;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.15);flex-shrink:0;">
                             {{ strtoupper(substr($first_name,0,1)) }}{{ strtoupper(substr($last_name,0,1)) }}
@@ -523,4 +541,5 @@
 @keyframes spin { to { transform:rotate(360deg); } }
 @media (max-width:900px) { .profil-grid { grid-template-columns:1fr !important; } }
 </style>
+
 </div>

@@ -10,7 +10,7 @@
 @if($block->type === 'submission')
 @php
     $submitUrl   = $block->setting('button_url') ?: route('submit');
-    $submitLabel = $block->setting('button_label', 'Kirim Naskah Sekarang');
+    $submitLabel = $block->setting('button_label', __('site.submit_now'));
     $callText    = $block->setting('call_text');
 @endphp
 <div class="rounded-2xl overflow-hidden shadow-sm" style="background:linear-gradient(135deg,#1e40af 0%,#4338ca 100%);">
@@ -18,11 +18,11 @@
         <svg class="w-9 h-9 mx-auto mb-3 text-white opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
         </svg>
-        <p class="font-bold text-white text-sm mb-1.5">Kirim Naskah Anda</p>
+        <p class="font-bold text-white text-sm mb-1.5">{{ __('site.submit_your_manuscript') }}</p>
         @if($callText)
         <p class="text-xs text-blue-200 leading-relaxed mb-4">{{ $callText }}</p>
         @else
-        <p class="text-xs text-blue-200 mb-4">Naskah penelitian, review, dan studi kasus</p>
+        <p class="text-xs text-blue-200 mb-4">{{ __('site.submit_description') }}</p>
         @endif
         @auth
         <a href="{{ $submitUrl }}"
@@ -32,7 +32,7 @@
         @else
         <a href="{{ route('login') }}"
            class="block w-full py-2.5 px-4 bg-white text-blue-800 rounded-xl text-sm font-bold hover:bg-blue-50 transition-colors">
-            Masuk untuk Submit
+            {{ __('site.login_to_submit') }}
         </a>
         @endauth
     </div>
@@ -96,15 +96,15 @@
                 {{-- Info panel --}}
                 <div class="flex-1 px-3 py-2.5" style="background:{{ $sc['ring'] }}18;">
                     <p class="font-black text-xs leading-tight" style="color:{{ $sc['bg'] }};">{{ $sc['label'] }}</p>
-                    <p class="text-xs font-medium text-slate-600 mt-0.5">Terakreditasi</p>
+                    <p class="text-xs font-medium text-slate-600 mt-0.5">{{ __('site.accredited') }}</p>
                     @if($sintaScore && $block->setting('show_sinta_score', true))
                     <p class="text-xs text-slate-500 mt-1">
-                        Skor: <strong style="color:{{ $sc['bg'] }}">{{ $sintaScore }}</strong>
+                        {{ __('site.sinta_score_label') }}: <strong style="color:{{ $sc['bg'] }}">{{ $sintaScore }}</strong>
                         @if($sintaScore3) · 3yr: <strong>{{ $sintaScore3 }}</strong>@endif
                     </p>
                     @endif
                     @if($accPeriod)
-                    <p class="text-xs text-slate-400 mt-0.5">Periode {{ $accPeriod }}</p>
+                    <p class="text-xs text-slate-400 mt-0.5">{{ __('site.sinta_period_label') }} {{ $accPeriod }}</p>
                     @endif
                 </div>
             </div>
@@ -120,14 +120,14 @@
     <div class="mb-3 text-xs text-slate-500 flex items-start gap-1.5">
         <svg class="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
         <div>
-            <span class="font-semibold text-slate-600">No. SK:</span> {{ $accNo }}
+            <span class="font-semibold text-slate-600">{{ __('site.sk_number') }}:</span> {{ $accNo }}
             @if($accPeriod) <span class="text-slate-400">({{ $accPeriod }})</span>@endif
             @if($urlSk)
             <br>
             <a href="{{ $urlSk }}" target="_blank" rel="noopener"
                class="inline-flex items-center gap-1 mt-1 font-semibold text-green-700 hover:text-green-900 hover:underline">
                 <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
-                Lihat Dokumen SK
+                {{ __('site.view_sk_document') }}
             </a>
             @endif
         </div>
@@ -157,7 +157,7 @@
     @endphp
     @if(!empty($indexes))
     <div class="mt-2">
-        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Terindeks di</p>
+        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{{ __('site.indexed_in') }}</p>
         <div class="flex flex-wrap gap-1.5">
             @foreach($indexes as $idx)
             @if($idx['url'])
@@ -186,7 +186,7 @@
        style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;"
        onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
         <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
-        Lihat di SINTA
+        {{ __('site.view_in_sinta') }}
     </a>
     @endif
 
@@ -195,28 +195,28 @@
         <dl class="space-y-2.5 text-sm">
             @if($journal->name)
             <div>
-                <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Nama Jurnal</dt>
+                <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">{{ __('site.journal_name_label') }}</dt>
                 <dd class="font-medium text-slate-800 leading-snug">{{ $journal->name }}</dd>
             </div>
             @endif
 
             @if($block->setting('show_issn_print', true) && $journal->issn_print)
             <div class="flex items-center justify-between">
-                <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide">ISSN Cetak</dt>
+                <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide">{{ __('site.issn_print_label') }}</dt>
                 <dd class="font-mono font-semibold text-slate-800 text-xs">{{ $journal->issn_print }}</dd>
             </div>
             @endif
 
             @if($block->setting('show_issn_online', true) && $journal->issn_online)
             <div class="flex items-center justify-between">
-                <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide">e-ISSN</dt>
+                <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide">{{ __('site.issn_online_label') }}</dt>
                 <dd class="font-mono font-semibold text-slate-800 text-xs">{{ $journal->issn_online }}</dd>
             </div>
             @endif
 
             @if($block->setting('show_publisher', true) && $journal->publisher)
             <div>
-                <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Penerbit</dt>
+                <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">{{ __('site.publisher_label') }}</dt>
                 <dd class="text-slate-700 text-sm leading-snug">{{ $journal->publisher }}</dd>
             </div>
             @endif
@@ -230,7 +230,7 @@
 
             @if($block->setting('show_review_mode', true) && $journal->review_mode)
             <div>
-                <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Peer Review</dt>
+                <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">{{ __('site.peer_review_label') }}</dt>
                 <dd class="text-slate-700">
                     {{ match($journal->review_mode) {
                         'single_blind' => 'Single Blind',
@@ -245,21 +245,21 @@
 
             @if($block->setting('show_frequency', false) && $block->setting('frequency_text'))
             <div>
-                <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Frekuensi Terbit</dt>
+                <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">{{ __('site.frequency_label') }}</dt>
                 <dd class="text-slate-700">{{ $block->setting('frequency_text') }}</dd>
             </div>
             @endif
 
             @if($journal->primary_locale)
             <div class="flex items-center justify-between">
-                <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Bahasa</dt>
-                <dd class="text-slate-700 text-sm">{{ strtoupper($journal->primary_locale) === 'ID' ? 'Indonesia' : 'English' }}</dd>
+                <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide">{{ __('site.language_label') }}</dt>
+                <dd class="text-slate-700 text-sm">{{ strtoupper($journal->primary_locale) === 'ID' ? __('site.lang_id_name') : __('site.lang_en_name') }}</dd>
             </div>
             @endif
 
             @if($journal->email)
             <div>
-                <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Kontak</dt>
+                <dt class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">{{ __('site.contact_label') }}</dt>
                 <dd><a href="mailto:{{ $journal->email }}" class="text-blue-600 hover:underline text-xs break-all">{{ $journal->email }}</a></dd>
             </div>
             @endif
@@ -280,7 +280,7 @@
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
                 </svg>
-                <span class="flex-1 text-left">{{ $block->setting('label_docx', 'Unduh Template (DOCX)') }}</span>
+                <span class="flex-1 text-left">{{ $block->setting('label_docx', __('site.download_template_docx')) }}</span>
                 <svg class="w-4 h-4 shrink-0 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
             </a>
             @endif
@@ -294,13 +294,13 @@
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
                 </svg>
-                <span class="flex-1 text-left">{{ $block->setting('label_pdf', 'Unduh Panduan (PDF)') }}</span>
+                <span class="flex-1 text-left">{{ $block->setting('label_pdf', __('site.download_guide_pdf')) }}</span>
                 <svg class="w-4 h-4 shrink-0 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
             </a>
             @endif
 
             @if(!$block->setting('file_docx') && !$block->setting('file_pdf'))
-            <p class="text-xs text-slate-400 italic text-center py-2">Belum ada file template yang diunggah.</p>
+            <p class="text-xs text-slate-400 italic text-center py-2">{{ __('site.no_template_yet') }}</p>
             @endif
         </div>
 
@@ -314,7 +314,7 @@
             <div class="flex items-center justify-between py-1.5 border-b border-slate-50">
                 <dt class="text-xs text-slate-500 flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
-                    Total Artikel
+                    {{ __('site.stat_articles') }}
                 </dt>
                 <dd class="font-black text-blue-700 text-sm">{{ number_format($jStats['articles'] ?? 0) }}</dd>
             </div>
@@ -323,7 +323,7 @@
             <div class="flex items-center justify-between py-1.5 border-b border-slate-50">
                 <dt class="text-xs text-slate-500 flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0118 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
-                    Total Terbitan
+                    {{ __('site.stat_issues') }}
                 </dt>
                 <dd class="font-black text-purple-700 text-sm">{{ number_format($jStats['issues'] ?? 0) }}</dd>
             </div>
@@ -332,7 +332,7 @@
             <div class="flex items-center justify-between py-1.5 border-b border-slate-50">
                 <dt class="text-xs text-slate-500 flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    Total Tayangan
+                    {{ __('site.stat_views') }}
                 </dt>
                 <dd class="font-black text-emerald-700 text-sm">{{ number_format($jStats['views'] ?? 0) }}</dd>
             </div>
@@ -341,7 +341,7 @@
             <div class="flex items-center justify-between py-1.5 border-b border-slate-50">
                 <dt class="text-xs text-slate-500 flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
-                    Total Unduhan
+                    {{ __('site.stat_downloads') }}
                 </dt>
                 <dd class="font-black text-red-700 text-sm">{{ number_format($jStats['downloads'] ?? 0) }}</dd>
             </div>
@@ -350,7 +350,7 @@
             <div class="flex items-center justify-between py-1.5">
                 <dt class="text-xs text-slate-500 flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5 text-yellow-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z"/></svg>
-                    Total Sitasi
+                    {{ __('site.stat_citations') }}
                 </dt>
                 <dd class="font-black text-yellow-700 text-sm">{{ number_format($jStats['citations'] ?? 0) }}</dd>
             </div>
@@ -370,7 +370,7 @@
         </div>
         @endif
         @if(!$journal->focus_scope && !$block->setting('extra_text'))
-        <p class="text-xs text-slate-400 italic">Fokus & ruang lingkup belum diisi.</p>
+        <p class="text-xs text-slate-400 italic">{{ __('site.focus_scope_empty') }}</p>
         @endif
 
     {{-- ── current_issue ──────────────────────────────────────────────── --}}
@@ -420,10 +420,10 @@
            class="block text-center text-xs font-semibold py-2 rounded-lg transition-colors"
            style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;"
            onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">
-            Lihat Terbitan Lengkap →
+            {{ __('site.view_full_issue') }}
         </a>
     @else
-        <p class="text-xs text-slate-400 italic">Belum ada terbitan yang dipublikasikan.</p>
+        <p class="text-xs text-slate-400 italic">{{ __('site.no_issue_published_yet') }}</p>
     @endif
 
     {{-- ── most_read ────────────────────────────────────────────────────── --}}
@@ -450,15 +450,15 @@
                    {{ Str::limit($ta->submission->title ?? '', 65) }}
                 </a>
                 <p class="text-xs text-slate-400 mt-0.5">
-                    @if($mrColumn === 'views') {{ number_format($ta->views) }} tayangan
-                    @else {{ number_format($ta->downloads) }} unduhan @endif
+                    @if($mrColumn === 'views') {{ number_format($ta->views) }} {{ __('site.views_count') }}
+                    @else {{ number_format($ta->downloads) }} {{ __('site.downloads_count') }} @endif
                 </p>
             </div>
         </li>
         @endforeach
     </ol>
     @else
-    <p class="text-xs text-slate-400 italic">Belum ada data artikel.</p>
+    <p class="text-xs text-slate-400 italic">{{ __('site.no_article_data') }}</p>
     @endif
 
     {{-- ── recent_articles ─────────────────────────────────────────────── --}}
@@ -487,7 +487,7 @@
         @endforeach
     </ul>
     @else
-    <p class="text-xs text-slate-400 italic">Belum ada artikel yang diterbitkan.</p>
+    <p class="text-xs text-slate-400 italic">{{ __('site.no_articles_published') }}</p>
     @endif
 
     {{-- ── keyword_cloud ───────────────────────────────────────────────── --}}
@@ -523,7 +523,7 @@
         @endforeach
     </div>
     @else
-    <p class="text-xs text-slate-400 italic">Belum ada kata kunci tersedia.</p>
+    <p class="text-xs text-slate-400 italic">{{ __('site.no_keywords_available') }}</p>
     @endif
 
     {{-- ── announcements_list ──────────────────────────────────────────── --}}
@@ -554,7 +554,7 @@
         @endforeach
     </ul>
     @else
-    <p class="text-xs text-slate-400 italic">Belum ada pengumuman.</p>
+    <p class="text-xs text-slate-400 italic">{{ __('site.no_announcements') }}</p>
     @endif
 
     {{-- ── open_access ──────────────────────────────────────────────────── --}}
@@ -603,7 +603,7 @@
         <div class="flex items-center gap-2.5 p-2.5 rounded-lg" style="background:#eff6ff;">
             <svg class="w-5 h-5 text-blue-600 shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             <div>
-                <p class="text-xs text-blue-500 font-semibold uppercase tracking-wide">Sistem Review</p>
+                <p class="text-xs text-blue-500 font-semibold uppercase tracking-wide">{{ __('site.review_system') }}</p>
                 <p class="text-sm font-bold text-blue-800">{{ $modeName }}</p>
             </div>
         </div>
@@ -612,8 +612,8 @@
         <div class="flex items-center gap-2.5 p-2.5 rounded-lg" style="background:#f0fdf4;">
             <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             <div>
-                <p class="text-xs text-green-500 font-semibold uppercase tracking-wide">Durasi Review</p>
-                <p class="text-sm font-bold text-green-800">{{ $weeks }} Minggu</p>
+                <p class="text-xs text-green-500 font-semibold uppercase tracking-wide">{{ __('site.review_duration') }}</p>
+                <p class="text-sm font-bold text-green-800">{{ $weeks }} {{ __('site.weeks') }}</p>
             </div>
         </div>
         @endif
@@ -653,7 +653,7 @@
         @endforeach
     </div>
     @else
-    <p class="text-xs text-slate-400 italic">Belum ada link media sosial yang dikonfigurasi.</p>
+    <p class="text-xs text-slate-400 italic">{{ __('site.no_socials') }}</p>
     @endif
 
     {{-- ── preservation ────────────────────────────────────────────────── --}}
@@ -689,7 +689,7 @@
         @endforeach
     </div>
     @else
-    <p class="text-xs text-slate-400 italic">Belum ada layanan pengarsipan yang diaktifkan.</p>
+    <p class="text-xs text-slate-400 italic">{{ __('site.no_preservation') }}</p>
     @endif
 
     {{-- ── custom_html ─────────────────────────────────────────────────── --}}
@@ -699,7 +699,7 @@
             {!! $block->setting('html') !!}
         </div>
         @else
-        <p class="text-xs text-slate-400 italic">Konten belum diisi.</p>
+        <p class="text-xs text-slate-400 italic">{{ __('site.no_content') }}</p>
         @endif
 
     @endif

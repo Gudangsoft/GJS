@@ -6,7 +6,7 @@ use App\Models\CopyEditTask;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
+#[Layout('layouts.author')]
 class CopyEditingFeedback extends Component
 {
     public function submitAuthorNotes(int $taskId, string $notes): void

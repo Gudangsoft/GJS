@@ -13,44 +13,7 @@ $navItems = [
 $isCustomPage = !empty($customPageData);
 @endphp
 
-{{-- Journal header strip --}}
-<div class="bg-white border-b border-slate-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-        <div class="flex items-center gap-4">
-            @if($journal->logo)
-            <img src="{{ Storage::disk('public')->url($journal->logo) }}" alt="{{ $journal->name }}" class="w-12 h-12 object-contain rounded-lg">
-            @endif
-            <div>
-                <a href="{{ route('journals.home', $journal->slug) }}" class="text-lg font-black text-slate-900 hover:text-blue-700 transition-colors">
-                    {{ $journal->name }}
-                </a>
-                <div class="flex gap-3 text-xs text-slate-500">
-                    @if($journal->issn_print) <span>p-ISSN: {{ $journal->issn_print }}</span> @endif
-                    @if($journal->issn_online) <span>e-ISSN: {{ $journal->issn_online }}</span> @endif
-                </div>
-            </div>
-        </div>
-    </div>
-    {{-- Sub-nav --}}
-    <div class="border-t border-slate-200" style="background:#f8fafc;">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <nav class="flex gap-0 overflow-x-auto text-sm">
-                <a href="{{ route('journals.home', $journal->slug) }}"
-                   class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors font-medium">
-                    Beranda
-                </a>
-                <a href="{{ route('journals.issues', $journal->slug) }}"
-                   class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors font-medium">
-                    Arsip
-                </a>
-                <a href="{{ route('journals.page', [$journal->slug, 'about']) }}"
-                   class="shrink-0 px-4 py-3 border-b-2 transition-colors font-medium {{ $page === 'about' ? 'border-blue-600 text-blue-700' : 'text-slate-600 hover:text-blue-700 border-transparent hover:border-blue-300' }}">
-                    Tentang
-                </a>
-            </nav>
-        </div>
-    </div>
-</div>
+@include('reader.partials.journal-header', ['activeTab' => 'about'])
 
 {{-- Body: sidebar + content --}}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

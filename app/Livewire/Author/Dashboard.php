@@ -2,12 +2,13 @@
 
 namespace App\Livewire\Author;
 
+use App\Models\LetterOfAcceptance;
 use App\Models\Submission;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
+#[Layout('layouts.author')]
 #[Title('Dashboard Penulis')]
 class Dashboard extends Component
 {
@@ -41,6 +42,17 @@ class Dashboard extends Component
             ->orderByDesc('submitted_at')
             ->get();
 
-        return view('livewire.author.dashboard', compact('active', 'published', 'drafts', 'declined'));
+        $loas = LetterOfAcceptance::whereHas('submission', fn($q) => $q->where('user_id', $userId))
+            ->with(['submission', 'journal', 'issuedBy'])
+            ->orderByDesc('created_at')
+            ->get();
+
+        $turnitin = Submission::where('user_id', $userId)
+            ->whereNotNull('similarity_score')
+            ->with(['journal'])
+            ->orderByDesc('similarity_checked_at')
+            ->get(['id', 'title', 'journal_id', 'similarity_score', 'similarity_checked_at', 'status']);
+
+        return view('livewire.author.dashboard', compact('active', 'published', 'drafts', 'declined', 'loas', 'turnitin'));
     }
 }

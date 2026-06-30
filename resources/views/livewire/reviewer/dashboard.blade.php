@@ -318,45 +318,94 @@
     </div>
 
     {{-- Reviewer profile card --}}
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div style="padding:.875rem 1.125rem;border-bottom:1px solid #f1f5f9;">
-            <p style="font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#475569;margin:0;">Profil Saya</p>
-        </div>
-        <div style="padding:1.125rem;">
-            <div style="display:flex;align-items:center;gap:.875rem;margin-bottom:1rem;">
-                <div style="width:3rem;height:3rem;border-radius:50%;background:linear-gradient(135deg,#059669,#047857);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.125rem;font-weight:800;flex-shrink:0;">
-                    {{ strtoupper(substr(auth()->user()->first_name,0,1)) }}
-                </div>
-                <div style="min-width:0;">
-                    <p style="font-size:.9375rem;font-weight:700;color:#0f172a;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                        {{ auth()->user()->first_name }} {{ auth()->user()->last_name }}
-                    </p>
-                    <p style="font-size:.75rem;color:#64748b;margin:.125rem 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ auth()->user()->email }}</p>
-                </div>
-            </div>
+    @php
+    $pUser       = auth()->user();
+    $pName       = trim(($pUser->salutation ? $pUser->salutation.' ' : '') . $pUser->first_name . ' ' . $pUser->last_name);
+    $pAvatar     = $pUser->avatar;
+    $pInitials   = strtoupper(substr($pUser->first_name,0,1)) . strtoupper(substr($pUser->last_name??'',0,1));
+    $pExpertise  = $pUser->expertise_areas ?? [];
+    $pAcadIds    = array_filter([
+        $pUser->orcid          ? ['ORCID',   $pUser->orcid,          '#a3c13d', 'https://orcid.org/'.$pUser->orcid]          : null,
+        $pUser->google_scholar ? ['Scholar', 'Lihat profil',         '#4285f4', $pUser->google_scholar]                       : null,
+        $pUser->scopus_id      ? ['Scopus',  $pUser->scopus_id,      '#e87722', 'https://www.scopus.com/authid/detail.uri?authorId='.$pUser->scopus_id] : null,
+        $pUser->sinta_id       ? ['SINTA',   $pUser->sinta_id,       '#dc2626', 'https://sinta.kemdikbud.go.id/authors/detail?id='.$pUser->sinta_id]    : null,
+    ]);
+    $pAcceptTotal = \App\Models\ReviewAssignment::where('reviewer_id',$pUser->id)->count();
+    $pAcceptRate  = $pAcceptTotal > 0 ? round(($counts['completed']/$pAcceptTotal)*100) : null;
+    @endphp
+    <div style="background:#fff;border-radius:1rem;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,.06);overflow:hidden;">
 
-            @if(auth()->user()->affiliation)
-            <div style="font-size:.8rem;color:#475569;background:#f8fafc;border-radius:.5rem;padding:.625rem .75rem;margin-bottom:.75rem;line-height:1.5;">
-                <span style="font-weight:700;">Institusi:</span> {{ auth()->user()->affiliation }}
-            </div>
-            @endif
-
-            @if(auth()->user()->orcid)
-            <a href="https://orcid.org/{{ auth()->user()->orcid }}" target="_blank"
-               style="display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;font-weight:600;color:#a6ce39;text-decoration:none;margin-bottom:.75rem;">
-                <svg style="width:.875rem;height:.875rem;" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm-1.457 4.669c.456 0 .826.37.826.826s-.37.826-.826.826-.826-.37-.826-.826.37-.826.826-.826zm2.914 14.662h-1.828V9.388h1.828v9.943zm-5.828 0V9.388h1.828v9.943H7.629z"/></svg>
-                {{ auth()->user()->orcid }}
+        {{-- Cover banner --}}
+        <div style="height:4.5rem;background:linear-gradient(135deg,#022c22 0%,#064e3b 55%,#059669 100%);position:relative;overflow:hidden;">
+            <div style="position:absolute;top:-1.5rem;right:-1.5rem;width:6rem;height:6rem;border-radius:50%;background:rgba(255,255,255,.05);"></div>
+            <div style="position:absolute;bottom:-1rem;left:20%;width:4rem;height:4rem;border-radius:50%;background:rgba(255,255,255,.04);"></div>
+            {{-- Edit profil button --}}
+            <a href="{{ route('reviewer.profil') }}"
+               style="position:absolute;top:.75rem;right:.75rem;display:flex;align-items:center;gap:.3rem;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:.5rem;padding:.25rem .625rem;font-size:.7rem;font-weight:600;color:rgba(255,255,255,.9);text-decoration:none;backdrop-filter:blur(4px);">
+                <svg style="width:.7rem;height:.7rem;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z"/></svg>
+                Edit
             </a>
+        </div>
+
+        {{-- Avatar — overlap --}}
+        <div style="padding:0 1.125rem;margin-top:-2.25rem;margin-bottom:.625rem;position:relative;z-index:2;">
+            @if($pAvatar)
+            <img src="{{ Storage::url($pAvatar) }}"
+                 style="width:4.5rem;height:4.5rem;border-radius:50%;object-fit:contain;background:#fff;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.18);">
+            @else
+            <div style="width:4.5rem;height:4.5rem;border-radius:50%;background:linear-gradient(135deg,#059669,#047857);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;color:#fff;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.15);">
+                {{ $pInitials }}
+            </div>
+            @endif
+        </div>
+
+        {{-- Name & position --}}
+        <div style="padding:0 1.125rem .875rem;">
+            <p style="font-size:1rem;font-weight:800;color:#0f172a;margin:0;line-height:1.25;">{{ $pName }}</p>
+            @if($pUser->position || $pUser->department)
+            <p style="font-size:.78rem;font-weight:600;color:#059669;margin:.2rem 0 0;">
+                {{ implode(' · ', array_filter([$pUser->position, $pUser->department])) }}
+            </p>
+            @endif
+            @if($pUser->affiliation)
+            <p style="font-size:.775rem;color:#64748b;margin:.125rem 0 0;line-height:1.4;">{{ $pUser->affiliation }}</p>
             @endif
 
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;border-top:1px solid #f1f5f9;padding-top:.75rem;">
+            {{-- Expertise tags --}}
+            @if(!empty($pExpertise))
+            <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.625rem;">
+                @foreach(array_slice($pExpertise,0,4) as $tag)
+                <span style="background:#f0fdf4;color:#065f46;border:1px solid #bbf7d0;border-radius:9999px;padding:.15rem .55rem;font-size:.7rem;font-weight:600;">{{ $tag }}</span>
+                @endforeach
+                @if(count($pExpertise) > 4)
+                <span style="background:#f1f5f9;color:#94a3b8;border:1px solid #e2e8f0;border-radius:9999px;padding:.15rem .5rem;font-size:.7rem;">+{{ count($pExpertise)-4 }}</span>
+                @endif
+            </div>
+            @endif
+
+            {{-- Academic IDs --}}
+            @if(!empty($pAcadIds))
+            <div style="margin-top:.75rem;padding-top:.75rem;border-top:1px solid #f1f5f9;display:flex;flex-direction:column;gap:.35rem;">
+                @foreach($pAcadIds as $aid)
+                <a href="{{ $aid[3] }}" target="_blank"
+                   style="display:flex;align-items:center;gap:.5rem;text-decoration:none;">
+                    <span style="font-size:.65rem;font-weight:700;color:{{ $aid[2] }};background:{{ $aid[2] }}15;border:1px solid {{ $aid[2] }}25;border-radius:.3rem;padding:.1rem .4rem;min-width:3.25rem;text-align:center;flex-shrink:0;">{{ $aid[0] }}</span>
+                    <span style="font-size:.75rem;color:#475569;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $aid[1] }}</span>
+                </a>
+                @endforeach
+            </div>
+            @endif
+
+            {{-- Stats --}}
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.875rem;padding-top:.875rem;border-top:1px solid #f1f5f9;">
                 @foreach([
-                    ['n' => $counts['completed'], 'label' => 'Selesai',    'c' => '#059669'],
-                    ['n' => $avgDays ?? '—',      'label' => 'Hari Rata²', 'c' => '#7c3aed'],
+                    ['n' => $counts['completed'],             'label' => 'Selesai',  'c' => '#059669', 'bg' => '#f0fdf4'],
+                    ['n' => $avgDays ?? '—',                  'label' => 'Rata-rata','c' => '#7c3aed', 'bg' => '#faf5ff'],
+                    ['n' => $pAcceptRate !== null ? $pAcceptRate.'%' : '—', 'label'=>'Terima',  'c' => '#d97706', 'bg' => '#fffbeb'],
                 ] as $m)
-                <div style="text-align:center;padding:.5rem;background:#f8fafc;border-radius:.5rem;">
-                    <div style="font-size:1.25rem;font-weight:800;color:{{ $m['c'] }};line-height:1;">{{ $m['n'] }}</div>
-                    <div style="font-size:.6875rem;font-weight:600;color:#94a3b8;margin-top:.2rem;">{{ $m['label'] }}</div>
+                <div style="text-align:center;padding:.625rem .25rem;background:{{ $m['bg'] }};border-radius:.625rem;">
+                    <div style="font-size:1.125rem;font-weight:900;color:{{ $m['c'] }};line-height:1;">{{ $m['n'] }}</div>
+                    <div style="font-size:.625rem;font-weight:700;color:#94a3b8;margin-top:.25rem;text-transform:uppercase;letter-spacing:.04em;">{{ $m['label'] }}</div>
                 </div>
                 @endforeach
             </div>

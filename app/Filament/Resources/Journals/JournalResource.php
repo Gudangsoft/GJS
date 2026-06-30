@@ -16,9 +16,11 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use LaraZeus\SpatieTranslatable\Resources\Concerns\Translatable;
 
 class JournalResource extends Resource
 {
+    use Translatable;
     protected static ?string $model = Journal::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookOpen;

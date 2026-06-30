@@ -1,53 +1,6 @@
 <div>
 
-{{-- ══════════════════ JOURNAL HEADER ══════════════════ --}}
-<div class="bg-white border-b border-slate-200">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div class="flex flex-col sm:flex-row gap-5 items-start">
-
-            {{-- Cover --}}
-            <div class="shrink-0">
-                @if($journal->cover_image)
-                <img src="{{ asset('storage/' . $journal->cover_image) }}" alt="{{ $journal->name }}"
-                     class="w-20 h-[106px] object-cover rounded-xl border border-slate-200 shadow">
-                @else
-                <div class="w-20 h-[106px] rounded-xl shadow flex items-center justify-center"
-                     style="background:linear-gradient(145deg,#1e3a8a,#312e81)">
-                    <span class="text-white font-black text-sm text-center px-1 leading-tight">
-                        {{ strtoupper(substr($journal->name_abbrev ?? $journal->name, 0, 4)) }}
-                    </span>
-                </div>
-                @endif
-            </div>
-
-            {{-- Info --}}
-            <div class="flex-1 min-w-0">
-                <h1 class="text-xl font-black text-slate-900 leading-snug">{{ $journal->name }}</h1>
-                <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 mt-1.5">
-                    @if($journal->publisher)<span>{{ $journal->publisher }}</span>@endif
-                    @if($journal->issn_print)<span class="font-mono">p-ISSN: <strong class="text-slate-700">{{ $journal->issn_print }}</strong></span>@endif
-                    @if($journal->issn_online)<span class="font-mono">e-ISSN: <strong class="text-slate-700">{{ $journal->issn_online }}</strong></span>@endif
-                </div>
-                <nav class="flex items-center gap-1 mt-4 flex-wrap">
-                    <a href="{{ route('journals.home', $journal->slug) }}"
-                       class="px-3 py-1.5 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-100 transition-colors">
-                        Beranda
-                    </a>
-                    <a href="{{ route('journals.issues', $journal->slug) }}"
-                       class="px-3 py-1.5 text-sm font-semibold rounded-lg bg-blue-600 text-white">
-                        Arsip Terbitan
-                    </a>
-                    @auth
-                    <a href="{{ route('submit') }}"
-                       class="ml-auto px-3 py-1.5 text-sm font-semibold rounded-lg border border-blue-600 text-blue-600 hover:bg-blue-50 transition-colors">
-                        Kirim Naskah
-                    </a>
-                    @endauth
-                </nav>
-            </div>
-        </div>
-    </div>
-</div>
+@include('reader.partials.journal-header', ['activeTab' => 'issues'])
 
 {{-- ══════════════════ MAIN CONTENT ══════════════════ --}}
 @php
@@ -77,8 +30,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/>
             </svg>
         </div>
-        <h2 class="text-xl font-bold text-slate-700 mb-2">Belum Ada Terbitan</h2>
-        <p class="text-sm text-slate-400 max-w-xs">Terbitan akan tampil di sini setelah dipublikasikan oleh editor.</p>
+        <h2 class="text-xl font-bold text-slate-700 mb-2">{{ __('site.no_issues_published') }}</h2>
+        <p class="text-sm text-slate-400 max-w-xs">{{ __('site.no_issues_msg') }}</p>
     </div>
 
     @else
@@ -87,15 +40,15 @@
     <div class="grid grid-cols-3 gap-4 mb-8">
         <div class="bg-white rounded-xl border border-slate-200 px-5 py-4 text-center">
             <p class="text-2xl font-black text-blue-700">{{ $totalIssues }}</p>
-            <p class="text-xs font-medium text-slate-500 mt-0.5 uppercase tracking-wide">Terbitan</p>
+            <p class="text-xs font-medium text-slate-500 mt-0.5 uppercase tracking-wide">{{ __('site.issues') }}</p>
         </div>
         <div class="bg-white rounded-xl border border-slate-200 px-5 py-4 text-center">
             <p class="text-2xl font-black text-blue-700">{{ $totalArticles }}</p>
-            <p class="text-xs font-medium text-slate-500 mt-0.5 uppercase tracking-wide">Artikel</p>
+            <p class="text-xs font-medium text-slate-500 mt-0.5 uppercase tracking-wide">{{ __('site.articles') }}</p>
         </div>
         <div class="bg-white rounded-xl border border-slate-200 px-5 py-4 text-center">
             <p class="text-2xl font-black text-blue-700">{{ count($years) }}</p>
-            <p class="text-xs font-medium text-slate-500 mt-0.5 uppercase tracking-wide">Tahun</p>
+            <p class="text-xs font-medium text-slate-500 mt-0.5 uppercase tracking-wide">{{ __('site.years') }}</p>
         </div>
     </div>
 
@@ -105,7 +58,7 @@
         {{-- ── LEFT: Sticky year sidebar ── --}}
         <aside class="hidden lg:block w-44 shrink-0">
             <div class="sticky top-6">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Tahun</p>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">{{ __('site.years') }}</p>
                 <nav class="flex flex-col gap-1">
                     @foreach($years as $year)
                     <a href="#year-{{ $year }}"
@@ -136,7 +89,7 @@
 
             {{-- Mobile year quick-jump --}}
             <div class="flex lg:hidden items-center gap-2 overflow-x-auto pb-2 mb-6">
-                <span class="text-xs text-slate-400 shrink-0">Tahun:</span>
+                <span class="text-xs text-slate-400 shrink-0">{{ __('site.years') }}:</span>
                 @foreach($years as $year)
                 <a href="#year-{{ $year }}"
                    class="shrink-0 px-3 py-1.5 text-xs font-bold rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all">
@@ -159,7 +112,7 @@
                     </div>
                     <div>
                         <h2 class="text-xl font-black text-slate-800 leading-none">{{ $year }}</h2>
-                        <p class="text-xs text-slate-400 mt-0.5">{{ $yearIssues->count() }} terbitan</p>
+                        <p class="text-xs text-slate-400 mt-0.5">{{ $yearIssues->count() }} {{ __('site.issues') }}</p>
                     </div>
                     <div class="flex-1 h-px bg-slate-100 ml-2"></div>
                 </div>
@@ -209,7 +162,7 @@
                             @if($isCurrent)
                             <div class="absolute top-0 left-0 right-0 flex justify-center">
                                 <span class="bg-amber-400 text-amber-900 text-xs font-black px-2 py-0.5 w-full text-center"
-                                      style="font-size:9px;letter-spacing:.04em">TERBITAN TERKINI</span>
+                                      style="font-size:9px;letter-spacing:.04em">{{ __('site.current_issue_ribbon') }}</span>
                             </div>
                             @endif
                         </div>
@@ -221,12 +174,12 @@
                                 {{-- Label + current badge --}}
                                 <div class="flex items-start justify-between gap-2 mb-1.5">
                                     <h3 class="text-sm sm:text-base font-bold text-slate-900 group-hover:text-blue-700 transition-colors leading-snug">
-                                        {{ $issue->getLabel() ?: ('Terbitan ' . $year) }}
+                                        {{ $issue->getLabel() ?: (__('site.issues').' '.$year) }}
                                     </h3>
                                     @if($isCurrent)
                                     <span class="shrink-0 inline-flex items-center gap-1 bg-amber-100 text-amber-700 border border-amber-200 text-xs font-bold px-2 py-0.5 rounded-full">
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
-                                        Terkini
+                                        {{ __('site.current_label') }}
                                     </span>
                                     @endif
                                 </div>
@@ -250,19 +203,19 @@
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
                                         </svg>
-                                        {{ $issue->date_published->format('d M Y') }}
+                                        {{ $issue->date_published->translatedFormat('d M Y') }}
                                     </span>
                                     @endif
                                     <span class="flex items-center gap-1">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
                                         </svg>
-                                        {{ $issue->articles_count }} artikel
+                                        {{ $issue->articles_count }} {{ __('site.articles') }}
                                     </span>
                                 </div>
 
                                 <span class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 group-hover:text-blue-800 transition-colors">
-                                    Lihat Terbitan
+                                    {{ __('site.view_issue') }}
                                     <svg class="w-3.5 h-3.5 transition-transform duration-150 group-hover:translate-x-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
                                     </svg>
@@ -284,7 +237,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/>
                     </svg>
-                    Kembali ke Atas
+                    {{ __('site.back_to_top') }}
                 </button>
             </div>
         </div>

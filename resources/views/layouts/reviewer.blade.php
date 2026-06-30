@@ -166,6 +166,39 @@ $navGroups = [
         Portal
     </a>
 
+    {{-- Language Switcher --}}
+    @php
+        $__revLocales   = $availableLocales ?? ['id','en'];
+        $__revCurLocale = $currentLocale ?? app()->getLocale();
+        $__revFlags     = ['id'=>'🇮🇩','en'=>'🇬🇧','ar'=>'🇸🇦'];
+        $__revShort     = ['id'=>'ID','en'=>'EN','ar'=>'AR'];
+    @endphp
+    @if(count($__revLocales) > 1)
+    <div class="relative" x-data="{ langOpen: false }">
+        <button @click="langOpen = !langOpen" @click.outside="langOpen = false"
+                class="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold text-white border border-white/20 hover:bg-white/10 transition-colors">
+            <span>{{ $__revFlags[$__revCurLocale] ?? '🌐' }}</span>
+            <span>{{ $__revShort[$__revCurLocale] ?? strtoupper($__revCurLocale) }}</span>
+        </button>
+        <div x-show="langOpen"
+             x-transition:enter="transition ease-out duration-100"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             class="absolute right-0 mt-1 w-44 bg-white rounded-xl shadow-lg border border-slate-200 py-1 z-50"
+             style="display:none;">
+            <div class="px-3 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wide border-b border-slate-100 mb-1">Bahasa</div>
+            @foreach($__revLocales as $__loc)
+            <a href="{{ route('language.switch', $__loc) }}"
+               class="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 {{ $__revCurLocale === $__loc ? 'bg-green-50 text-green-600 font-semibold' : '' }}">
+                <span>{{ $__revFlags[$__loc] ?? '🌐' }}</span>
+                <span>{{ __('site.language_'.$__loc) }}</span>
+                @if($__revCurLocale === $__loc)<svg class="w-3.5 h-3.5 ml-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>@endif
+            </a>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     {{-- Notification bell --}}
     <livewire:notification-bell />
 
@@ -226,32 +259,6 @@ $navGroups = [
     <aside :class="sidebarOpen ? 'w-60' : 'w-16'"
            class="fixed top-14 bottom-0 left-0 z-40 flex flex-col flex-shrink-0 overflow-y-auto overflow-x-hidden transition-all duration-200 hidden lg:flex"
            style="background:#1e293b;">
-
-        {{-- Reviewer mini profile --}}
-        <div x-show="sidebarOpen" x-cloak
-             class="flex items-center gap-3 mx-3 my-3 px-3 py-2.5 rounded-xl"
-             style="background:rgba(5,150,105,.15);border:1px solid rgba(5,150,105,.25);">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
-                 style="background:#059669;">
-                {{ strtoupper(substr($user->first_name, 0, 1)) }}
-            </div>
-            <div class="min-w-0 flex-1">
-                <p class="text-xs font-bold text-white truncate">{{ $user->first_name }} {{ $user->last_name }}</p>
-                @if($user->affiliation)
-                <p class="text-xs truncate" style="color:#6ee7b7;">{{ Str::limit($user->affiliation, 22) }}</p>
-                @else
-                <p class="text-xs" style="color:#6ee7b7;">Reviewer</p>
-                @endif
-            </div>
-        </div>
-        {{-- Collapsed: just avatar --}}
-        <div x-show="!sidebarOpen"
-             class="flex justify-center my-3">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                 style="background:#059669;">
-                {{ strtoupper(substr($user->first_name, 0, 1)) }}
-            </div>
-        </div>
 
         {{-- Nav items --}}
         <div class="py-1 flex-1">

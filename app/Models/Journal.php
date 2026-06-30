@@ -9,10 +9,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Translatable\HasTranslations;
 
 class Journal extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity, HasTranslations;
+
+    public array $translatable = [
+        'name', 'description', 'focus_scope', 'author_guidelines',
+        'reviewer_guidelines', 'privacy_statement', 'about_journal',
+        'open_access_statement', 'announcements_intro', 'ethics_statement',
+        'apc_waiver_policy', 'submission_acknowledgement', 'copyright_notice',
+    ];
 
     protected $fillable = [
         'slug', 'oai_identifier', 'name', 'name_abbrev', 'description', 'publication_frequency',

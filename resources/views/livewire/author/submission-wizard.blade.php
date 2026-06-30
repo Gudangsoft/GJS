@@ -110,38 +110,60 @@
                            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
+                {{-- Abstrak Bahasa Indonesia --}}
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Abstrak *</label>
-                    <textarea wire:model="abstract" rows="6" placeholder="Tulis abstrak naskah (150–300 kata)..."
-                              class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y @error('abstract') border-red-400 @enderror"></textarea>
-                    <p class="mt-1 text-xs text-slate-400">{{ str_word_count($abstract) }} kata</p>
-                    @error('abstract')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                    <label class="block text-sm font-medium text-slate-700 mb-1">
+                        Abstrak <span class="text-slate-400 font-normal">(Bahasa Indonesia)</span> *
+                    </label>
+                    <textarea wire:model="abstractId" rows="6" placeholder="Tulis abstrak naskah dalam Bahasa Indonesia (150–300 kata)..."
+                              class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y @error('abstractId') border-red-400 @enderror"></textarea>
+                    <p class="mt-1 text-xs text-slate-400">{{ str_word_count($abstractId) }} kata</p>
+                    @error('abstractId')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
 
-                <div x-data="{
-                    suggestions: [],
-                    showSuggestions: false,
-                    async fetchSuggestions(val) {
-                        const parts = val.split(',');
-                        const last = parts[parts.length - 1].trim();
-                        if (last.length < 2) { this.suggestions = []; return; }
-                        const res = await fetch('/api/v1/keywords/suggest?q=' + encodeURIComponent(last) + '&locale=' + (document.querySelector('[wire\\:model=\"locale\"]')?.value || 'id'));
-                        const data = await res.json();
-                        this.suggestions = data.items || [];
-                        this.showSuggestions = this.suggestions.length > 0;
-                    },
-                    addSuggestion(kw) {
-                        const el = document.querySelector('[wire\\:model=\"keywordsInput\"]');
-                        const parts = el.value.split(',');
-                        parts[parts.length - 1] = ' ' + kw;
-                        el.value = parts.join(',') + ', ';
-                        el.dispatchEvent(new Event('input'));
-                        @this.set('keywordsInput', el.value);
-                        this.suggestions = [];
-                        this.showSuggestions = false;
-                        el.focus();
-                    }
-                }" class="relative">
+                {{-- Abstrak Bahasa Inggris --}}
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">
+                        Abstract <span class="text-slate-400 font-normal">(English)</span>
+                        <span class="text-xs font-normal text-slate-400 ml-1">— opsional, disarankan untuk jurnal internasional</span>
+                    </label>
+                    <textarea wire:model="abstractEn" rows="6" placeholder="Write the manuscript abstract in English (150–300 words)..."
+                              class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y @error('abstractEn') border-red-400 @enderror"></textarea>
+                    <p class="mt-1 text-xs text-slate-400">{{ str_word_count($abstractEn) }} words</p>
+                    @error('abstractEn')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                </div>
+
+                <script>
+                function keywordsSuggestData(livewireId) {
+                    return {
+                        suggestions: [],
+                        showSuggestions: false,
+                        async fetchSuggestions(val) {
+                            const parts = val.split(',');
+                            const last = parts[parts.length - 1].trim();
+                            if (last.length < 2) { this.suggestions = []; return; }
+                            const localeEl = document.querySelector('[wire\\:model="locale"]');
+                            const locale = localeEl ? localeEl.value : 'id';
+                            const res = await fetch('/api/v1/keywords/suggest?q=' + encodeURIComponent(last) + '&locale=' + locale);
+                            const data = await res.json();
+                            this.suggestions = data.items || [];
+                            this.showSuggestions = this.suggestions.length > 0;
+                        },
+                        addSuggestion(kw) {
+                            const el = document.querySelector('[wire\\:model="keywordsInput"]');
+                            const parts = el.value.split(',');
+                            parts[parts.length - 1] = ' ' + kw;
+                            el.value = parts.join(',') + ', ';
+                            el.dispatchEvent(new Event('input'));
+                            window.Livewire.find(livewireId).set('keywordsInput', el.value);
+                            this.suggestions = [];
+                            this.showSuggestions = false;
+                            el.focus();
+                        }
+                    };
+                }
+                </script>
+                <div x-data="keywordsSuggestData('{{ $this->getId() }}')" class="relative">
                     <label class="block text-sm font-medium text-slate-700 mb-1">
                         Kata Kunci <span class="text-slate-400">(pisahkan dengan koma)</span>
                     </label>

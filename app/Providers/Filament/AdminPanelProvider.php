@@ -17,6 +17,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
+use LaraZeus\SpatieTranslatable\SpatieTranslatablePlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -79,6 +80,12 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make('Administrasi Situs')
                     ->icon('heroicon-o-server-stack')
                     ->collapsed(true),
+            ])
+
+            // ── Translatable Content Plugin ──────────────────────────────────
+            ->plugins([
+                SpatieTranslatablePlugin::make()
+                    ->defaultLocales(['id', 'en']),
             ])
 
             // ── Resources, Pages, Widgets ────────────────────────────────────

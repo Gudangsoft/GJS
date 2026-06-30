@@ -41,4 +41,11 @@ return [
         'redirect'      => env('ORCID_REDIRECT_URI', env('APP_URL').'/auth/orcid/callback'),
     ],
 
+    'diajeng' => [
+        'api_key'      => env('DIAJENG_API_KEY'),
+        'base_url'     => env('DIAJENG_BASE_URL', 'https://diajeng.lldikti6.id/api/v1'),
+        'cache_ttl'    => env('DIAJENG_CACHE_TTL', 3600), // detik
+        'timeout'      => 15,
+    ],
+
 ];

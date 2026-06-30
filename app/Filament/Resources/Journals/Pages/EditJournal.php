@@ -7,9 +7,11 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
+use LaraZeus\SpatieTranslatable\Resources\Pages\EditRecord\Concerns\Translatable;
 
 class EditJournal extends EditRecord
 {
+    use Translatable;
     protected static string $resource = JournalResource::class;
 
     protected function getHeaderActions(): array

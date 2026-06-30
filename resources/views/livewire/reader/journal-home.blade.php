@@ -1,210 +1,14 @@
-<div>
+﻿<div>
 
-{{-- ══════════════════════════════════════════ JOURNAL HEADER (OJS-style) ══ --}}
 @php
-    $hs        = $journal->settings ?? [];
-    $hBgType   = $hs['header_bg_type']   ?? 'default';
-    $hBgColor  = $hs['header_bg_color']  ?? '#1e3a8a';
-    $hBgColor2 = $hs['header_bg_color2'] ?? '#4338ca';
-    $hLight    = (bool)($hs['header_text_light'] ?? true);
-    $hTagline  = $hs['header_tagline'] ?? '';
-    $siteBg    = $hs['site_bg_color']    ?? '#f1f5f9';
-    $indexedBy = $hs['indexed_by']       ?? [];
-    $sponsors  = $hs['sponsors']         ?? [];
-
-    // Menu settings
-    $menuShowIssues        = (bool)($hs['menu_show_issues']        ?? true);
-    $menuShowAnnouncements = (bool)($hs['menu_show_announcements'] ?? true);
-    $menuShowAbout         = (bool)($hs['menu_show_about']         ?? true);
-    $menuShowBrowse        = (bool)($hs['menu_show_browse']        ?? true);
-    $customMenuItems       = $hs['custom_menu_items']              ?? [];
-    $customPages           = array_values(array_filter($hs['custom_pages'] ?? [], fn($p) => $p['enabled'] ?? true));
-
-    $headerStyle = match($hBgType) {
-        'color'    => "background:{$hBgColor};",
-        'gradient' => "background:linear-gradient(135deg,{$hBgColor},{$hBgColor2});",
-        'image'    => $journal->homepage_image
-                        ? "background:url(" . asset('storage/' . $journal->homepage_image) . ") center/cover no-repeat;position:relative;"
-                        : "background:linear-gradient(135deg,{$hBgColor},{$hBgColor2});",
-        default    => '',
-    };
-
-    $textColorMain  = ($hBgType !== 'default' && $hLight) ? '#ffffff' : '#0f172a';
-    $textColorMuted = ($hBgType !== 'default' && $hLight) ? 'rgba(255,255,255,0.75)' : '#64748b';
-    $overlayNeeded  = $hBgType === 'image' && $journal->homepage_image;
+    $hs     = $journal->settings ?? [];
+    $siteBg = $hs['site_bg_color'] ?? '#f1f5f9';
+    $indexedBy = $hs['indexed_by'] ?? [];
+    $sponsors  = $hs['sponsors']   ?? [];
 @endphp
-{{-- ══ JOURNAL HEADER — terpusat sejajar konten (mirip OJS) ══ --}}
-@php
-    $pIssn = $journal->issn_print  ?? '';
-    $eIssn = $journal->issn_online ?? '';
-@endphp
-{{-- Outer: full-width dengan background site, agar sisi kiri-kanan terisi warna --}}
-<div style="width:100%;background:{{ $siteBg }};">
-    {{-- Inner: max-w terpusat, sejajar konten di bawahnya --}}
-    <div style="max-width:80rem;margin:0 auto;overflow:hidden;">
+@include('reader.partials.journal-header', ['activeTab' => 'home'])
 
-        @if($hBgType === 'image' && $journal->homepage_image)
-        {{-- Mode gambar: tampil proporsional penuh dalam container --}}
-        <img src="{{ asset('storage/' . $journal->homepage_image) }}"
-             alt="{{ $journal->name }}"
-             style="display:block;width:100%;height:auto;">
 
-        @elseif($hBgType === 'color' || $hBgType === 'gradient')
-        {{-- Mode warna / gradien --}}
-        <div style="{{ $headerStyle }}width:100%;padding:1.5rem 2rem;">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
-                <div>
-                    <h1 style="font-size:1.5rem;font-weight:900;line-height:1.2;color:{{ $textColorMain }};margin:0;">{{ $journal->name }}</h1>
-                    @if($hTagline)<p style="font-size:.875rem;margin:.25rem 0 0;color:{{ $textColorMuted }};">{{ $hTagline }}</p>@endif
-                </div>
-                @if($pIssn || $eIssn)
-                <div style="text-align:right;font-size:.75rem;color:{{ $textColorMuted }};line-height:1.8;">
-                    @if($pIssn)<div>P-ISSN: <strong style="color:{{ $textColorMain }}">{{ $pIssn }}</strong></div>@endif
-                    @if($eIssn)<div>E-ISSN: <strong style="color:{{ $textColorMain }}">{{ $eIssn }}</strong></div>@endif
-                </div>
-                @endif
-            </div>
-        </div>
-
-        @else
-        {{-- Mode default: banner gradien biru profesional --}}
-        <div style="background:linear-gradient(135deg,#1e3a8a 0%,#1e40af 60%,#1d4ed8 100%);padding:1.25rem 2rem;">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
-                <div style="display:flex;align-items:center;gap:.875rem;">
-                    @if($journal->cover_image)
-                    <img src="{{ asset('storage/' . $journal->cover_image) }}"
-                         alt="{{ $journal->name }}"
-                         style="height:3rem;width:auto;border-radius:.375rem;box-shadow:0 2px 8px rgba(0,0,0,.3);">
-                    @else
-                    <div style="width:2.75rem;height:2.75rem;border-radius:.375rem;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.75rem;color:#fff;letter-spacing:.05em;border:1px solid rgba(255,255,255,.25);">
-                        {{ strtoupper(substr($journal->name, 0, 3)) }}
-                    </div>
-                    @endif
-                    <div>
-                        <div style="font-size:1.25rem;font-weight:900;color:#fff;line-height:1.25;text-shadow:0 1px 3px rgba(0,0,0,.3);">{{ $journal->name }}</div>
-                        @if($hTagline)<div style="font-size:.8125rem;color:rgba(255,255,255,.8);margin-top:.125rem;">{{ $hTagline }}</div>@endif
-                    </div>
-                </div>
-                @if($pIssn || $eIssn)
-                <div style="text-align:right;font-size:.75rem;color:rgba(255,255,255,.85);line-height:1.8;">
-                    @if($pIssn)<div>P-ISSN: <strong style="color:#fff">{{ $pIssn }}</strong></div>@endif
-                    @if($eIssn)<div>E-ISSN: <strong style="color:#fff">{{ $eIssn }}</strong></div>@endif
-                </div>
-                @endif
-            </div>
-        </div>
-        @endif
-
-    </div>
-</div>
-{{-- ══ end journal header ══ --}}
-
-{{-- Sub-navigation: OJS-style tabs (dinamis) --}}
-<div style="background:#ffffff;border-bottom:1px solid #e2e8f0;border-top:1px solid #f1f5f9;">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-stretch">
-            <nav class="flex gap-0 overflow-x-auto text-sm flex-1">
-                {{-- Beranda — selalu tampil --}}
-                <a href="{{ route('journals.home', $journal->slug) }}"
-                   class="shrink-0 px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap"
-                   style="border-color:#1e40af;color:#1e40af;">
-                    Beranda
-                </a>
-
-                @if($menuShowIssues)
-                <a href="{{ route('journals.issues', $journal->slug) }}"
-                   class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors whitespace-nowrap">
-                    Terbitan
-                </a>
-                @endif
-
-                @if($menuShowAnnouncements && $announcements->isNotEmpty())
-                <a href="#pengumuman"
-                   class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors whitespace-nowrap">
-                    Pengumuman
-                </a>
-                @endif
-
-                @if($menuShowAbout)
-                {{-- About dropdown --}}
-                <div class="relative shrink-0 flex" x-data="{ open: false }">
-                    <button @mouseenter="open = true" @mouseleave="open = false" @click="open = !open"
-                            class="flex items-center gap-1 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors text-sm whitespace-nowrap">
-                        Tentang
-                        <svg class="w-3 h-3 transition-transform duration-150" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                    </button>
-                    <div x-show="open" @mouseleave="open = false" @click.outside="open = false" x-cloak
-                         x-transition:enter="transition ease-out duration-100"
-                         x-transition:enter-start="opacity-0 -translate-y-1"
-                         x-transition:enter-end="opacity-100 translate-y-0"
-                         class="absolute top-full left-0 w-52 bg-white border border-slate-200 rounded-b-xl rounded-tr-xl shadow-lg z-50 py-1.5">
-                        @foreach([
-                            ['about',               'Tentang Jurnal'],
-                            ['editorial-team',      'Tim Editorial'],
-                            ['submissions',         'Pengiriman Naskah'],
-                            ['guidelines',          'Panduan Penulis'],
-                            ['reviewer-guidelines', 'Panduan Reviewer'],
-                            ['ethics',              'Etika Publikasi'],
-                            ['privacy',             'Kebijakan Privasi'],
-                            ['contact',             'Kontak'],
-                        ] as [$pg, $plabel])
-                        <a href="{{ route('journals.page', [$journal->slug, $pg]) }}"
-                           class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
-                           {{ $plabel }}
-                        </a>
-                        @endforeach
-                        {{-- Halaman kustom --}}
-                        @foreach($customPages as $cp)
-                        <a href="{{ route('journals.page', [$journal->slug, $cp['slug']]) }}"
-                           class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
-                           {{ $cp['title'] }}
-                        </a>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-
-                @if($menuShowBrowse)
-                <a href="{{ route('journals.browse', [$journal->slug, 'author']) }}"
-                   class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors text-sm whitespace-nowrap">
-                    Jelajahi
-                </a>
-                @endif
-
-                {{-- Custom menu items --}}
-                @foreach($customMenuItems as $cmi)
-                <a href="{{ $cmi['url'] }}"
-                   target="{{ $cmi['target'] ?? '_self' }}"
-                   class="shrink-0 px-4 py-3 text-slate-600 hover:text-blue-700 border-b-2 border-transparent hover:border-blue-300 transition-colors text-sm whitespace-nowrap">
-                    {{ $cmi['label'] }}
-                </a>
-                @endforeach
-            </nav>
-
-            {{-- Search icon --}}
-            <div class="flex items-center pl-2 border-l border-slate-200 ml-2 relative" x-data="{ sopen: false }">
-                <button @click="sopen = !sopen; $nextTick(() => $refs.searchInput?.focus())"
-                        class="p-2 text-slate-500 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                </button>
-                <div x-show="sopen" @click.outside="sopen = false" x-cloak
-                     x-transition:enter="transition ease-out duration-100"
-                     x-transition:enter-start="opacity-0 scale-95"
-                     x-transition:enter-end="opacity-100 scale-100"
-                     class="absolute right-0 top-full mt-1 w-72 bg-white border border-slate-200 rounded-xl shadow-lg z-50 p-2">
-                    <form action="{{ route('journals.search', $journal->slug) }}" method="GET">
-                        <div class="relative">
-                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                            <input name="q" type="text" x-ref="searchInput"
-                                   placeholder="Cari artikel, penulis..."
-                                   class="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 
 
@@ -216,85 +20,68 @@
         <div class="lg:col-span-2">
 
             {{-- ── JOURNAL INFO CARD ──────────────────────────────────────── --}}
-            @php $isOA = ($journal->settings['open_access'] ?? true); @endphp
+            @php
+                $isOA = $isOA ?? ($journal->settings['open_access'] ?? true);
+                $statArticles = $journalStats['articles'] ?? $journalStats['total_articles'] ?? null;
+                $statIssues   = $journalStats['issues']   ?? $journalStats['total_issues']   ?? null;
+            @endphp
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm mb-8 overflow-hidden">
-
-                {{-- Top accent bar --}}
-                <div style="height:4px;background:linear-gradient(90deg,#1e40af,#0891b2,#0d9488);"></div>
-
                 <div class="p-5">
-                    {{-- Cover + Info side by side --}}
                     <div class="flex gap-4">
 
-                        {{-- Cover image — diperbesar --}}
-                        <div class="shrink-0" style="width:96px;">
-                            <div class="rounded-xl overflow-hidden border border-slate-200 shadow-md" style="width:96px;height:132px;">
+                        {{-- Cover / Logo --}}
+                        @if($journal->cover_image || $journal->logo)
+                        <div class="shrink-0">
+                            <div style="width:100px;height:136px;border-radius:.5rem;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 4px 14px rgba(0,0,0,.12);">
                                 @if($journal->cover_image)
-                                <img src="{{ asset('storage/' . $journal->cover_image) }}" alt="{{ $journal->name }}"
-                                     style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;">
-                                @elseif($journal->logo)
-                                <img src="{{ Storage::disk('public')->url($journal->logo) }}" alt="{{ $journal->name }}"
-                                     style="width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:#eff6ff;padding:12px;">
+                                <img src="{{ asset('storage/'.$journal->cover_image) }}" alt="{{ $journal->name }}"
+                                     style="width:100%;height:100%;object-fit:cover;display:block;">
                                 @else
-                                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#1e40af,#0891b2);">
-                                    <span style="color:#fff;font-weight:900;font-size:13px;text-align:center;padding:6px;line-height:1.2;">
-                                        {{ strtoupper(substr($journal->name_abbrev ?? $journal->name, 0, 4)) }}
-                                    </span>
+                                <div style="width:100%;height:100%;background:#eff6ff;display:flex;align-items:center;justify-content:center;padding:.75rem;">
+                                    <img src="{{ asset('storage/'.$journal->logo) }}" alt="{{ $journal->name }}"
+                                         style="max-width:100%;max-height:100%;object-fit:contain;">
                                 </div>
                                 @endif
                             </div>
                         </div>
+                        @endif
 
                         {{-- Info kanan --}}
                         <div class="flex-1 min-w-0">
-
-                            {{-- Nama + OPEN badge --}}
-                            <div class="flex items-start justify-between gap-2 mb-1">
-                                <h1 class="text-base font-black text-slate-900 leading-snug">{{ $journal->name }}</h1>
-                                @if($isOA)
-                                <span class="shrink-0 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold"
-                                      style="background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;white-space:nowrap;">
-                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1a7 7 0 015.292 11.583L21 16.414V22h-5.586l-1.002-1.002A7 7 0 1112 1zm0 2a5 5 0 100 10A5 5 0 0012 3zm0 1.5a3.5 3.5 0 110 7 3.5 3.5 0 010-7z"/></svg>
-                                    OPEN
-                                </span>
-                                @endif
-                            </div>
-
-                            {{-- Publisher --}}
-                            @if($journal->publisher)
-                            <p class="text-xs font-semibold text-blue-700 mb-1.5">{{ $journal->publisher }}</p>
-                            @endif
-
-                            {{-- ISSN badges --}}
+                            {{-- ISSN --}}
+                            @if($journal->issn_print || $journal->issn_online)
                             <div class="flex flex-wrap gap-1.5 mb-2">
                                 @if($journal->issn_print)
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono font-semibold"
-                                      style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;">
-                                    p-ISSN&nbsp;<strong>{{ $journal->issn_print }}</strong>
+                                <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;">
+                                    p-ISSN <strong>{{ $journal->issn_print }}</strong>
                                 </span>
                                 @endif
                                 @if($journal->issn_online)
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono font-semibold"
-                                      style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;">
-                                    e-ISSN&nbsp;<strong>{{ $journal->issn_online }}</strong>
-                                </span>
-                                @endif
-                                @if($journal->apc_enabled && $journal->apc_amount)
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold"
-                                      style="background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    APC {{ $journal->apc_currency }} {{ number_format($journal->apc_amount, 0, ',', '.') }}{{ $journal->apc_waiver_policy ? ' · Waiver' : '' }}
+                                <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;">
+                                    e-ISSN <strong>{{ $journal->issn_online }}</strong>
                                 </span>
                                 @endif
                             </div>
+                            @endif
 
-                            {{-- Deskripsi singkat --}}
+                            {{-- Deskripsi --}}
                             @if($journal->focus_scope || $journal->about_journal)
-                            <p class="text-xs text-slate-500 leading-relaxed line-clamp-2">
-                                {{ Str::limit(strip_tags($journal->focus_scope ?: $journal->about_journal), 180) }}
+                            <p class="text-sm text-slate-600 leading-relaxed mb-3 line-clamp-3">
+                                {{ Str::limit(strip_tags($journal->focus_scope ?: $journal->about_journal), 280) }}
                             </p>
                             @endif
 
+                            {{-- Stats --}}
+                            @if($statArticles !== null || $statIssues !== null)
+                            <div class="flex flex-wrap gap-x-4 mb-3" style="font-size:.8125rem;color:#64748b;">
+                                @if($statArticles !== null)
+                                <span><strong style="color:#1e40af;font-size:.9375rem;font-weight:800;">{{ number_format($statArticles) }}</strong> {{ __('site.articles') }}</span>
+                                @endif
+                                @if($statIssues !== null)
+                                <span><strong style="color:#1e40af;font-size:.9375rem;font-weight:800;">{{ number_format($statIssues) }}</strong> {{ __('site.issues') }}</span>
+                                @endif
+                            </div>
+                            @endif
                         </div>
                     </div>
 
@@ -308,27 +95,27 @@
                            class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all hover:shadow-md hover:-translate-y-px"
                            style="background:linear-gradient(135deg,#1e40af,#1d4ed8);">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                            Kirim Naskah
+                            {{ __('site.submit_manuscript') }}
                         </a>
                         @else
                         <a href="{{ route('login') }}"
                            class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all hover:shadow-md hover:-translate-y-px"
                            style="background:linear-gradient(135deg,#1e40af,#1d4ed8);">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                            Kirim Naskah
+                            {{ __('site.submit_manuscript') }}
                         </a>
                         @endauth
                         <a href="{{ route('journals.issues', $journal->slug) }}"
                            class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-slate-600 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                            Arsip Terbitan
+                            {{ __('site.issue_archive') }}
                         </a>
                         @if($journal->wa_contact)
                         <a href="https://wa.me/{{ preg_replace('/\D/', '', $journal->wa_contact) }}" target="_blank"
                            class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all hover:shadow-md hover:-translate-y-px"
                            style="background:linear-gradient(135deg,#16a34a,#15803d);">
                             <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.998 2C6.477 2 2 6.484 2 12.017c0 1.99.521 3.848 1.427 5.449L2.036 22l4.66-1.366A9.987 9.987 0 0011.998 22c5.521 0 9.998-4.484 9.998-10.017C21.996 6.484 17.519 2 11.998 2z"/></svg>
-                            Chat Pengelola
+                            {{ __('site.chat_manager') }}
                         </a>
                         @endif
                     </div>
@@ -336,38 +123,31 @@
             </div>
             {{-- ── END JOURNAL INFO CARD ──────────────────────────────────── --}}
 
-            {{-- Current Issue: OJS TOC Style --}}
+            {{-- TOC Terbitan Saat Ini --}}
             @if($currentIssue)
             <div class="mb-8">
-                {{-- Issue header banner --}}
-                <div class="rounded-xl p-5 mb-6" style="background:#eff6ff;border:1px solid #bfdbfe;">
-                    <div class="flex items-start justify-between gap-4">
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-widest text-blue-500 mb-1">Terbitan Saat Ini</p>
-                            <h2 class="text-xl font-black text-blue-900">{{ $currentIssue->getLabel() }}</h2>
+                {{-- Issue label --}}
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <p class="text-xs font-semibold text-blue-600 uppercase tracking-widest mb-0.5">{{ __('site.current_issue') }}</p>
+                        <h2 class="text-lg font-black text-slate-900">{{ $currentIssue->getLabel() }}
                             @if($currentIssue->date_published)
-                            <p class="text-sm text-blue-600 mt-1">
-                                Diterbitkan {{ $currentIssue->date_published->translatedFormat('d F Y') }}
-                            </p>
+                            <span class="text-sm font-normal text-slate-400 ml-2">{{ $currentIssue->date_published->translatedFormat('F Y') }}</span>
                             @endif
-                            @if($currentIssue->description)
-                            <p class="text-sm text-blue-700 mt-2 leading-relaxed">{{ strip_tags($currentIssue->description) }}</p>
-                            @endif
-                        </div>
-                        <a href="{{ route('journals.issues.show', [$journal->slug, $currentIssue->id]) }}"
-                           class="shrink-0 text-xs font-semibold text-blue-700 hover:text-blue-900 underline whitespace-nowrap mt-1">
-                            Lihat Semua →
-                        </a>
+                        </h2>
                     </div>
+                    <a href="{{ route('journals.issues.show', [$journal->slug, $currentIssue->id]) }}"
+                       class="text-xs font-semibold text-blue-600 hover:text-blue-800 whitespace-nowrap">
+                        {{ __('site.show_all') }} →
+                    </a>
                 </div>
 
                 {{-- TOC by section --}}
                 @if($tocBySection->isNotEmpty())
                 @foreach($tocBySection as $sectionTitle => $articles)
                 <div class="mb-7">
-                    {{-- Section heading (OJS style: uppercase, border-bottom) --}}
-                    <h3 class="text-sm font-black uppercase tracking-wider text-slate-700 pb-2 mb-4"
-                        style="border-bottom:1px solid #cbd5e1;">
+                    {{-- Section heading — left-border accent style --}}
+                    <h3 style="background:#f8fafc;border-left:3px solid #1e40af;padding:.625rem 1rem;border-radius:.375rem;font-size:.8125rem;font-weight:800;color:#1e40af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:1rem;">
                         {{ $sectionTitle }}
                     </h3>
 
@@ -375,60 +155,65 @@
                         @foreach($articles as $article)
                         <div class="py-5 first:pt-0">
                             {{-- Title --}}
-                            <h4 class="font-bold text-slate-900 leading-snug mb-1.5 text-base">
+                            <h4 style="font-size:1rem;font-weight:700;color:#0f172a;line-height:1.4;margin:0 0 .375rem;">
                                 <a href="{{ route('journals.articles.show', [$journal->slug, $article->id]) }}"
-                                   class="hover:text-blue-700 transition-colors">
+                                   style="color:inherit;text-decoration:none;"
+                                   onmouseover="this.style.color='#1d4ed8'" onmouseout="this.style.color='#0f172a'">
                                     {{ $article->submission->title }}
                                 </a>
                             </h4>
 
-                            {{-- Authors --}}
-                            <p class="text-sm text-slate-500 mb-2">
+                            {{-- Authors — biru, italic, gaya akademik --}}
+                            <p style="font-size:.8125rem;color:#1e40af;font-style:italic;margin:0 0 .5rem;">
                                 {{ $article->submission->contributors->map(fn($c) => $c->full_name)->join(', ') }}
                             </p>
 
                             {{-- Abstract excerpt --}}
                             @if($article->submission->abstract)
-                            <p class="text-sm text-slate-600 leading-relaxed mb-3 line-clamp-2">
-                                {{ Str::limit($article->submission->abstract, 200) }}
+                            <p class="line-clamp-2" style="font-size:.8125rem;color:#64748b;line-height:1.6;margin:0 0 .625rem;">
+                                {{ Str::limit(strip_tags($article->submission->abstract), 220) }}
                             </p>
                             @endif
 
                             {{-- Meta row: pages, DOI, stats, galley buttons --}}
-                            <div class="flex items-center flex-wrap gap-x-4 gap-y-2 mt-1">
+                            <div style="display:flex;align-items:center;flex-wrap:wrap;gap:.375rem .75rem;margin-top:.25rem;">
                                 @if($article->pages)
-                                <span class="text-xs text-slate-400">Hal. {{ $article->pages }}</span>
+                                <span style="display:inline-flex;align-items:center;padding:.15rem .5rem;border-radius:.25rem;font-size:.6875rem;font-weight:600;background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;">
+                                    Hal. {{ $article->pages }}
+                                </span>
                                 @endif
                                 @if($article->doi)
                                 <a href="https://doi.org/{{ $article->doi }}" target="_blank" rel="noopener"
-                                   class="text-xs text-slate-400 hover:text-blue-600 transition-colors font-mono">
-                                    https://doi.org/{{ $article->doi }}
+                                   style="display:inline-flex;align-items:center;gap:.25rem;font-size:.6875rem;color:#15803d;font-family:monospace;text-decoration:none;"
+                                   onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                                    <svg style="width:.65rem;height:.65rem;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+                                    {{ $article->doi }}
                                 </a>
                                 @endif
                                 {{-- View / Download stats --}}
                                 @if($article->views > 0)
-                                <span class="inline-flex items-center gap-1 text-xs text-slate-400">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                <span style="display:inline-flex;align-items:center;gap:.25rem;font-size:.6875rem;color:#94a3b8;">
+                                    <svg style="width:.7rem;height:.7rem;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                     {{ number_format($article->views) }}
                                 </span>
                                 @endif
                                 @if($article->downloads > 0)
-                                <span class="inline-flex items-center gap-1 text-xs text-slate-400">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                <span style="display:inline-flex;align-items:center;gap:.25rem;font-size:.6875rem;color:#94a3b8;">
+                                    <svg style="width:.7rem;height:.7rem;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                     {{ number_format($article->downloads) }}
                                 </span>
                                 @endif
                                 {{-- Galley buttons (OJS style) --}}
-                                <div class="flex gap-1.5 ml-auto flex-wrap">
+                                <div style="display:flex;gap:.375rem;flex-wrap:wrap;margin-left:auto;">
                                     <a href="{{ route('journals.articles.show', [$journal->slug, $article->id]) }}"
-                                       class="text-xs font-bold px-3 py-1.5 rounded border transition-colors"
-                                       style="background:#eff6ff;border-color:#bfdbfe;color:#1e40af;">
+                                       style="display:inline-flex;align-items:center;font-size:.6875rem;font-weight:700;padding:.25rem .75rem;border-radius:.3rem;background:#fff;border:1.5px solid #1e40af;color:#1e40af;text-decoration:none;transition:background .15s;"
+                                       onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#fff'">
                                         Abstrak
                                     </a>
                                     @foreach($article->galleys->take(3) as $galley)
                                     <a href="{{ route('journals.articles.galley.view', [$journal->slug, $article->id, $galley->id]) }}"
-                                       class="text-xs font-bold px-3 py-1.5 rounded border transition-colors"
-                                       style="background:#1e40af;border-color:#1e3a8a;color:#ffffff;">
+                                       style="display:inline-flex;align-items:center;font-size:.6875rem;font-weight:700;padding:.25rem .75rem;border-radius:.3rem;background:#1e40af;border:1.5px solid #1e3a8a;color:#fff;text-decoration:none;transition:background .15s;"
+                                       onmouseover="this.style.background='#1e3a8a'" onmouseout="this.style.background='#1e40af'">
                                         {{ strtoupper($galley->label ?? 'PDF') }}
                                     </a>
                                     @endforeach
@@ -473,7 +258,7 @@
                                 {{ $ann->title }}
                             </h3>
                             <p class="text-xs text-slate-400 mb-2">
-                                {{ $ann->date_posted?->format('d F Y') }}
+                                {{ $ann->date_posted?->translatedFormat('d F Y') }}
                             </p>
                             @if($ann->description_short)
                             <p class="text-sm text-slate-600 leading-relaxed line-clamp-3">
@@ -492,32 +277,6 @@
         {{-- ── SIDEBAR (right 1/3) ──────────────────────────────────────── --}}
         <div class="space-y-5">
 
-            {{-- Current Issue cover card --}}
-            @if($currentIssue)
-            <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
-                <div class="px-4 py-3" style="background:#1e40af;">
-                    <p class="text-xs font-bold text-white uppercase tracking-widest">Terbitan Saat Ini</p>
-                </div>
-                <div class="p-4 flex gap-4 items-start">
-                    {{-- Issue cover placeholder --}}
-                    <div class="w-16 h-20 rounded-lg shrink-0 flex items-center justify-center text-white font-black text-xs text-center leading-tight"
-                         style="background:linear-gradient(145deg,#1e40af,#4338ca);">
-                        Vol<br>{{ $currentIssue->volume ?? '—' }}<br>No.{{ $currentIssue->number ?? '—' }}
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="font-bold text-slate-900 text-sm leading-snug">{{ $currentIssue->getLabel() }}</p>
-                        @if($currentIssue->date_published)
-                        <p class="text-xs text-slate-500 mt-1">{{ $currentIssue->date_published->format('Y') }}</p>
-                        @endif
-                        <a href="{{ route('journals.issues.show', [$journal->slug, $currentIssue->id]) }}"
-                           class="inline-block mt-3 text-xs font-semibold px-3 py-1.5 rounded-lg text-white transition-colors"
-                           style="background:#1e40af;">
-                            Lihat Terbitan
-                        </a>
-                    </div>
-                </div>
-            </div>
-            @endif
 
             {{-- Akreditasi & Indeksasi --}}
             @foreach($sidebarBlocks->where('type', 'accreditation') as $block)
@@ -537,6 +296,101 @@
                 ])
             @endforeach
 
+            {{-- Publisher Info --}}
+            @if($journal->publisher || $journal->mailing_address || $journal->email || $journal->contact_name || $journal->contact_phone || $journal->tech_support_email)
+            <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                <div class="px-4 py-3" style="background:linear-gradient(135deg,#0f172a,#1e3a5f);">
+                    <p class="text-xs font-bold text-white uppercase tracking-widest flex items-center gap-2">
+                        <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/></svg>
+                        Informasi Penerbit
+                    </p>
+                </div>
+                <div class="p-4 space-y-3">
+
+                    @if($journal->publisher)
+                    <div class="flex gap-2.5">
+                        <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style="background:#eff6ff;">
+                            <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Penerbit</p>
+                            <p class="text-sm font-semibold text-slate-800">{{ $journal->publisher }}</p>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($journal->mailing_address)
+                    <div class="flex gap-2.5">
+                        <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style="background:#f0fdf4;">
+                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Alamat</p>
+                            <p class="text-sm text-slate-700 leading-relaxed">{{ $journal->mailing_address }}</p>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($journal->email)
+                    <div class="flex gap-2.5">
+                        <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style="background:#faf5ff;">
+                            <svg class="w-3.5 h-3.5 text-violet-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Email Redaksi</p>
+                            <a href="mailto:{{ $journal->email }}" class="text-sm font-medium text-blue-600 hover:underline break-all">{{ $journal->email }}</a>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($journal->contact_name || $journal->contact_phone)
+                    <div class="flex gap-2.5">
+                        <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style="background:#fff7ed;">
+                            <svg class="w-3.5 h-3.5 text-orange-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Kontak</p>
+                            @if($journal->contact_name)
+                            <p class="text-sm font-semibold text-slate-800">{{ $journal->contact_name }}</p>
+                            @endif
+                            @if($journal->contact_phone)
+                            <a href="tel:{{ $journal->contact_phone }}" class="text-sm text-slate-600 hover:text-blue-600 transition-colors">{{ $journal->contact_phone }}</a>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($journal->tech_support_name || $journal->tech_support_email)
+                    <div class="flex gap-2.5">
+                        <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style="background:#f0fdf4;">
+                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 010-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">Technical Support</p>
+                            @if($journal->tech_support_name)
+                            <p class="text-sm font-semibold text-slate-800">{{ $journal->tech_support_name }}</p>
+                            @endif
+                            @if($journal->tech_support_email)
+                            <a href="mailto:{{ $journal->tech_support_email }}" class="text-sm text-blue-600 hover:underline">{{ $journal->tech_support_email }}</a>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($journal->country)
+                    @php
+                        $countryName = \Locale::getDisplayRegion('-'.$journal->country, 'id') ?: $journal->country;
+                    @endphp
+                    <div class="pt-2 border-t border-slate-100 flex items-center gap-2">
+                        <span class="text-xs text-slate-400">Negara:</span>
+                        <span class="text-xs font-semibold text-slate-700">{{ $countryName }}</span>
+                    </div>
+                    @endif
+
+                </div>
+            </div>
+            @endif
+
             {{-- Browse --}}
             <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
                 <div class="px-4 py-3" style="background:#1e40af;">
@@ -548,7 +402,7 @@
                             <a href="{{ route('journals.issues', $journal->slug) }}"
                                class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors">
                                 <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
-                                Berdasarkan Terbitan
+                                {{ __('site.issues') }}
                             </a>
                         </li>
                         <li>
@@ -580,7 +434,7 @@
             @if($pastIssues->isNotEmpty())
             <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
                 <div class="px-4 py-3" style="background:#1e40af;">
-                    <p class="text-xs font-bold text-white uppercase tracking-widest">Terbitan Sebelumnya</p>
+                    <p class="text-xs font-bold text-white uppercase tracking-widest">{{ __('site.issue_archive') }}</p>
                 </div>
                 <div class="p-4">
                     <ul class="space-y-1 text-sm">
@@ -626,7 +480,7 @@
                     @foreach($announcements->take(3) as $ann)
                     <div class="p-4">
                         <p class="font-semibold text-slate-800 text-sm leading-snug mb-0.5">{{ $ann->title }}</p>
-                        <p class="text-xs text-slate-400 mb-1.5">{{ $ann->date_posted?->format('d M Y') }}</p>
+                        <p class="text-xs text-slate-400 mb-1.5">{{ $ann->date_posted?->translatedFormat('d M Y') }}</p>
                         @if($ann->description_short)
                         <p class="text-xs text-slate-500 leading-relaxed line-clamp-2">
                             {{ Str::limit(strip_tags($ann->description_short), 100) }}

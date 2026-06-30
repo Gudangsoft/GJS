@@ -6,7 +6,7 @@ use App\Models\Submission;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('layouts.app')]
+#[Layout('layouts.author')]
 class SubmissionDetail extends Component
 {
     public Submission $submission;
