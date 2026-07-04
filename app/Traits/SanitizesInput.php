@@ -36,11 +36,23 @@ trait SanitizesInput
     }
 
     /**
-     * Sanitasi filename untuk upload — hanya alfanumerik, titik, dash, underscore
+     * Sanitasi filename untuk upload — hanya izinkan satu ekstensi dari whitelist.
+     * Cegah double-extension (e.g. malware.pdf.php).
      */
     protected function sanitizeFilename(string $name): string
     {
-        $name = preg_replace('/[^\w\.\-]/u', '_', $name);
-        return preg_replace('/_{2,}/', '_', $name);
+        $allowed = ['pdf', 'doc', 'docx', 'odt', 'rtf', 'zip'];
+
+        $ext  = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+        $base = pathinfo($name, PATHINFO_FILENAME);
+
+        // Strip all dots from base (removes hidden extensions like "thesis.php")
+        $base = preg_replace('/[^\w\-]/u', '_', $base);
+        $base = preg_replace('/_{2,}/', '_', $base);
+        $base = trim($base, '_') ?: 'file';
+
+        $ext = in_array($ext, $allowed) ? $ext : 'bin';
+
+        return $base . '.' . $ext;
     }
 }

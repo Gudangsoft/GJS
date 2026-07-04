@@ -4,6 +4,7 @@ namespace App\Livewire\JournalManager;
 
 use App\Models\Issue;
 use App\Models\Journal;
+use App\Services\FileScannerService;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -88,6 +89,8 @@ class Issues extends Component
         ];
 
         if ($this->newCoverImage) {
+            $scan = app(FileScannerService::class)->scan($this->newCoverImage);
+            if (! $scan['ok']) { $this->addError('newCoverImage', $scan['reason']); return; }
             $data['cover_image'] = $this->newCoverImage->store('issues/covers', 'public');
         }
 

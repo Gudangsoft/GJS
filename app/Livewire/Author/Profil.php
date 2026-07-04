@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Author;
 
+use App\Services\FileScannerService;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -106,6 +107,8 @@ class Profil extends Component
         $avatarPath = $user->avatar;
 
         if ($this->photo) {
+            $scan = app(FileScannerService::class)->scan($this->photo);
+            if (! $scan['ok']) { $this->addError('photo', $scan['reason']); return; }
             if ($avatarPath && Storage::disk('public')->exists($avatarPath)) {
                 Storage::disk('public')->delete($avatarPath);
             }

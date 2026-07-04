@@ -17,14 +17,13 @@ class SecurityHeaders
     {
         $response = $next($request);
 
-        $nonce = base64_encode(random_bytes(16));
-        app()->instance('csp-nonce', $nonce);
-
+        // 'unsafe-eval' removed — Alpine.js + Livewire work without it.
+        // 'unsafe-inline' retained for scripts/styles until nonce-based CSP is rolled out.
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:",
-            "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
-            "font-src 'self' fonts.gstatic.com data:",
+            "script-src 'self' 'unsafe-inline' blob:",
+            "style-src 'self' 'unsafe-inline' fonts.googleapis.com fonts.bunny.net",
+            "font-src 'self' fonts.gstatic.com fonts.bunny.net data:",
             "img-src 'self' data: blob: https:",
             "connect-src 'self' ws: wss:",
             "frame-ancestors 'none'",

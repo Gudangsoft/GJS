@@ -93,6 +93,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/submissions/{submission}',  SubmissionDetail::class)->name('submissions.show');
     Route::get('/notifications',             \App\Livewire\NotificationsPage::class)->name('notifications.index');
     Route::get('/copy-editing',              \App\Livewire\Author\CopyEditingFeedback::class)->name('author.copy-editing');
+
+    // Authenticated file download — checks author/editor/reviewer ownership before serving
+    Route::get('/submission-files/{file}/download',
+        [\App\Http\Controllers\SubmissionFileController::class, 'download']
+    )->name('submission-files.download');
 });
 
 // ─── Journal Manager Area ─────────────────────────────────────────────────────

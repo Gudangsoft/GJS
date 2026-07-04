@@ -7,11 +7,11 @@ use App\Models\Section;
 use App\Models\Submission;
 use App\Models\SubmissionContributor;
 use App\Models\SubmissionFile;
+use App\Services\FileScannerService;
 use App\Traits\SanitizesInput;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
-use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -160,13 +160,20 @@ class SubmissionWizard extends Component
         }
 
         if ($this->manuscriptFile) {
+            $scan = app(FileScannerService::class)->scan($this->manuscriptFile);
+            if (! $scan['ok']) {
+                $submission->delete();
+                $this->addError('manuscriptFile', $scan['reason']);
+                return;
+            }
+
             $mime         = $this->manuscriptFile->getMimeType();
             $originalName = $this->sanitizeFilename($this->manuscriptFile->getClientOriginalName());
             $storedName   = $this->manuscriptFile->hashName();
             $path         = $this->manuscriptFile->storeAs(
                 'submissions/' . $submission->id,
                 $storedName,
-                'public'
+                'local'
             );
 
             SubmissionFile::create([

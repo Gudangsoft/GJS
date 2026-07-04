@@ -3,6 +3,7 @@
 namespace App\Livewire\JournalManager;
 
 use App\Models\Journal;
+use App\Services\FileScannerService;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -427,19 +428,29 @@ class Settings extends Component
             'disable_submissions'   => $this->disable_submissions,
         ];
 
+        $scanner = app(FileScannerService::class);
+
         if ($this->newLogo) {
+            $scan = $scanner->scan($this->newLogo);
+            if (! $scan['ok']) { $this->addError('newLogo', $scan['reason']); return; }
             $updateData['logo'] = $this->newLogo->store('journals/logos', 'public');
             $this->newLogo = null;
         }
         if ($this->newCoverImage) {
+            $scan = $scanner->scan($this->newCoverImage);
+            if (! $scan['ok']) { $this->addError('newCoverImage', $scan['reason']); return; }
             $updateData['cover_image'] = $this->newCoverImage->store('journals/covers', 'public');
             $this->newCoverImage = null;
         }
         if ($this->newFavicon) {
+            $scan = $scanner->scan($this->newFavicon);
+            if (! $scan['ok']) { $this->addError('newFavicon', $scan['reason']); return; }
             $updateData['favicon'] = $this->newFavicon->store('journals/favicons', 'public');
             $this->newFavicon = null;
         }
         if ($this->newHeaderBanner) {
+            $scan = $scanner->scan($this->newHeaderBanner);
+            if (! $scan['ok']) { $this->addError('newHeaderBanner', $scan['reason']); return; }
             $updateData['homepage_image'] = $this->newHeaderBanner->store('journals/banners', 'public');
             $this->newHeaderBanner = null;
         }
