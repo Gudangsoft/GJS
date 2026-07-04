@@ -66,6 +66,7 @@ class AppServiceProvider extends ServiceProvider
                 $view->with([
                     'brandName'          => $bd['site_name']              ?? $defaultName,
                     'brandAbbrev'        => $bd['abbrev']                 ?? $defaultAbbrev,
+                    'brandTagline'       => $bd['tagline']                ?? '',
                     'brandLogo'          => isset($bd['logo']) && $bd['logo'] ? asset('storage/' . $bd['logo']) : null,
                     'brandFavicon'       => isset($bd['favicon']) && $bd['favicon'] ? asset('storage/' . $bd['favicon']) : null,
                     'brandCopyright'     => $bd['copyright']              ?? '',

@@ -239,9 +239,13 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
 <style>
 @keyframes bounceDown { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+@media (max-width:1024px) {
+    section > div[style*="grid-template-columns:repeat(6,1fr)"] { grid-template-columns:repeat(3,1fr) !important; }
+}
 @media (max-width:768px) {
     section > div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns:1fr !important; }
     section > div[style*="grid-template-columns:repeat(4"] { grid-template-columns:repeat(2,1fr) !important; }
+    section > div[style*="grid-template-columns:repeat(6,1fr)"] { grid-template-columns:repeat(2,1fr) !important; }
     section > div > div[style*="position:absolute;top:2.5rem"] { display:none; }
 }
 </style>
@@ -483,61 +487,26 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
             </p>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1.25rem;">
+        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:1rem;">
 
-            {{-- Akses Terbuka --}}
-            <div class="rounded-2xl p-5 transition-all duration-200" style="background:#eff6ff;border:1px solid rgba(37,99,235,.1);" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,.08)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#dbeafe;">
-                    <svg class="w-5 h-5" style="color:#2563eb;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            @foreach([
+                ['Open Access',       'All articles freely accessible to anyone, anytime.',          '#eff6ff','#dbeafe','rgba(37,99,235,.12)','#2563eb',  '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>'],
+                ['Double Peer Review','Double-blind review ensures quality and integrity.',           '#f0fdf4','#dcfce7','rgba(5,150,105,.12)', '#059669', '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.955 11.955 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>'],
+                ['DOI Crossref',      'Every article receives a permanent DOI via Crossref.',        '#faf5ff','#ede9fe','rgba(124,58,237,.12)','#7c3aed', '<path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/>'],
+                ['Globally Indexed',  'OAI-PMH for Google Scholar, DOAJ &amp; PKP Index.',          '#fffbeb','#fef3c7','rgba(217,119,6,.12)', '#d97706', '<path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z"/>'],
+                ['Secure &amp; Trusted',   'CSP headers, MFA, data encryption, and audit logs.',    '#fff1f2','#fee2e2','rgba(220,38,38,.12)', '#dc2626', '<path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>'],
+                ['Responsive &amp; Fast',  'Optimized for all devices with fast loading times.',     '#ecfeff','#cffafe','rgba(8,145,178,.12)', '#0891b2', '<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>'],
+            ] as [$title, $desc, $bg, $iconBg, $border, $color, $path])
+            <div style="background:{{ $bg }};border:1px solid {{ $border }};border-radius:.875rem;padding:1rem;transition:transform .2s,box-shadow .2s;"
+                 onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,.09)'"
+                 onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+                <div style="width:2.25rem;height:2.25rem;border-radius:.625rem;background:{{ $iconBg }};display:flex;align-items:center;justify-content:center;margin-bottom:.75rem;">
+                    <svg style="width:1.125rem;height:1.125rem;color:{{ $color }};" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">{!! $path !!}</svg>
                 </div>
-                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Open Access</h3>
-                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">All articles are freely accessible to anyone, anytime.</p>
+                <h3 style="font-size:.8125rem;font-weight:800;color:#0f172a;margin:0 0 .375rem;line-height:1.3;">{!! $title !!}</h3>
+                <p style="font-size:.72rem;color:#64748b;line-height:1.55;margin:0;">{!! $desc !!}</p>
             </div>
-
-            {{-- Peer Review Ganda --}}
-            <div class="rounded-2xl p-5 transition-all duration-200" style="background:#f0fdf4;border:1px solid rgba(5,150,105,.1);" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,.08)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#dcfce7;">
-                    <svg class="w-5 h-5" style="color:#059669;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.955 11.955 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
-                </div>
-                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Double Peer Review</h3>
-                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">Double-blind review ensures quality and academic integrity.</p>
-            </div>
-
-            {{-- DOI Crossref --}}
-            <div class="rounded-2xl p-5 transition-all duration-200" style="background:#faf5ff;border:1px solid rgba(124,58,237,.1);" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,.08)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#ede9fe;">
-                    <svg class="w-5 h-5" style="color:#7c3aed;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/></svg>
-                </div>
-                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">DOI Crossref</h3>
-                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">Every article receives a permanent DOI via Crossref.</p>
-            </div>
-
-            {{-- Terindeks Global --}}
-            <div class="rounded-2xl p-5 transition-all duration-200" style="background:#fffbeb;border:1px solid rgba(217,119,6,.1);" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,.08)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#fef3c7;">
-                    <svg class="w-5 h-5" style="color:#d97706;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z"/></svg>
-                </div>
-                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Globally Indexed</h3>
-                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">OAI-PMH for Google Scholar, DOAJ &amp; PKP Index.</p>
-            </div>
-
-            {{-- Aman & Terpercaya --}}
-            <div class="rounded-2xl p-5 transition-all duration-200" style="background:#fff1f2;border:1px solid rgba(220,38,38,.1);" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,.08)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#fee2e2;">
-                    <svg class="w-5 h-5" style="color:#dc2626;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
-                </div>
-                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Secure &amp; Trusted</h3>
-                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">CSP headers, MFA, data encryption, and audit logs.</p>
-            </div>
-
-            {{-- Responsif & Cepat --}}
-            <div class="rounded-2xl p-5 transition-all duration-200" style="background:#ecfeff;border:1px solid rgba(8,145,178,.1);" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,.08)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#cffafe;">
-                    <svg class="w-5 h-5" style="color:#0891b2;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
-                </div>
-                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Responsive &amp; Fast</h3>
-                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">Optimized display across all devices, fast loading.</p>
-            </div>
+            @endforeach
 
         </div>
     </div>

@@ -122,7 +122,12 @@
                     <span class="text-white font-black text-xs tracking-tight">{{ $brandAbbrev }}</span>
                 </div>
                 @endif
-                <span class="font-semibold text-slate-900 text-base hidden sm:block">{{ $brandName }}</span>
+                <div class="hidden sm:block leading-tight">
+                    <div class="font-semibold text-slate-900 text-sm">{{ $brandName }}</div>
+                    @if(!empty($brandTagline))
+                    <div class="text-xs text-slate-400 font-normal">{{ $brandTagline }}</div>
+                    @endif
+                </div>
             </a>
 
             @isset($journalName)

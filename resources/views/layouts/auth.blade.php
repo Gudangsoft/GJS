@@ -25,7 +25,12 @@
             <span class="text-white font-black text-sm tracking-tight">{{ $brandAbbrev }}</span>
         </div>
         @endif
-        <span class="font-bold text-slate-900 text-xl group-hover:text-blue-700 transition-colors duration-200">{{ $brandName }}</span>
+        <div class="leading-tight">
+            <div class="font-bold text-slate-900 text-xl group-hover:text-blue-700 transition-colors duration-200">{{ $brandName }}</div>
+            @if(!empty($brandTagline))
+            <div class="text-xs text-slate-400 font-normal">{{ $brandTagline }}</div>
+            @endif
+        </div>
     </a>
 
     {{-- Card --}}
@@ -37,7 +42,7 @@
         @if(!empty($brandCopyright))
         {{ $brandCopyright }}
         @else
-        &copy; {{ date('Y') }} {{ $brandName }}. Seluruh hak dilindungi.
+        &copy; {{ date('Y') }} {{ $brandName }}. All rights reserved.
         @endif
     </p>
 </div>
