@@ -39,7 +39,7 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
     <div style="position:absolute;bottom:-8rem;right:-4rem;width:30rem;height:30rem;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,.1) 0%,transparent 65%);pointer-events:none;"></div>
     <div style="position:absolute;top:40%;left:55%;width:20rem;height:20rem;border-radius:50%;background:radial-gradient(circle,rgba(52,211,153,.07) 0%,transparent 65%);pointer-events:none;"></div>
 
-    <div style="position:relative;max-width:72rem;margin:0 auto;padding:5rem 1.5rem 4rem;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;">
+    <div class="ji-hero-grid" style="position:relative;max-width:72rem;margin:0 auto;padding:5rem 1.5rem 4rem;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;">
 
         {{-- LEFT: Text --}}
         <div>
@@ -60,7 +60,7 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
                 {{ $heroSub }}
             </p>
 
-            <div style="display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:2.5rem;">
+            <div class="ji-hero-btns" style="display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:2.5rem;">
                 <a href="#journals"
                    style="display:inline-flex;align-items:center;gap:.5rem;padding:.875rem 1.75rem;background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;font-size:.9375rem;font-weight:700;border-radius:.75rem;text-decoration:none;box-shadow:0 8px 24px rgba(37,99,235,.35);">
                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
@@ -96,7 +96,7 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
         </div>
 
         {{-- RIGHT: Visual --}}
-        <div style="position:relative;display:flex;align-items:center;justify-content:center;min-height:380px;">
+        <div class="ji-hero-right" style="position:relative;display:flex;align-items:center;justify-content:center;min-height:380px;">
 
             {{-- Glow center --}}
             <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(99,102,241,.18) 0%,transparent 70%);pointer-events:none;border-radius:50%;"></div>
@@ -183,7 +183,7 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
 
 {{-- ═══ TRUST BAR ═══ --}}
 <div style="background:#fff;border-bottom:1px solid #e8edf5;padding:.875rem 1.5rem;">
-    <div style="max-width:72rem;margin:0 auto;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.5rem 1.25rem;">
+    <div class="ji-trust-bar" style="max-width:72rem;margin:0 auto;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.5rem 1.25rem;">
         <span style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#94a3b8;margin-right:.5rem;">{!! $trustLabel !!}</span>
         @foreach([
             ['Google Scholar', '#4285f4'],
@@ -210,9 +210,9 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
             <p style="font-size:.9375rem;color:#64748b;max-width:460px;margin:0 auto;line-height:1.7;">From manuscript to indexed publication, all in one integrated platform.</p>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;position:relative;">
+        <div class="ji-workflow-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;position:relative;">
             {{-- connector line --}}
-            <div style="position:absolute;top:2.5rem;left:calc(12.5% + 1.25rem);right:calc(12.5% + 1.25rem);height:2px;background:linear-gradient(90deg,#2563eb,#7c3aed,#059669,#f59e0b);border-radius:9999px;opacity:.3;"></div>
+            <div class="ji-workflow-connector" style="position:absolute;top:2.5rem;left:calc(12.5% + 1.25rem);right:calc(12.5% + 1.25rem);height:2px;background:linear-gradient(90deg,#2563eb,#7c3aed,#059669,#f59e0b);border-radius:9999px;opacity:.3;"></div>
 
             @foreach([
                 ['01', 'Submit Manuscript',  'Upload your article, fill in metadata, and select the journal matching your research field.', '#2563eb', '#eff6ff', 'M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5'],
@@ -239,14 +239,74 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
 <style>
 @keyframes bounceDown { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-@media (max-width:1024px) {
-    section > div[style*="grid-template-columns:repeat(6,1fr)"] { grid-template-columns:repeat(3,1fr) !important; }
+
+/* ── Hero ──────────────────────────────────────────────────────── */
+@media(max-width:900px){
+    .ji-hero-grid { grid-template-columns:1fr !important; padding:3.5rem 1.25rem 3rem !important; }
+    .ji-hero-right { display:none !important; }
 }
-@media (max-width:768px) {
-    section > div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns:1fr !important; }
-    section > div[style*="grid-template-columns:repeat(4"] { grid-template-columns:repeat(2,1fr) !important; }
-    section > div[style*="grid-template-columns:repeat(6,1fr)"] { grid-template-columns:repeat(2,1fr) !important; }
-    section > div > div[style*="position:absolute;top:2.5rem"] { display:none; }
+@media(max-width:640px){
+    .ji-hero-grid { padding:2.75rem 1.25rem 2.5rem !important; gap:1.5rem !important; }
+}
+@media(max-width:480px){
+    .ji-hero-btns { flex-direction:column !important; }
+    .ji-hero-btns a { width:100% !important; justify-content:center !important; box-sizing:border-box; }
+}
+
+/* ── Trust bar — horizontal scroll on mobile ───────────────────── */
+@media(max-width:640px){
+    .ji-trust-bar { flex-wrap:nowrap !important; overflow-x:auto; justify-content:flex-start !important; padding:.875rem 1.25rem; scrollbar-width:none; -ms-overflow-style:none; }
+    .ji-trust-bar::-webkit-scrollbar { display:none; }
+    .ji-trust-bar > span:first-child { flex-shrink:0; }
+    .ji-trust-bar > span { flex-shrink:0; }
+}
+
+/* ── Workflow ───────────────────────────────────────────────────── */
+.ji-workflow-connector { }
+@media(max-width:900px){
+    .ji-workflow-grid { grid-template-columns:repeat(2,1fr) !important; gap:1.25rem !important; }
+    .ji-workflow-connector { display:none !important; }
+}
+@media(max-width:400px){
+    .ji-workflow-grid { grid-template-columns:1fr !important; }
+}
+
+/* ── Journal grid ───────────────────────────────────────────────── */
+@media(max-width:640px){
+    .ji-jgrid { grid-template-columns:1fr !important; }
+}
+
+/* ── Features grid ──────────────────────────────────────────────── */
+@media(max-width:1024px){
+    .ji-feat-grid { grid-template-columns:repeat(3,1fr) !important; }
+}
+@media(max-width:640px){
+    .ji-feat-grid { grid-template-columns:repeat(2,1fr) !important; gap:.75rem !important; }
+}
+@media(max-width:380px){
+    .ji-feat-grid { grid-template-columns:1fr !important; }
+}
+
+/* ── CTA section ────────────────────────────────────────────────── */
+@media(max-width:480px){
+    .ji-cta-btns { flex-direction:column !important; align-items:stretch !important; }
+    .ji-cta-btns a { width:100% !important; justify-content:center !important; box-sizing:border-box; text-align:center; }
+}
+
+/* ── Section padding reduction on mobile ───────────────────────── */
+@media(max-width:640px){
+    section[style*="padding:5rem"] { padding:3rem 1.25rem !important; }
+    .py-20 { padding-top:3rem !important; padding-bottom:3rem !important; }
+    .px-6 { padding-left:1.25rem !important; padding-right:1.25rem !important; }
+}
+
+/* ── Journal card hover ─────────────────────────────────────────── */
+.gjs-jcard:hover { transform:translateY(-3px);box-shadow:0 12px 36px rgba(0,0,0,.11) !important; }
+.gjs-jcard:hover .gjs-jcard-img { transform:scale(1.05); }
+
+/* ── Recent articles — prevent overflow ────────────────────────── */
+@media(max-width:640px){
+    .max-w-6xl { padding-left:1.25rem; padding-right:1.25rem; }
 }
 </style>
 
@@ -255,7 +315,7 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
 <div style="max-width:75rem;margin:0 auto;">
 
     {{-- Section header --}}
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:2.5rem;flex-wrap:wrap;">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:.75rem;margin-bottom:2.5rem;flex-wrap:wrap;">
         <div>
             <div style="display:inline-flex;align-items:center;gap:.5rem;padding:.25rem .875rem;border-radius:9999px;background:#eff6ff;border:1px solid #bfdbfe;margin-bottom:.875rem;">
                 <svg style="width:.75rem;height:.75rem;color:#2563eb;" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
@@ -274,7 +334,7 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
 
 
     {{-- Journal grid — 2 kolom vertikal --}}
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;align-items:start;">
+    <div class="ji-jgrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;align-items:start;">
     @forelse($journals as $i => $journal)
     @php
         $clr          = $colors[$i % count($colors)];
@@ -487,7 +547,7 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
             </p>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:1rem;">
+        <div class="ji-feat-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:1rem;">
 
             @foreach([
                 ['Open Access',       'All articles freely accessible to anyone, anytime.',          '#eff6ff','#dbeafe','rgba(37,99,235,.12)','#2563eb',  '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>'],
@@ -541,7 +601,7 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
             @endforeach
         </div>
 
-        <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:.75rem;">
+        <div class="ji-cta-btns" style="display:flex;flex-wrap:wrap;justify-content:center;gap:.75rem;">
             <a href="{{ route('register') }}"
                style="display:inline-flex;align-items:center;gap:.5rem;padding:.9375rem 2.25rem;background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;font-size:.9375rem;font-weight:800;border-radius:.875rem;text-decoration:none;box-shadow:0 12px 32px rgba(37,99,235,.4);">
                 Create Free Account
