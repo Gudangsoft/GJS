@@ -383,13 +383,28 @@
     <div style="position:absolute;top:-6rem;left:-6rem;width:24rem;height:24rem;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.06) 0%,transparent 70%);pointer-events:none;"></div>
     <div style="position:absolute;bottom:-4rem;right:-4rem;width:18rem;height:18rem;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,.07) 0%,transparent 70%);pointer-events:none;"></div>
 
+    <style>
+    .ftr-main-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:3rem;padding-bottom:3rem;border-bottom:1px solid rgba(255,255,255,.07);}
+    @media(max-width:900px){
+        .ftr-main-grid{grid-template-columns:1fr 1fr;gap:2rem;}
+    }
+    @media(max-width:640px){
+        .ftr-main-grid{grid-template-columns:1fr 1fr;gap:1.5rem 1.25rem;padding-bottom:2rem;}
+        .ftr-brand-col{grid-column:1/-1;}
+    }
+    @media(max-width:400px){
+        .ftr-main-grid{grid-template-columns:1fr;}
+        .ftr-brand-col{grid-column:auto;}
+    }
+    </style>
+
     <div style="max-width:72rem;margin:0 auto;padding:3.5rem 1.5rem 0;">
 
         {{-- ── Main grid ── --}}
-        <div style="display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:3rem;padding-bottom:3rem;border-bottom:1px solid rgba(255,255,255,.07);">
+        <div class="ftr-main-grid">
 
             {{-- Brand column --}}
-            <div>
+            <div class="ftr-brand-col">
                 {{-- Logo + name --}}
                 <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;">
                     @if(!empty($brandLogo))
@@ -551,65 +566,91 @@
             </div>
         </div>
 
-        {{-- ── Contact strip ── --}}
+        {{-- ── Contact + Visitor strip ── --}}
         @php
-        $contactEmail = \App\Models\Setting::get('brand.contact_email');
-        $contactPhone = \App\Models\Setting::get('brand.contact_phone');
+        $contactEmail   = \App\Models\Setting::get('brand.contact_email');
+        $contactPhone   = \App\Models\Setting::get('brand.contact_phone');
+        $contactAddress = \App\Models\Setting::get('brand.contact_address');
+        $visitorCount   = (int) \Illuminate\Support\Facades\Cache::get('site.visitor_count', 0);
         @endphp
-        @if($contactEmail || $contactPhone)
-        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:1.5rem;padding:1.125rem 0;border-bottom:1px solid rgba(255,255,255,.06);">
-            @if($contactEmail)
-            <a href="mailto:{{ $contactEmail }}"
-               style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:#64748b;text-decoration:none;transition:color .15s;"
-               onmouseover="this.style.color='#94a3b8'" onmouseout="this.style.color='#64748b'">
-                <svg style="width:.9rem;height:.9rem;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-                {{ $contactEmail }}
-            </a>
-            @endif
-            @if($contactPhone)
-            <span style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:#64748b;">
-                <svg style="width:.9rem;height:.9rem;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                </svg>
-                {{ $contactPhone }}
-            </span>
-            @endif
+        <style>
+        .ftr-contact-strip{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:1.125rem 0;border-bottom:1px solid rgba(255,255,255,.06);}
+        .ftr-contact-items{display:flex;flex-wrap:wrap;align-items:center;gap:1rem 1.5rem;}
+        .ftr-contact-item{display:flex;align-items:center;gap:.45rem;font-size:.8rem;color:#64748b;text-decoration:none;transition:color .15s;white-space:nowrap;}
+        .ftr-contact-item:hover{color:#94a3b8;}
+        .ftr-contact-item svg{width:.9rem;height:.9rem;flex-shrink:0;}
+        .ftr-visitor{display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:#4b5563;white-space:nowrap;flex-shrink:0;}
+        .ftr-visitor svg{width:.85rem;height:.85rem;color:#3b82f6;flex-shrink:0;}
+        .ftr-visitor-num{font-weight:700;color:#64748b;font-variant-numeric:tabular-nums;}
+        .ftr-bottom{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:1.25rem 0 2rem;}
+        .ftr-copyright{font-size:.75rem;color:#4b5563;}
+        .ftr-builtwith{display:inline-flex;align-items:center;gap:.35rem;font-size:.72rem;color:#374151;}
+        /* Divider between contact items on desktop */
+        .ftr-contact-item+.ftr-contact-item::before{content:'';display:inline-block;width:1px;height:.9rem;background:rgba(255,255,255,.08);margin-right:.75rem;flex-shrink:0;}
+        @media(max-width:640px){
+            .ftr-contact-strip{flex-direction:column;align-items:stretch;gap:0;padding:.875rem 0;}
+            .ftr-contact-items{flex-direction:column;align-items:flex-start;gap:0;}
+            .ftr-contact-item{padding:.55rem 0;border-bottom:1px solid rgba(255,255,255,.05);width:100%;}
+            .ftr-contact-item:last-child{border-bottom:none;}
+            .ftr-contact-item+.ftr-contact-item::before{display:none;}
+            .ftr-visitor{justify-content:flex-start;padding:.7rem 0 0;border-top:1px solid rgba(255,255,255,.06);margin-top:.25rem;width:100%;}
+            .ftr-bottom{flex-direction:column;align-items:flex-start;gap:.5rem;padding:1rem 0 1.75rem;}
+        }
+        </style>
+
+        <div class="ftr-contact-strip">
+            {{-- Contact items --}}
+            <div class="ftr-contact-items">
+                @if($contactEmail)
+                <a href="mailto:{{ $contactEmail }}" class="ftr-contact-item">
+                    <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    {{ $contactEmail }}
+                </a>
+                @endif
+                @if($contactPhone)
+                <span class="ftr-contact-item">
+                    <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                    {{ $contactPhone }}
+                </span>
+                @endif
+                @if($contactAddress)
+                <span class="ftr-contact-item">
+                    <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    {{ $contactAddress }}
+                </span>
+                @endif
+            </div>
+
+            {{-- Visitor counter --}}
+            <div class="ftr-visitor">
+                <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <span>Visitors:</span>
+                <span class="ftr-visitor-num">{{ number_format($visitorCount) }}</span>
+            </div>
         </div>
-        @endif
 
         {{-- ── Bottom bar ── --}}
-        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.75rem;padding:1.25rem 0 2rem;">
-
-            {{-- Copyright --}}
-            <span style="font-size:.75rem;color:#4b5563;">
+        <div class="ftr-bottom">
+            <span class="ftr-copyright">
                 @if(!empty($brandCopyright))
                     {{ $brandCopyright }}
                 @else
                     &copy; {{ date('Y') }} <strong style="color:#64748b;font-weight:600;">{{ $brandName }}</strong>. {{ __('site.all_rights_reserved') }}
                 @endif
             </span>
-
-            {{-- Built with --}}
             @if($brandShowBuiltWith && !empty($brandBuiltWith))
-            <span style="display:inline-flex;align-items:center;gap:.35rem;font-size:.72rem;color:#374151;">
+            <span class="ftr-builtwith">
                 <span style="color:#4b5563;">{{ __('site.built_with') }}</span>
-                <svg style="width:.75rem;height:.75rem;color:#ef4444;flex-shrink:0;" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
-                </svg>
+                <svg style="width:.75rem;height:.75rem;color:#ef4444;flex-shrink:0;" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/></svg>
                 @if(!empty($brandBuiltWithUrl))
                 <a href="{{ $brandBuiltWithUrl }}" target="_blank" rel="noopener"
                    style="color:#64748b;font-weight:600;text-decoration:none;transition:color .15s;"
-                   onmouseover="this.style.color='#94a3b8'" onmouseout="this.style.color='#64748b'">
-                    {{ $brandBuiltWith }}
-                </a>
+                   onmouseover="this.style.color='#94a3b8'" onmouseout="this.style.color='#64748b'">{{ $brandBuiltWith }}</a>
                 @else
                 <span style="color:#64748b;font-weight:600;">{{ $brandBuiltWith }}</span>
                 @endif
             </span>
             @endif
-
         </div>
     </div>
 </footer>

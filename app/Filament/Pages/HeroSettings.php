@@ -36,32 +36,32 @@ class HeroSettings extends Page
         $this->form->fill([
             // ── Hero Utama
             'badge_text'       => $h['badge_text']       ?? 'Open Access · Peer Reviewed · DOI Crossref',
-            'title_line1'      => $h['title_line1']      ?? 'Publikasikan Riset Anda',
-            'title_line2'      => $h['title_line2']      ?? 'Bersama ' . $siteName,
-            'subtitle'         => $h['subtitle']         ?? 'Platform manajemen jurnal ilmiah Indonesia — dari submission, peer review dua arah, hingga penerbitan terindeks Crossref dan Google Scholar.',
-            'cta1_text'        => $h['cta1_text']        ?? 'Jelajahi Jurnal',
-            'cta2_guest_text'  => $h['cta2_guest_text']  ?? 'Daftar Gratis',
-            'cta2_auth_text'   => $h['cta2_auth_text']   ?? 'Kirim Naskah',
+            'title_line1'      => $h['title_line1']      ?? 'Publish Your Research',
+            'title_line2'      => $h['title_line2']      ?? 'With ' . $siteName,
+            'subtitle'         => $h['subtitle']         ?? 'A scientific journal management platform — from submission and double-blind peer review to publication indexed in Crossref and Google Scholar.',
+            'cta1_text'        => $h['cta1_text']        ?? 'Explore Journals',
+            'cta2_guest_text'  => $h['cta2_guest_text']  ?? 'Register Free',
+            'cta2_auth_text'   => $h['cta2_auth_text']   ?? 'Submit Manuscript',
 
-            // ── Label Statistik
-            'stat_journals_label' => $h['stat_journals_label'] ?? 'Jurnal Aktif',
-            'stat_articles_label' => $h['stat_articles_label'] ?? 'Total Artikel',
-            'stat_authors_label'  => $h['stat_authors_label']  ?? 'Peneliti',
+            // ── Stat Labels
+            'stat_journals_label' => $h['stat_journals_label'] ?? 'Active Journals',
+            'stat_articles_label' => $h['stat_articles_label'] ?? 'Total Articles',
+            'stat_authors_label'  => $h['stat_authors_label']  ?? 'Researchers',
 
-            // ── Lencana Melayang
+            // ── Floating Badges
             'badge1_title'    => $h['badge1_title']    ?? 'Crossref DOI',
             'badge1_subtitle' => $h['badge1_subtitle'] ?? '10.xxxx/gjs.2026',
             'badge2_title'    => $h['badge2_title']    ?? 'Google Scholar',
-            'badge2_subtitle' => $h['badge2_subtitle'] ?? 'Terindeks otomatis',
+            'badge2_subtitle' => $h['badge2_subtitle'] ?? 'Auto-indexed',
             'badge3_title'    => $h['badge3_title']    ?? 'Open Access',
-            'badge3_subtitle' => $h['badge3_subtitle'] ?? 'Akses gratis selamanya',
+            'badge3_subtitle' => $h['badge3_subtitle'] ?? 'Free forever',
             'badge4_title'    => $h['badge4_title']    ?? 'Peer Reviewed',
             'badge4_subtitle' => $h['badge4_subtitle'] ?? 'Double-blind review',
             'badge5_title'    => $h['badge5_title']    ?? 'SINTA',
             'badge5_subtitle' => $h['badge5_subtitle'] ?? 'Kemendikbud',
 
             // ── Trust Bar
-            'trust_bar_label' => $h['trust_bar_label'] ?? 'Terindeks & Terdaftar di',
+            'trust_bar_label' => $h['trust_bar_label'] ?? 'Indexed &amp; Listed in',
         ]);
     }
 
