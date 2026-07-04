@@ -70,7 +70,7 @@ class AppServiceProvider extends ServiceProvider
                     'brandLogo'          => isset($bd['logo']) && $bd['logo'] ? asset('storage/' . $bd['logo']) : null,
                     'brandFavicon'       => isset($bd['favicon']) && $bd['favicon'] ? asset('storage/' . $bd['favicon']) : null,
                     'brandCopyright'     => $bd['copyright']              ?? '',
-                    'brandFooterTagline' => $bd['footer_tagline']         ?? ($bd['description'] ?? ''),
+                    'brandFooterTagline' => $bd['footer_tagline'] ?? ($bd['tagline'] ?? ($bd['description'] ?? '')),
                     'brandFooterIdx'     => ($bd['footer_show_indexing']  ?? '1') === '1',
                     'brandFooterSoc'     => ($bd['footer_show_social']    ?? '0') === '1',
                     'brandFooterColTitle'    => $bd['footer_col_title']         ?? '',
