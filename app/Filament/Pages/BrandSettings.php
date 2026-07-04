@@ -69,6 +69,9 @@ class BrandSettings extends Page
             'footer_show_social'   => ($b['footer_show_social']   ?? '0') === '1',
             'footer_col_title'     => $b['footer_col_title']      ?? '',
             'footer_links'         => json_decode($b['footer_links'] ?? '[]', true) ?: [],
+            'footer_built_with'    => $b['footer_built_with']    ?? 'Laravel & Filament',
+            'footer_built_with_url'=> $b['footer_built_with_url']?? '',
+            'footer_show_built_with'=> ($b['footer_show_built_with'] ?? '1') === '1',
 
             // ── seo ────────────────────────────────────────────────────────────
             'meta_keywords'          => $s['meta_keywords']          ?? '',
@@ -235,6 +238,29 @@ class BrandSettings extends Page
                                         ->label('Tampilkan Ikon Media Sosial di Footer')
                                         ->default(false)
                                         ->inline(false),
+                                ]),
+
+                            Section::make('Bottom Bar')
+                                ->description('Teks hak cipta dan kredit di bagian paling bawah footer.')
+                                ->columns(2)
+                                ->schema([
+                                    Toggle::make('footer_show_built_with')
+                                        ->label('Tampilkan teks "Built with ..."')
+                                        ->default(true)
+                                        ->inline(false)
+                                        ->columnSpanFull(),
+
+                                    TextInput::make('footer_built_with')
+                                        ->label('Teks "Built with"')
+                                        ->placeholder('Laravel & Filament')
+                                        ->helperText('Teks yang tampil setelah ikon hati di bottom bar.')
+                                        ->maxLength(80),
+
+                                    TextInput::make('footer_built_with_url')
+                                        ->label('URL "Built with" (opsional)')
+                                        ->url()
+                                        ->placeholder('https://laravel.com')
+                                        ->helperText('Jika diisi, teks akan menjadi tautan yang dapat diklik.'),
                                 ]),
 
                             Section::make('Kolom Tautan Kustom')
@@ -451,6 +477,7 @@ class BrandSettings extends Page
             'social_instagram','social_youtube','social_whatsapp','social_github',
             'footer_tagline','footer_show_indexing','footer_show_social',
             'footer_col_title','footer_links',
+            'footer_built_with','footer_built_with_url','footer_show_built_with',
         ];
         $seoKeys = [
             'meta_keywords','meta_robots','og_locale','twitter_card','twitter_site',
@@ -463,8 +490,9 @@ class BrandSettings extends Page
         $seoData   = array_intersect_key($data, array_flip($seoKeys));
 
         // Konversi boolean ke string
-        $brandData['footer_show_indexing'] = $brandData['footer_show_indexing'] ? '1' : '0';
-        $brandData['footer_show_social']   = $brandData['footer_show_social']   ? '1' : '0';
+        $brandData['footer_show_indexing']   = $brandData['footer_show_indexing']   ? '1' : '0';
+        $brandData['footer_show_social']     = $brandData['footer_show_social']     ? '1' : '0';
+        $brandData['footer_show_built_with'] = $brandData['footer_show_built_with'] ? '1' : '0';
         $seoData['scholar_enabled']        = $seoData['scholar_enabled']        ? '1' : '0';
 
         // Encode footer_links ke JSON

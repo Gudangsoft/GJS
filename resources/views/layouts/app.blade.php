@@ -575,21 +575,36 @@
         @endif
 
         {{-- ── Bottom bar ── --}}
-        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;padding:1.25rem 0 2rem;">
-            <span style="font-size:.75rem;color:#374151;">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.75rem;padding:1.25rem 0 2rem;">
+
+            {{-- Copyright --}}
+            <span style="font-size:.75rem;color:#4b5563;">
                 @if(!empty($brandCopyright))
-                {{ $brandCopyright }}
+                    {{ $brandCopyright }}
                 @else
-                &copy; {{ date('Y') }} {{ $brandName }}. {{ __('site.all_rights_reserved') }}
+                    &copy; {{ date('Y') }} <strong style="color:#64748b;font-weight:600;">{{ $brandName }}</strong>. {{ __('site.all_rights_reserved') }}
                 @endif
             </span>
-            <span style="display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:#374151;">
-                {{ __('site.built_with') }}
-                <svg style="width:.8rem;height:.8rem;color:#ef4444;" fill="currentColor" viewBox="0 0 20 20">
+
+            {{-- Built with --}}
+            @if($brandShowBuiltWith && !empty($brandBuiltWith))
+            <span style="display:inline-flex;align-items:center;gap:.35rem;font-size:.72rem;color:#374151;">
+                <span style="color:#4b5563;">{{ __('site.built_with') }}</span>
+                <svg style="width:.75rem;height:.75rem;color:#ef4444;flex-shrink:0;" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
                 </svg>
-                <span style="color:#4b5563;font-weight:600;">Laravel &amp; Filament</span>
+                @if(!empty($brandBuiltWithUrl))
+                <a href="{{ $brandBuiltWithUrl }}" target="_blank" rel="noopener"
+                   style="color:#64748b;font-weight:600;text-decoration:none;transition:color .15s;"
+                   onmouseover="this.style.color='#94a3b8'" onmouseout="this.style.color='#64748b'">
+                    {{ $brandBuiltWith }}
+                </a>
+                @else
+                <span style="color:#64748b;font-weight:600;">{{ $brandBuiltWith }}</span>
+                @endif
             </span>
+            @endif
+
         </div>
     </div>
 </footer>

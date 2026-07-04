@@ -72,8 +72,11 @@ class AppServiceProvider extends ServiceProvider
                     'brandFooterTagline' => $bd['footer_tagline']         ?? ($bd['description'] ?? ''),
                     'brandFooterIdx'     => ($bd['footer_show_indexing']  ?? '1') === '1',
                     'brandFooterSoc'     => ($bd['footer_show_social']    ?? '0') === '1',
-                    'brandFooterColTitle'=> $bd['footer_col_title']       ?? '',
-                    'brandFooterLinks'   => json_decode($bd['footer_links'] ?? '[]', true) ?: [],
+                    'brandFooterColTitle'    => $bd['footer_col_title']         ?? '',
+                    'brandFooterLinks'       => json_decode($bd['footer_links'] ?? '[]', true) ?: [],
+                    'brandBuiltWith'         => $bd['footer_built_with']         ?? 'Laravel & Filament',
+                    'brandBuiltWithUrl'      => $bd['footer_built_with_url']     ?? '',
+                    'brandShowBuiltWith'     => ($bd['footer_show_built_with']   ?? '1') === '1',
                     'brandSocials'       => [
                         'facebook'  => $bd['social_facebook']  ?? '',
                         'twitter'   => $bd['social_twitter']   ?? '',
