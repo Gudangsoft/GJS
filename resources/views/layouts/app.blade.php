@@ -7,11 +7,11 @@
 
     @php
         $siteName    = \App\Models\Setting::get('brand.site_name', config('app.name'));
-        $siteDesc    = $description ?? \App\Models\Setting::get('brand.description', 'Platform jurnal ilmiah Indonesia');
+        $siteDesc    = $description ?? (\App\Models\Setting::get('brand.description') ?: ($brandTagline ?? ''));
         $ogImage     = \App\Models\Setting::get('brand.og_image')
                         ? asset('storage/' . \App\Models\Setting::get('brand.og_image'))
                         : null;
-        $ogLocale    = \App\Models\Setting::get('seo.og_locale', 'id_ID');
+        $ogLocale    = \App\Models\Setting::get('seo.og_locale', 'en_US');
         $twCard      = \App\Models\Setting::get('seo.twitter_card', 'summary_large_image');
         $twSite      = \App\Models\Setting::get('seo.twitter_site');
         $robots      = $metaRobots ?? \App\Models\Setting::get('seo.meta_robots', 'index,follow');

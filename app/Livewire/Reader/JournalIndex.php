@@ -7,11 +7,9 @@ use App\Models\Issue;
 use App\Models\Journal;
 use App\Models\User;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Layout('layouts.app')]
-#[Title('Beranda — GJS')]
 class JournalIndex extends Component
 {
     public function render()
