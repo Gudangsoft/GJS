@@ -65,6 +65,15 @@ class EmailBlast extends Component
 
     public function send(): void
     {
+        // Rate limit: maks 3 blast per 24 jam per user
+        $rateLimitKey = 'email-blast:' . auth()->id();
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($rateLimitKey, 3)) {
+            $seconds = \Illuminate\Support\Facades\RateLimiter::availableIn($rateLimitKey);
+            $this->addError('rate_limit', 'Batas email blast tercapai (3x/24 jam). Coba lagi dalam ' . ceil($seconds / 3600) . ' jam.');
+            return;
+        }
+        \Illuminate\Support\Facades\RateLimiter::hit($rateLimitKey, 86400);
+
         $this->validate();
         $journal = $this->getJournal();
         if (!$journal) return;
@@ -75,10 +84,11 @@ class EmailBlast extends Component
             return;
         }
 
+        // Queue email — tidak memblokir HTTP request
         $sent = 0; $failed = 0;
         foreach ($recipients as $email) {
             try {
-                Mail::to($email)->send(new JournalBlastMail($journal, $this->subject, $this->message));
+                Mail::to($email)->queue(new JournalBlastMail($journal, $this->subject, $this->message));
                 $sent++;
             } catch (\Throwable) {
                 $failed++;

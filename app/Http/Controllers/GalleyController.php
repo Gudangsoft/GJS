@@ -16,11 +16,15 @@ class GalleyController extends Controller
         abort_unless($galley->article_id === $article->id, 404);
         abort_unless($galley->is_approved, 404);
 
-        // Remote URL galley (hosted externally)
+        // Remote URL galley (hosted externally) — validate URL before redirecting
         if ($galley->remote_url) {
+            $url = $galley->remote_url;
+            $scheme = strtolower(parse_url($url, PHP_URL_SCHEME) ?? '');
+            abort_unless(in_array($scheme, ['http', 'https'], true), 422, 'URL galley tidak valid.');
+
             $galley->increment('views');
             $article->increment('downloads');
-            return redirect()->away($galley->remote_url);
+            return redirect()->away($url);
         }
 
         // Local file

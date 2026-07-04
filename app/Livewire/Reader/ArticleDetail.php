@@ -13,6 +13,7 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class ArticleDetail extends Component
 {
+    use \App\Traits\CachesJournalStats;
     public Journal $journal;
     public Article $article;
 
@@ -43,13 +44,7 @@ class ArticleDetail extends Component
 
         $journalStats = [];
         if ($sidebarBlocks->contains('type', 'statistics')) {
-            $journalStats = [
-                'articles'  => Article::where('journal_id', $this->journal->id)->count(),
-                'issues'    => Issue::where('journal_id', $this->journal->id)->where('published', true)->count(),
-                'views'     => Article::where('journal_id', $this->journal->id)->sum('views'),
-                'downloads' => Article::where('journal_id', $this->journal->id)->sum('downloads'),
-                'citations' => Article::where('journal_id', $this->journal->id)->sum('citations'),
-            ];
+            $journalStats = $this->getJournalStats($this->journal->id);
         }
 
         return view('livewire.reader.article-detail', compact('articleGalleys', 'sidebarBlocks', 'journalStats'))

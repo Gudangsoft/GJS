@@ -12,6 +12,7 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class JournalHome extends Component
 {
+    use \App\Traits\CachesJournalStats;
     public Journal $journal;
 
     public function mount(Journal $journal): void
@@ -53,13 +54,7 @@ class JournalHome extends Component
 
         $journalStats = [];
         if ($sidebarBlocks->where('type', 'statistics')->isNotEmpty()) {
-            $journalStats = [
-                'articles'  => \App\Models\Article::where('journal_id', $this->journal->id)->count(),
-                'issues'    => \App\Models\Issue::where('journal_id', $this->journal->id)->where('published', true)->count(),
-                'views'     => \App\Models\Article::where('journal_id', $this->journal->id)->sum('views'),
-                'downloads' => \App\Models\Article::where('journal_id', $this->journal->id)->sum('downloads'),
-                'citations' => \App\Models\Article::where('journal_id', $this->journal->id)->sum('citations'),
-            ];
+            $journalStats = $this->getJournalStats($this->journal->id);
         }
 
         return view('livewire.reader.journal-home',

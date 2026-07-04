@@ -70,8 +70,8 @@ class JournalSearch extends Component
                 });
             }
 
-            $totalCount = $baseQuery->count();
             $results    = $baseQuery->orderByDesc('date_published')->paginate(10);
+            $totalCount = $results->total(); // Paginator sudah menghitung total, tidak perlu query terpisah
         }
 
         return view('livewire.reader.journal-search', compact('results', 'totalCount', 'q'))

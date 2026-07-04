@@ -174,15 +174,24 @@ Route::get('/impersonate/stop', function () {
     if (!$impersonatorId) {
         abort(403);
     }
-    // Only the original super_admin session can stop impersonation
     session()->forget(['impersonator_id', 'impersonating_as']);
     Auth::loginUsingId($impersonatorId);
+
+    // Re-verify impersonator masih super_admin (bisa saja role dicabut saat impersonasi)
+    $restored = auth()->user();
+    if (! $restored || ! $restored->hasRole('super_admin')) {
+        Auth::logout();
+        return redirect()->route('login')->withErrors(['session' => 'Session tidak valid. Silakan login kembali.']);
+    }
+
     return redirect('/admin/users');
 })->name('impersonate.stop')->middleware(['auth', 'verified']);
 
 // ─── ORCID OAuth ──────────────────────────────────────────────────────────────
 Route::get('/auth/orcid',          [OrcidController::class, 'redirect'])->name('orcid.redirect');
-Route::get('/auth/orcid/callback', [OrcidController::class, 'callback'])->name('orcid.callback');
+Route::get('/auth/orcid/callback', [OrcidController::class, 'callback'])
+    ->name('orcid.callback')
+    ->middleware('throttle:10,1');
 
 // ─── Protocol & Discovery ────────────────────────────────────────────────────
 Route::get('/oai',         OaiPmhController::class)->name('oai');

@@ -6,26 +6,26 @@ $lightBg = ['#eff6ff','#f0fdf4','#faf5ff','#fff1f2','#fffbeb','#ecfeff'];
 // ── Hero Settings ──────────────────────────────────────────────────────────
 $siteName    = \App\Models\Setting::get('brand.site_name', config('app.name'));
 $heroBadge   = \App\Models\Setting::get('hero.badge_text',      'Open Access · Peer Reviewed · DOI Crossref');
-$heroLine1   = \App\Models\Setting::get('hero.title_line1',     'Publikasikan Riset Anda');
-$heroLine2   = \App\Models\Setting::get('hero.title_line2',     'Bersama ' . $siteName);
-$heroSub     = \App\Models\Setting::get('hero.subtitle',        'Platform manajemen jurnal ilmiah Indonesia — dari submission, peer review dua arah, hingga penerbitan terindeks Crossref dan Google Scholar.');
-$heroCta1    = \App\Models\Setting::get('hero.cta1_text',       'Jelajahi Jurnal');
-$heroCta2G   = \App\Models\Setting::get('hero.cta2_guest_text', 'Daftar Gratis');
-$heroCta2A   = \App\Models\Setting::get('hero.cta2_auth_text',  'Kirim Naskah');
-$statLbl1    = \App\Models\Setting::get('hero.stat_journals_label', 'Jurnal Aktif');
-$statLbl2    = \App\Models\Setting::get('hero.stat_articles_label', 'Total Artikel');
-$statLbl3    = \App\Models\Setting::get('hero.stat_authors_label',  'Peneliti');
+$heroLine1   = \App\Models\Setting::get('hero.title_line1',     'Publish Your Research');
+$heroLine2   = \App\Models\Setting::get('hero.title_line2',     'With ' . $siteName);
+$heroSub     = \App\Models\Setting::get('hero.subtitle',        'A scientific journal management platform — from submission and double-blind peer review to publication indexed in Crossref and Google Scholar.');
+$heroCta1    = \App\Models\Setting::get('hero.cta1_text',       'Explore Journals');
+$heroCta2G   = \App\Models\Setting::get('hero.cta2_guest_text', 'Register Free');
+$heroCta2A   = \App\Models\Setting::get('hero.cta2_auth_text',  'Submit Manuscript');
+$statLbl1    = \App\Models\Setting::get('hero.stat_journals_label', 'Active Journals');
+$statLbl2    = \App\Models\Setting::get('hero.stat_articles_label', 'Total Articles');
+$statLbl3    = \App\Models\Setting::get('hero.stat_authors_label',  'Researchers');
 $b1Title     = \App\Models\Setting::get('hero.badge1_title',    'Crossref DOI');
 $b1Sub       = \App\Models\Setting::get('hero.badge1_subtitle', '10.xxxx/gjs.2026');
 $b2Title     = \App\Models\Setting::get('hero.badge2_title',    'Google Scholar');
-$b2Sub       = \App\Models\Setting::get('hero.badge2_subtitle', 'Terindeks otomatis');
+$b2Sub       = \App\Models\Setting::get('hero.badge2_subtitle', 'Auto-indexed');
 $b3Title     = \App\Models\Setting::get('hero.badge3_title',    'Open Access');
-$b3Sub       = \App\Models\Setting::get('hero.badge3_subtitle', 'Akses gratis selamanya');
+$b3Sub       = \App\Models\Setting::get('hero.badge3_subtitle', 'Free access forever');
 $b4Title     = \App\Models\Setting::get('hero.badge4_title',    'Peer Reviewed');
 $b4Sub       = \App\Models\Setting::get('hero.badge4_subtitle', 'Double-blind review');
 $b5Title     = \App\Models\Setting::get('hero.badge5_title',    'SINTA');
 $b5Sub       = \App\Models\Setting::get('hero.badge5_subtitle', 'Kemendikbud');
-$trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Terdaftar di');
+$trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; Listed in');
 @endphp
 
 {{-- ═══ HERO ═══ --}}
@@ -184,7 +184,7 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Ter
 {{-- ═══ TRUST BAR ═══ --}}
 <div style="background:#fff;border-bottom:1px solid #e8edf5;padding:.875rem 1.5rem;">
     <div style="max-width:72rem;margin:0 auto;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.5rem 1.25rem;">
-        <span style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#94a3b8;margin-right:.5rem;">{{ $trustLabel }}</span>
+        <span style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#94a3b8;margin-right:.5rem;">{!! $trustLabel !!}</span>
         @foreach([
             ['Google Scholar', '#4285f4'],
             ['Crossref DOI',   '#f06014'],
@@ -205,9 +205,9 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Ter
 <section style="background:linear-gradient(180deg,#f8fafc 0%,#fff 100%);padding:5rem 1.5rem;">
     <div style="max-width:72rem;margin:0 auto;">
         <div style="text-align:center;margin-bottom:3rem;">
-            <span style="display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#2563eb;margin-bottom:.625rem;">Bagaimana Cara Kerjanya?</span>
-            <h2 style="font-size:1.875rem;font-weight:900;color:#0f172a;margin:0 0 .75rem;letter-spacing:-.02em;">Alur Penerbitan Artikel</h2>
-            <p style="font-size:.9375rem;color:#64748b;max-width:460px;margin:0 auto;line-height:1.7;">Dari naskah hingga terindeks, semua dalam satu platform terintegrasi.</p>
+            <span style="display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#2563eb;margin-bottom:.625rem;">How Does It Work?</span>
+            <h2 style="font-size:1.875rem;font-weight:900;color:#0f172a;margin:0 0 .75rem;letter-spacing:-.02em;">Article Publication Workflow</h2>
+            <p style="font-size:.9375rem;color:#64748b;max-width:460px;margin:0 auto;line-height:1.7;">From manuscript to indexed publication, all in one integrated platform.</p>
         </div>
 
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;position:relative;">
@@ -215,10 +215,10 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Ter
             <div style="position:absolute;top:2.5rem;left:calc(12.5% + 1.25rem);right:calc(12.5% + 1.25rem);height:2px;background:linear-gradient(90deg,#2563eb,#7c3aed,#059669,#f59e0b);border-radius:9999px;opacity:.3;"></div>
 
             @foreach([
-                ['01', 'Submit Naskah',     'Upload artikel, isi metadata, dan pilih jurnal yang sesuai bidang riset Anda.', '#2563eb', '#eff6ff', 'M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5'],
-                ['02', 'Peer Review',        'Editor menugaskan reviewer. Proses double-blind review menjamin objektivitas penilaian.', '#7c3aed', '#faf5ff', 'M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.955 11.955 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z'],
-                ['03', 'Copyediting',        'Tim editor melakukan penyuntingan bahasa, tata letak, dan pembuatan galley PDF/HTML.', '#059669', '#f0fdf4', 'M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z'],
-                ['04', 'Publikasi & DOI',    'Artikel terbit dan mendapat DOI Crossref. Otomatis terindeks Google Scholar & DOAJ.', '#d97706', '#fffbeb', 'M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253'],
+                ['01', 'Submit Manuscript',  'Upload your article, fill in metadata, and select the journal matching your research field.', '#2563eb', '#eff6ff', 'M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5'],
+                ['02', 'Peer Review',        'Editor assigns reviewers. The double-blind review process ensures objectivity.', '#7c3aed', '#faf5ff', 'M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.955 11.955 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z'],
+                ['03', 'Copyediting',        'Editorial team performs language editing, layout, and PDF/HTML galley creation.', '#059669', '#f0fdf4', 'M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z'],
+                ['04', 'Publication &amp; DOI', 'Article is published and receives Crossref DOI. Automatically indexed in Google Scholar &amp; DOAJ.', '#d97706', '#fffbeb', 'M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253'],
             ] as [$num, $title, $desc, $color, $bg, $icon])
             <div style="position:relative;text-align:center;">
                 {{-- Step number circle --}}
@@ -255,18 +255,19 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Ter
         <div>
             <div style="display:inline-flex;align-items:center;gap:.5rem;padding:.25rem .875rem;border-radius:9999px;background:#eff6ff;border:1px solid #bfdbfe;margin-bottom:.875rem;">
                 <svg style="width:.75rem;height:.75rem;color:#2563eb;" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
-                <span style="font-size:.7rem;font-weight:800;color:#2563eb;text-transform:uppercase;letter-spacing:.08em;">Direktori Jurnal</span>
+                <span style="font-size:.7rem;font-weight:800;color:#2563eb;text-transform:uppercase;letter-spacing:.08em;">Journal Directory</span>
             </div>
-            <h2 style="font-size:2rem;font-weight:900;color:#0f172a;line-height:1.2;margin:0;">Jurnal yang Tersedia</h2>
-            <p style="font-size:.9rem;color:#64748b;margin:.5rem 0 0;">{{ $journals->count() }} jurnal ilmiah terindeks dan terverifikasi</p>
+            <h2 style="font-size:2rem;font-weight:900;color:#0f172a;line-height:1.2;margin:0;">Available Journals</h2>
+            <p style="font-size:.9rem;color:#64748b;margin:.5rem 0 0;">{{ $journals->count() }} indexed and verified scientific journals</p>
         </div>
         @if($journals->count() > 0)
         <a href="{{ route('home') }}" style="display:inline-flex;align-items:center;gap:.375rem;font-size:.875rem;font-weight:600;color:#2563eb;text-decoration:none;white-space:nowrap;">
-            Lihat Semua
+            View All
             <svg style="width:.875rem;height:.875rem;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
         </a>
         @endif
     </div>
+
 
     {{-- Journal grid — 2 kolom vertikal --}}
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;align-items:start;">
@@ -311,7 +312,7 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Ter
             {{-- Stats pill top-right --}}
             <div style="position:absolute;top:.625rem;right:.625rem;display:flex;gap:.375rem;">
                 <span style="padding:.2rem .55rem;border-radius:9999px;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);font-size:.65rem;font-weight:700;color:#fff;">
-                    {{ number_format($journal->articles_count) }} Artikel
+                    {{ number_format($journal->articles_count) }} Articles
                 </span>
             </div>
 
@@ -368,18 +369,18 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Ter
             <div style="display:flex;gap:1rem;padding:.625rem .75rem;border-radius:.5rem;background:#f8fafc;margin-bottom:.875rem;">
                 <div style="text-align:center;flex:1;">
                     <div style="font-size:1rem;font-weight:900;color:{{ $clr }};line-height:1;">{{ number_format($journal->articles_count) }}</div>
-                    <div style="font-size:.65rem;color:#94a3b8;margin-top:.1rem;font-weight:500;">Artikel</div>
+                    <div style="font-size:.65rem;color:#94a3b8;margin-top:.1rem;font-weight:500;">Articles</div>
                 </div>
                 <div style="width:1px;background:#e2e8f0;"></div>
                 <div style="text-align:center;flex:1;">
                     <div style="font-size:1rem;font-weight:900;color:{{ $clr }};line-height:1;">{{ number_format($journal->issues_count) }}</div>
-                    <div style="font-size:.65rem;color:#94a3b8;margin-top:.1rem;font-weight:500;">Terbitan</div>
+                    <div style="font-size:.65rem;color:#94a3b8;margin-top:.1rem;font-weight:500;">Issues</div>
                 </div>
                 @if($currentIssue)
                 <div style="width:1px;background:#e2e8f0;"></div>
                 <div style="text-align:center;flex:1;">
                     <div style="font-size:.65rem;font-weight:800;color:#64748b;line-height:1.2;">Vol. {{ $currentIssue->volume }}</div>
-                    <div style="font-size:.6rem;color:#94a3b8;margin-top:.1rem;">Terbitan ini</div>
+                    <div style="font-size:.6rem;color:#94a3b8;margin-top:.1rem;">Current Issue</div>
                 </div>
                 @endif
             </div>
@@ -389,13 +390,13 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Ter
                 <a href="{{ route('journals.home', $journal->slug) }}"
                    style="display:flex;align-items:center;justify-content:center;gap:.3rem;padding:.5rem;border-radius:.5rem;background:{{ $clr }};color:#fff;font-size:.78rem;font-weight:700;text-decoration:none;">
                     <svg style="width:.8rem;height:.8rem;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                    Lihat Jurnal
+                    View Journal
                 </a>
                 @if($currentIssue)
                 <a href="{{ route('journals.issues.show', [$journal->slug, $currentIssue->id]) }}"
                    style="display:flex;align-items:center;justify-content:center;gap:.3rem;padding:.5rem;border-radius:.5rem;background:#fff;color:{{ $clr }};font-size:.78rem;font-weight:700;text-decoration:none;border:1.5px solid {{ $clr }};">
                     <svg style="width:.8rem;height:.8rem;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    Terbitan Terkini
+                    Latest Issue
                 </a>
                 @else
                 <div></div>
@@ -408,8 +409,8 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Ter
     @empty
     <div style="grid-column:1/-1;text-align:center;padding:4rem 1rem;border-radius:1rem;border:2px dashed #e2e8f0;background:#f8fafc;">
         <svg style="width:3rem;height:3rem;color:#cbd5e1;margin:0 auto .75rem;" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-        <p style="font-size:1rem;font-weight:700;color:#94a3b8;margin:0 0 .25rem;">Belum ada jurnal aktif</p>
-        <p style="font-size:.875rem;color:#cbd5e1;margin:0;">Jurnal akan tampil di sini setelah diaktifkan.</p>
+        <p style="font-size:1rem;font-weight:700;color:#94a3b8;margin:0 0 .25rem;">No active journals yet</p>
+        <p style="font-size:.875rem;color:#cbd5e1;margin:0;">Journals will appear here once activated.</p>
     </div>
     @endforelse
     </div>
@@ -427,8 +428,8 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Ter
 <section class="py-20 px-6" style="background:#f8fafc;border-top:1px solid #e2e8f0;">
     <div class="max-w-6xl mx-auto">
         <div class="mb-10">
-            <p class="text-xs font-bold uppercase tracking-widest mb-1.5" style="color:#7c3aed;">Baru Diterbitkan</p>
-            <h2 class="font-black" style="font-size:1.875rem;color:#0f172a;">Artikel Terbaru</h2>
+            <p class="text-xs font-bold uppercase tracking-widest mb-1.5" style="color:#7c3aed;">Recently Published</p>
+            <h2 class="font-black" style="font-size:1.875rem;color:#0f172a;">Latest Articles</h2>
         </div>
 
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1.25rem;">
@@ -475,10 +476,10 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Ter
 <section class="py-20 px-6" style="background:#ffffff;">
     <div class="max-w-6xl mx-auto">
         <div class="text-center mb-12">
-            <p class="text-xs font-bold uppercase tracking-widest mb-1.5" style="color:#059669;">Keunggulan Platform</p>
-            <h2 class="font-black mb-3" style="font-size:1.875rem;color:#0f172a;">Kenapa Memilih {{ \App\Models\Setting::get('brand.site_name', config('app.name')) }}?</h2>
+            <p class="text-xs font-bold uppercase tracking-widest mb-1.5" style="color:#059669;">Platform Features</p>
+            <h2 class="font-black mb-3" style="font-size:1.875rem;color:#0f172a;">Why Choose {{ \App\Models\Setting::get('brand.site_name', config('app.name')) }}?</h2>
             <p class="mx-auto leading-relaxed" style="color:#64748b;max-width:460px;font-size:.9375rem;">
-                Dirancang untuk seluruh ekosistem publikasi ilmiah Indonesia.
+                Designed for the entire scientific publication ecosystem.
             </p>
         </div>
 
@@ -489,8 +490,8 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Ter
                 <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#dbeafe;">
                     <svg class="w-5 h-5" style="color:#2563eb;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                 </div>
-                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Akses Terbuka</h3>
-                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">Semua artikel dapat diakses siapa saja, kapan saja, gratis.</p>
+                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Open Access</h3>
+                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">All articles are freely accessible to anyone, anytime.</p>
             </div>
 
             {{-- Peer Review Ganda --}}
@@ -498,8 +499,8 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Ter
                 <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#dcfce7;">
                     <svg class="w-5 h-5" style="color:#059669;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.955 11.955 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
                 </div>
-                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Peer Review Ganda</h3>
-                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">Double-blind review menjamin kualitas dan integritas ilmiah.</p>
+                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Double Peer Review</h3>
+                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">Double-blind review ensures quality and academic integrity.</p>
             </div>
 
             {{-- DOI Crossref --}}
@@ -508,7 +509,7 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Ter
                     <svg class="w-5 h-5" style="color:#7c3aed;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/></svg>
                 </div>
                 <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">DOI Crossref</h3>
-                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">Setiap artikel mendapat DOI permanen via Crossref.</p>
+                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">Every article receives a permanent DOI via Crossref.</p>
             </div>
 
             {{-- Terindeks Global --}}
@@ -516,8 +517,8 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Ter
                 <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#fef3c7;">
                     <svg class="w-5 h-5" style="color:#d97706;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z"/></svg>
                 </div>
-                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Terindeks Global</h3>
-                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">OAI-PMH untuk Google Scholar, DOAJ & PKP Index.</p>
+                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Globally Indexed</h3>
+                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">OAI-PMH for Google Scholar, DOAJ &amp; PKP Index.</p>
             </div>
 
             {{-- Aman & Terpercaya --}}
@@ -525,8 +526,8 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Ter
                 <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#fee2e2;">
                     <svg class="w-5 h-5" style="color:#dc2626;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
                 </div>
-                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Aman &amp; Terpercaya</h3>
-                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">CSP headers, MFA, enkripsi data, dan audit log.</p>
+                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Secure &amp; Trusted</h3>
+                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">CSP headers, MFA, data encryption, and audit logs.</p>
             </div>
 
             {{-- Responsif & Cepat --}}
@@ -534,8 +535,8 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Ter
                 <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#cffafe;">
                     <svg class="w-5 h-5" style="color:#0891b2;" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
                 </div>
-                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Responsif &amp; Cepat</h3>
-                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">Tampilan optimal di semua perangkat, loading cepat.</p>
+                <h3 class="font-bold mb-1.5" style="font-size:.9375rem;color:#0f172a;">Responsive &amp; Fast</h3>
+                <p style="font-size:.8rem;color:#64748b;line-height:1.65;">Optimized display across all devices, fast loading.</p>
             </div>
 
         </div>
@@ -550,20 +551,20 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Ter
 
     <div style="position:relative;max-width:56rem;margin:0 auto;text-align:center;">
         <div style="display:inline-flex;align-items:center;gap:.5rem;padding:.375rem 1rem;border-radius:9999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);font-size:.78rem;font-weight:700;color:rgba(255,255,255,.8);margin-bottom:1.5rem;">
-            🎓 Gratis untuk civitas akademika Indonesia
+            🎓 Free for Indonesia's academic community
         </div>
 
         <h2 style="font-size:clamp(1.875rem,4vw,2.875rem);font-weight:900;color:#fff;line-height:1.2;letter-spacing:-.02em;margin:0 0 1.125rem;">
-            Siap Mempublikasikan<br>
-            <span style="background:linear-gradient(90deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Karya Ilmiah Anda?</span>
+            Ready to Publish<br>
+            <span style="background:linear-gradient(90deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Your Research?</span>
         </h2>
         <p style="font-size:1rem;color:#94a3b8;line-height:1.75;margin:0 0 2.5rem;max-width:500px;margin-left:auto;margin-right:auto;">
-            Bergabung dengan ratusan peneliti. Submission mudah, review transparan, publikasi terindeks internasional.
+            Join hundreds of researchers. Easy submission, transparent review, internationally indexed publication.
         </p>
 
         {{-- Feature checklist --}}
         <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:.625rem 1.75rem;margin-bottom:2.5rem;">
-            @foreach(['Gratis selamanya','DOI Crossref','Google Scholar','Review transparan','Terbit cepat'] as $f)
+            @foreach(['Free forever','DOI Crossref','Google Scholar','Transparent review','Fast publication'] as $f)
             <span style="display:flex;align-items:center;gap:.375rem;font-size:.8125rem;color:#94a3b8;font-weight:500;">
                 <svg style="width:.875rem;height:.875rem;color:#34d399;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                 {{ $f }}
@@ -574,12 +575,12 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Terindeks & Ter
         <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:.75rem;">
             <a href="{{ route('register') }}"
                style="display:inline-flex;align-items:center;gap:.5rem;padding:.9375rem 2.25rem;background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;font-size:.9375rem;font-weight:800;border-radius:.875rem;text-decoration:none;box-shadow:0 12px 32px rgba(37,99,235,.4);">
-                Buat Akun Gratis
+                Create Free Account
                 <svg style="width:1rem;height:1rem;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
             </a>
             <a href="{{ route('login') }}"
                style="display:inline-flex;align-items:center;padding:.9375rem 2.25rem;background:rgba(255,255,255,.07);color:#e2e8f0;font-size:.9375rem;font-weight:600;border-radius:.875rem;border:1px solid rgba(255,255,255,.16);text-decoration:none;">
-                Sudah punya akun
+                Already have an account
             </a>
         </div>
     </div>

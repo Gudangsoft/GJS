@@ -13,20 +13,26 @@ trait SanitizesInput
     }
 
     /**
-     * Izinkan HTML dasar untuk rich text (abstrak, deskripsi, dll)
-     * Tag berbahaya (script, iframe, object, embed, form, on*) selalu dihapus
+     * Sanitasi HTML dengan HTMLPurifier (mews/purifier sudah terinstall).
+     * Aman untuk output via {!! !!} — buang semua event handler, js:, data:, dll.
      */
     protected function sanitizeRich(?string $value): string
     {
-        $allowed = '<b><i><u><em><strong><p><br><ul><ol><li><a><h2><h3><h4><blockquote><pre><code><span><div>';
-        $clean   = strip_tags((string) $value, $allowed);
+        if (blank($value)) return '';
 
-        // Hapus atribut event handler (onclick, onload, dll)
-        $clean = preg_replace('/\s+on\w+\s*=\s*["\'][^"\']*["\']/i', '', $clean);
-        // Hapus javascript: di href/src
-        $clean = preg_replace('/(href|src)\s*=\s*["\']?\s*javascript:[^"\'>\s]*/i', '$1="#"', $clean);
+        $config = \HTMLPurifier_Config::createDefault();
+        $config->set('HTML.Allowed',
+            'b,i,u,em,strong,p,br,ul,ol,li,a[href|title|target],h2,h3,h4,blockquote,pre,code,span,div'
+        );
+        $config->set('HTML.TargetBlank', true);
+        $config->set('URI.AllowedSchemes', ['http' => true, 'https' => true, 'mailto' => true]);
+        $config->set('AutoFormat.RemoveEmpty', true);
 
-        return trim($clean);
+        $cachePath = storage_path('framework/cache/purifier');
+        if (! is_dir($cachePath)) mkdir($cachePath, 0755, true);
+        $config->set('Cache.SerializerPath', $cachePath);
+
+        return trim((new \HTMLPurifier($config))->purify((string) $value));
     }
 
     /**

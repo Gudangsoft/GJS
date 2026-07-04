@@ -138,7 +138,7 @@ $steps = [1 => 'Naskah', 2 => 'Panduan', 3 => 'Review', 4 => 'Selesai'];
             @if($sub->abstract)
             <div>
                 <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin:0 0 .5rem;">Abstrak</p>
-                <div style="font-size:.875rem;color:#374151;line-height:1.8;background:#f8fafc;border-radius:.75rem;padding:1rem;border:1px solid #e2e8f0;">{!! $sub->abstract !!}</div>
+                <div style="font-size:.875rem;color:#374151;line-height:1.8;background:#f8fafc;border-radius:.75rem;padding:1rem;border:1px solid #e2e8f0;">{{ $sub->getTranslation('abstract', app()->getLocale(), true) }}</div>
             </div>
             @endif
         </div>
