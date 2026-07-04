@@ -404,7 +404,7 @@
                 </div>
 
                 <p style="font-size:.8125rem;color:#64748b;line-height:1.7;margin:0 0 1.375rem;">
-                    {{ $brandFooterTagline ?: __('site.footer_tagline') }}
+                    {{ $brandTagline ?: ($brandFooterTagline ?: __('site.footer_tagline')) }}
                 </p>
 
                 {{-- Indexing badges --}}
