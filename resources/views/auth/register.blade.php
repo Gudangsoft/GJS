@@ -1,12 +1,12 @@
 @extends('layouts.auth')
 
-@section('title', 'Daftar Akun — ' . config('app.name'))
+@section('title', 'Create Account — ' . config('app.name'))
 @section('card-width', 'max-w-2xl')
 
 @section('content')
 <div class="mb-6">
-    <h2 class="text-2xl font-bold text-slate-900 mb-1">Buat Akun Baru</h2>
-    <p class="text-sm text-slate-500">Bergabung dengan komunitas peneliti. Gratis selamanya.</p>
+    <h2 class="text-2xl font-bold text-slate-900 mb-1">Create New Account</h2>
+    <p class="text-sm text-slate-500">Join the research community. Free forever.</p>
 </div>
 
 <form method="POST" action="{{ route('register') }}" id="registerForm" novalidate>
@@ -18,22 +18,22 @@
         <input type="text" id="hp_website" name="hp_website" tabindex="-1" autocomplete="off" value="">
     </div>
 
-    {{-- ── SECTION 1: Data Pribadi ──────────────────────────────────────── --}}
+    {{-- ── SECTION 1: Personal Info ──────────────────────────────────────── --}}
     <div class="mb-6">
         <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
             <span class="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span>
-            Data Pribadi
+            Personal Information
         </h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-                <label for="first_name" class="block text-sm font-medium text-slate-700 mb-1">Nama Depan <span class="text-red-500">*</span></label>
+                <label for="first_name" class="block text-sm font-medium text-slate-700 mb-1">First Name <span class="text-red-500">*</span></label>
                 <input id="first_name" name="first_name" type="text" required autocomplete="given-name"
                        value="{{ old('first_name') }}"
                        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 @error('first_name') border-red-400 @enderror">
                 @error('first_name')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
-                <label for="last_name" class="block text-sm font-medium text-slate-700 mb-1">Nama Belakang <span class="text-red-500">*</span></label>
+                <label for="last_name" class="block text-sm font-medium text-slate-700 mb-1">Last Name <span class="text-red-500">*</span></label>
                 <input id="last_name" name="last_name" type="text" required autocomplete="family-name"
                        value="{{ old('last_name') }}"
                        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 @error('last_name') border-red-400 @enderror">
@@ -42,63 +42,63 @@
         </div>
     </div>
 
-    {{-- ── SECTION 2: Kontak & Institusi ──────────────────────────────────── --}}
+    {{-- ── SECTION 2: Contact & Institution ──────────────────────────────────── --}}
     <div class="mb-6 pt-5 border-t border-slate-100">
         <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
             <span class="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</span>
-            Kontak & Institusi
+            Contact &amp; Institution
         </h3>
         <div class="space-y-3">
             <div>
-                <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Alamat Email <span class="text-red-500">*</span></label>
+                <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email Address <span class="text-red-500">*</span></label>
                 <input id="email" name="email" type="email" required autocomplete="email"
                        value="{{ old('email') }}"
-                       placeholder="nama@institusi.ac.id"
+                       placeholder="name@institution.ac.id"
                        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 @error('email') border-red-400 @enderror">
                 @error('email')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <label for="affiliation" class="block text-sm font-medium text-slate-700 mb-1">
-                        Afiliasi / Institusi
-                        <span class="text-slate-400 font-normal">(opsional)</span>
+                        Affiliation / Institution
+                        <span class="text-slate-400 font-normal">(optional)</span>
                     </label>
                     <input id="affiliation" name="affiliation" type="text" autocomplete="organization"
                            value="{{ old('affiliation') }}"
-                           placeholder="Universitas / Lembaga Penelitian..."
+                           placeholder="University / Research Institution..."
                            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
                     <label for="country" class="block text-sm font-medium text-slate-700 mb-1">
-                        Negara
-                        <span class="text-slate-400 font-normal">(opsional)</span>
+                        Country
+                        <span class="text-slate-400 font-normal">(optional)</span>
                     </label>
                     <select id="country" name="country"
                             class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">— Pilih Negara —</option>
+                        <option value="">— Select Country —</option>
                         <option value="ID" {{ old('country', 'ID') === 'ID' ? 'selected' : '' }}>Indonesia</option>
                         <option value="MY" {{ old('country') === 'MY' ? 'selected' : '' }}>Malaysia</option>
-                        <option value="SG" {{ old('country') === 'SG' ? 'selected' : '' }}>Singapura</option>
-                        <option value="PH" {{ old('country') === 'PH' ? 'selected' : '' }}>Filipina</option>
+                        <option value="SG" {{ old('country') === 'SG' ? 'selected' : '' }}>Singapore</option>
+                        <option value="PH" {{ old('country') === 'PH' ? 'selected' : '' }}>Philippines</option>
                         <option value="TH" {{ old('country') === 'TH' ? 'selected' : '' }}>Thailand</option>
                         <option value="VN" {{ old('country') === 'VN' ? 'selected' : '' }}>Vietnam</option>
                         <option value="AU" {{ old('country') === 'AU' ? 'selected' : '' }}>Australia</option>
-                        <option value="NZ" {{ old('country') === 'NZ' ? 'selected' : '' }}>Selandia Baru</option>
-                        <option value="US" {{ old('country') === 'US' ? 'selected' : '' }}>Amerika Serikat</option>
-                        <option value="GB" {{ old('country') === 'GB' ? 'selected' : '' }}>Inggris</option>
-                        <option value="DE" {{ old('country') === 'DE' ? 'selected' : '' }}>Jerman</option>
-                        <option value="NL" {{ old('country') === 'NL' ? 'selected' : '' }}>Belanda</option>
-                        <option value="JP" {{ old('country') === 'JP' ? 'selected' : '' }}>Jepang</option>
-                        <option value="KR" {{ old('country') === 'KR' ? 'selected' : '' }}>Korea Selatan</option>
-                        <option value="CN" {{ old('country') === 'CN' ? 'selected' : '' }}>Tiongkok</option>
+                        <option value="NZ" {{ old('country') === 'NZ' ? 'selected' : '' }}>New Zealand</option>
+                        <option value="US" {{ old('country') === 'US' ? 'selected' : '' }}>United States</option>
+                        <option value="GB" {{ old('country') === 'GB' ? 'selected' : '' }}>United Kingdom</option>
+                        <option value="DE" {{ old('country') === 'DE' ? 'selected' : '' }}>Germany</option>
+                        <option value="NL" {{ old('country') === 'NL' ? 'selected' : '' }}>Netherlands</option>
+                        <option value="JP" {{ old('country') === 'JP' ? 'selected' : '' }}>Japan</option>
+                        <option value="KR" {{ old('country') === 'KR' ? 'selected' : '' }}>South Korea</option>
+                        <option value="CN" {{ old('country') === 'CN' ? 'selected' : '' }}>China</option>
                         <option value="IN" {{ old('country') === 'IN' ? 'selected' : '' }}>India</option>
-                        <option value="SA" {{ old('country') === 'SA' ? 'selected' : '' }}>Arab Saudi</option>
-                        <option value="EG" {{ old('country') === 'EG' ? 'selected' : '' }}>Mesir</option>
-                        <option value="ZA" {{ old('country') === 'ZA' ? 'selected' : '' }}>Afrika Selatan</option>
-                        <option value="BR" {{ old('country') === 'BR' ? 'selected' : '' }}>Brasil</option>
-                        <option value="CA" {{ old('country') === 'CA' ? 'selected' : '' }}>Kanada</option>
-                        <option value="FR" {{ old('country') === 'FR' ? 'selected' : '' }}>Prancis</option>
-                        <option value="IT" {{ old('country') === 'IT' ? 'selected' : '' }}>Italia</option>
+                        <option value="SA" {{ old('country') === 'SA' ? 'selected' : '' }}>Saudi Arabia</option>
+                        <option value="EG" {{ old('country') === 'EG' ? 'selected' : '' }}>Egypt</option>
+                        <option value="ZA" {{ old('country') === 'ZA' ? 'selected' : '' }}>South Africa</option>
+                        <option value="BR" {{ old('country') === 'BR' ? 'selected' : '' }}>Brazil</option>
+                        <option value="CA" {{ old('country') === 'CA' ? 'selected' : '' }}>Canada</option>
+                        <option value="FR" {{ old('country') === 'FR' ? 'selected' : '' }}>France</option>
+                        <option value="IT" {{ old('country') === 'IT' ? 'selected' : '' }}>Italy</option>
                         <option value="PK" {{ old('country') === 'PK' ? 'selected' : '' }}>Pakistan</option>
                         <option value="BD" {{ old('country') === 'BD' ? 'selected' : '' }}>Bangladesh</option>
                         <option value="NG" {{ old('country') === 'NG' ? 'selected' : '' }}>Nigeria</option>
@@ -108,14 +108,14 @@
         </div>
     </div>
 
-    {{-- ── SECTION 3: Profil Peneliti ──────────────────────────────────────── --}}
+    {{-- ── SECTION 3: Researcher Profile ──────────────────────────────────────── --}}
     <div class="mb-6 pt-5 border-t border-slate-100">
         <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-2">
             <span class="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold shrink-0">3</span>
-            Profil Peneliti
-            <span class="text-slate-400 font-normal normal-case text-xs">(opsional)</span>
+            Researcher Profile
+            <span class="text-slate-400 font-normal normal-case text-xs">(optional)</span>
         </h3>
-        <p class="text-xs text-slate-400 mb-4 ml-7">ORCID iD membantu menghubungkan karya ilmiah Anda secara global.</p>
+        <p class="text-xs text-slate-400 mb-4 ml-7">ORCID iD helps link your scholarly work globally.</p>
         <div>
             <label for="orcid" class="block text-sm font-medium text-slate-700 mb-1">ORCID iD</label>
             <div class="flex gap-2">
@@ -132,7 +132,7 @@
         </div>
     </div>
 
-    {{-- ── SECTION 4: Keamanan Akun ─────────────────────────────────────────── --}}
+    {{-- ── SECTION 4: Account Security ─────────────────────────────────────────── --}}
     <div class="mb-6 pt-5 border-t border-slate-100"
          x-data="{
             password: '',
@@ -150,7 +150,7 @@
                 return s;
             },
             get label() {
-                return ['', 'Sangat Lemah', 'Lemah', 'Sedang', 'Kuat', 'Sangat Kuat'][this.score] || '';
+                return ['', 'Very Weak', 'Weak', 'Fair', 'Strong', 'Very Strong'][this.score] || '';
             },
             get color() {
                 return ['', 'text-red-600', 'text-orange-500', 'text-yellow-600', 'text-blue-600', 'text-green-600'][this.score] || '';
@@ -161,11 +161,11 @@
          }">
         <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
             <span class="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold shrink-0">4</span>
-            Keamanan Akun
+            Account Security
         </h3>
         <div class="space-y-3">
             <div>
-                <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Kata Sandi <span class="text-red-500">*</span></label>
+                <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Password <span class="text-red-500">*</span></label>
                 <div class="relative">
                     <input id="password" name="password" :type="showPass ? 'text' : 'password'"
                            x-model="password"
@@ -191,15 +191,15 @@
                         </template>
                     </div>
                     <p class="text-xs" :class="color">
-                        Kekuatan kata sandi: <span class="font-medium" x-text="label"></span>
+                        Password strength: <span class="font-medium" x-text="label"></span>
                     </p>
                 </div>
-                <p class="mt-1 text-xs text-slate-400">Min. 8 karakter. Gunakan huruf besar, angka, dan simbol.</p>
+                <p class="mt-1 text-xs text-slate-400">Min. 8 characters. Use uppercase letters, numbers, and symbols.</p>
                 @error('password')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
             </div>
 
             <div>
-                <label for="password_confirmation" class="block text-sm font-medium text-slate-700 mb-1">Konfirmasi Kata Sandi <span class="text-red-500">*</span></label>
+                <label for="password_confirmation" class="block text-sm font-medium text-slate-700 mb-1">Confirm Password <span class="text-red-500">*</span></label>
                 <div class="relative">
                     <input id="password_confirmation" name="password_confirmation" :type="showConfirm ? 'text' : 'password'"
                            required autocomplete="new-password"
@@ -219,18 +219,18 @@
         </div>
     </div>
 
-    {{-- ── SECTION 5: Peran ─────────────────────────────────────────────────── --}}
+    {{-- ── SECTION 5: Register As ─────────────────────────────────────────────────── --}}
     <div class="mb-6 pt-5 border-t border-slate-100">
         <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
             <span class="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold shrink-0">5</span>
-            Daftar sebagai
+            Register as
         </h3>
         <div class="space-y-2">
             <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg bg-slate-50 cursor-not-allowed opacity-75">
                 <input type="checkbox" checked disabled class="mt-0.5 rounded text-blue-600">
                 <div>
-                    <p class="text-sm font-medium text-slate-700">Penulis</p>
-                    <p class="text-xs text-slate-500">Kirim naskah dan pantau proses review</p>
+                    <p class="text-sm font-medium text-slate-700">Author</p>
+                    <p class="text-xs text-slate-500">Submit manuscripts and track the review process</p>
                 </div>
                 <span class="ml-auto text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium shrink-0">Default</span>
             </label>
@@ -241,17 +241,17 @@
                        class="mt-0.5 rounded text-blue-600 focus:ring-blue-500">
                 <div>
                     <p class="text-sm font-medium text-slate-700">Reviewer</p>
-                    <p class="text-xs text-slate-500">Berpartisipasi sebagai mitra bestari untuk mengevaluasi naskah</p>
+                    <p class="text-xs text-slate-500">Participate as a peer reviewer to evaluate manuscripts</p>
                 </div>
             </label>
         </div>
     </div>
 
-    {{-- ── SECTION 6: Persetujuan Privasi ──────────────────────────────────── --}}
+    {{-- ── SECTION 6: Privacy Consent ──────────────────────────────────── --}}
     <div class="mb-6 pt-5 border-t border-slate-100">
         <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-4 text-xs text-slate-600 leading-relaxed max-h-28 overflow-y-auto">
-            <strong class="text-slate-800">Pernyataan Privasi</strong><br>
-            Nama dan alamat email yang Anda daftarkan di platform ini akan digunakan sepenuhnya untuk keperluan yang dinyatakan dan tidak akan disediakan untuk tujuan lain maupun pihak ketiga mana pun. Informasi yang Anda berikan akan digunakan sesuai dengan kebijakan privasi kami dan regulasi perlindungan data yang berlaku.
+            <strong class="text-slate-800">Privacy Statement</strong><br>
+            The name and email address you register on this platform will be used solely for the stated purposes and will not be shared with third parties or used for any other purpose. The information you provide will be handled in accordance with our privacy policy and applicable data protection regulations.
         </div>
         <label class="flex items-start gap-3 cursor-pointer">
             <input type="checkbox" name="privacy_consent" value="1"
@@ -259,7 +259,7 @@
                    required
                    class="mt-0.5 rounded text-blue-600 focus:ring-blue-500 @error('privacy_consent') ring-2 ring-red-400 @enderror">
             <span class="text-sm text-slate-700">
-                Ya, saya menyetujui pengumpulan dan penyimpanan data saya sesuai pernyataan privasi di atas. <span class="text-red-500">*</span>
+                Yes, I agree to the collection and storage of my data as described in the privacy statement above. <span class="text-red-500">*</span>
             </span>
         </label>
         @error('privacy_consent')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
@@ -268,7 +268,7 @@
     {{-- ── Submit ──────────────────────────────────────────────────────────── --}}
     @if($errors->any())
     <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
-        <p class="text-sm font-semibold text-red-800 mb-1">Mohon perbaiki kesalahan berikut:</p>
+        <p class="text-sm font-semibold text-red-800 mb-1">Please fix the following errors:</p>
         <ul class="space-y-0.5">
             @foreach($errors->all() as $error)
             <li class="text-sm text-red-700 flex items-start gap-1.5">
@@ -282,26 +282,26 @@
 
     <button type="submit"
             class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm">
-        Buat Akun
+        Create Account
     </button>
 
     @if(config('services.orcid.client_id'))
     <div class="relative my-4">
         <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200"></div></div>
-        <div class="relative flex justify-center"><span class="px-3 bg-white text-xs text-slate-400">atau daftar dengan</span></div>
+        <div class="relative flex justify-center"><span class="px-3 bg-white text-xs text-slate-400">or register with</span></div>
     </div>
     <a href="{{ route('orcid.redirect') }}"
        class="flex items-center justify-center gap-2 w-full py-2.5 px-4 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
         <img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="ORCID" class="w-4 h-4">
-        Daftar / Masuk dengan ORCID
+        Register / Sign in with ORCID
     </a>
     @endif
 </form>
 
 <div class="mt-6 pt-5 border-t border-slate-100 text-center">
     <p class="text-sm text-slate-500">
-        Sudah punya akun?
-        <a href="{{ route('login') }}" class="text-blue-600 font-medium hover:underline">Masuk</a>
+        Already have an account?
+        <a href="{{ route('login') }}" class="text-blue-600 font-medium hover:underline">Sign in</a>
     </p>
 </div>
 @endsection
