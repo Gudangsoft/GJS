@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full">
+<html lang="id" class="h-full overflow-x-hidden">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -292,7 +292,7 @@ $activeJournal = $managedJournals->firstWhere("id", $activeJournalId) ?? $manage
 
     {{-- MAIN --}}
     <main :class="sidebarOpen ? `lg:ml-60` : `lg:ml-16`"
-          class="flex-1 min-w-0 transition-all duration-200 overflow-x-hidden">
+          class="flex-1 min-w-0 transition-all duration-200">
         {{ $slot }}
     </main>
 

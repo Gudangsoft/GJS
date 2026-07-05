@@ -2,10 +2,10 @@
 
 {{-- ══ PAGE HEADER ════════════════════════════════════════════════════ --}}
 <div class="px-6 py-5 border-b border-slate-200 bg-white">
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-xl font-bold text-slate-900">Dashboard</h1>
-            <p class="text-sm text-slate-500 mt-0.5">Selamat datang, {{ auth()->user()->first_name }} — ringkasan aktivitas jurnal Anda.</p>
+    <div class="flex items-center justify-between gap-4 min-w-0">
+        <div class="min-w-0">
+            <h1 class="text-xl font-bold text-slate-900 truncate">Dashboard</h1>
+            <p class="text-sm text-slate-500 mt-0.5 truncate">Selamat datang, {{ auth()->user()->first_name }} — ringkasan aktivitas jurnal Anda.</p>
         </div>
         <a href="{{ route('manager.submissions') }}"
            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors">
