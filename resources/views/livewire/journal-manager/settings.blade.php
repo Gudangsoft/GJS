@@ -1,4 +1,4 @@
-<div style="background:#f6f8fb;min-height:100vh;">
+<div style="background:#f6f8fb;min-height:100vh;overflow-x:hidden;">
 
 <div class="px-6 py-5 border-b border-slate-200 bg-white">
     <div class="flex items-center justify-between">
@@ -22,7 +22,7 @@
     </div>
 </div>
 
-<div style="max-width:72rem;margin:0 auto;padding:1.5rem;">
+<div style="max-width:64rem;margin:0 auto;padding:1.5rem;width:100%;box-sizing:border-box;">
 
 @if(session('success'))
 <div class="mb-4 px-4 py-3 bg-green-50 border border-green-200 text-green-800 rounded-xl text-sm flex items-center gap-2">
@@ -119,7 +119,7 @@
                     <span class="text-xs font-semibold text-green-600">✓ Lengkap</span>
                     @endif
                 </div>
-                <div class="grid grid-cols-6 gap-x-4 gap-y-2">
+                <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-2">
                     @foreach($bulanNama as $num => $nama)
                     @php $checked = in_array($num, $publication_months); @endphp
                     <label class="flex items-center gap-1.5 cursor-pointer group">

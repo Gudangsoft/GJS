@@ -57,8 +57,9 @@ $activeJournal = $managedJournals->firstWhere("id", $activeJournalId) ?? $manage
     @if($activeJournal)
     @if($managedJournals->count() > 1)
     {{-- Dropdown switcher jurnal --}}
-    <div x-data="{ jOpen: false }" class="relative">
-        <button @click="jOpen = !jOpen"
+    <div x-data="{ jOpen: false }" @keydown.escape.window="jOpen = false" class="relative">
+        <div x-show="jOpen" @click="jOpen = false" style="display:none;position:fixed;inset:0;z-index:40;"></div>
+        <button @click.stop="jOpen = !jOpen"
                 class="flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-colors hover:bg-blue-800/50"
                 style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);">
             @if($activeJournal->logo)
@@ -75,7 +76,7 @@ $activeJournal = $managedJournals->firstWhere("id", $activeJournalId) ?? $manage
             </svg>
         </button>
 
-        <div x-show="jOpen" @click.outside="jOpen = false" x-cloak x-transition
+        <div x-show="jOpen" x-transition style="display:none;"
              class="absolute left-0 top-11 w-64 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50">
             <p class="px-3 pb-1.5 text-xs font-bold text-slate-400 uppercase tracking-widest">Jurnal yang Dikelola</p>
             @foreach($managedJournals as $jItem)
@@ -134,8 +135,11 @@ $activeJournal = $managedJournals->firstWhere("id", $activeJournalId) ?? $manage
     {{-- Notification Bell --}}
     <livewire:notification-bell />
 
-    <div x-data="{ open: false }" class="relative">
-        <button @click="open = !open" class="flex items-center gap-2 pl-2">
+    <div x-data="{ open: false }" @keydown.escape.window="open = false" class="relative">
+        {{-- Backdrop — klik di luar menutup dropdown --}}
+        <div x-show="open" @click="open = false" style="display:none;position:fixed;inset:0;z-index:40;"></div>
+
+        <button @click.stop="open = !open" class="flex items-center gap-2 pl-2 cursor-pointer">
             <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold">
                 {{ strtoupper(substr($user->first_name, 0, 1)) }}{{ strtoupper(substr($user->last_name ?? "", 0, 1)) }}
             </div>
@@ -144,9 +148,11 @@ $activeJournal = $managedJournals->firstWhere("id", $activeJournalId) ?? $manage
                 <p class="text-blue-300 text-xs leading-tight">{{ $user->roles->first()?->name }}</p>
             </div>
         </button>
-        <div x-show="open" @click.outside="open = false" x-cloak
-             class="absolute right-0 top-10 w-44 bg-white rounded-xl shadow-xl border border-slate-200 py-1 z-50">
-            <a href="{{ route("home") }}" class="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">
+
+        <div x-show="open" style="display:none;"
+             class="absolute right-0 top-11 w-44 bg-white rounded-xl shadow-xl border border-slate-200 py-1 z-50">
+            <a href="{{ route("home") }}" @click="open = false"
+               class="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">
                 <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 Beranda Portal
             </a>

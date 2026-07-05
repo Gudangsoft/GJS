@@ -6,7 +6,7 @@
     <p class="text-sm text-slate-500 mt-0.5">Kelola proses copy editing untuk submission yang telah diterima.</p>
 </div>
 
-<div style="max-width:72rem;margin:0 auto;padding:1.5rem;">
+<div style="max-width:64rem;margin:0 auto;padding:1.5rem;width:100%;box-sizing:border-box;">
 
 @if(session('success'))
 <div class="mb-4 px-4 py-3 rounded-xl bg-green-50 border border-green-200 text-green-800 text-sm font-medium">

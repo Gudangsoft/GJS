@@ -7,7 +7,7 @@
     </div>
 </div>
 
-<div style="max-width:72rem;margin:0 auto;padding:1.5rem;">
+<div style="max-width:64rem;margin:0 auto;padding:1.5rem;width:100%;box-sizing:border-box;">
 
 @if($journal)
 
