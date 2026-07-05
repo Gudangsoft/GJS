@@ -173,6 +173,11 @@ class Settings extends Component
         if (!$this->journal) return;
         $this->journalId = $this->journal->id;
 
+        // Force the journal's primary locale so Spatie Translatable returns real data
+        // even when the manager UI is set to a different locale (e.g. 'en').
+        $journalLocale = $this->journal->primary_locale ?? 'id';
+        \App::setLocale($journalLocale);
+
         $j = $this->journal;
         $this->name                  = $j->name ?? '';
         $this->name_abbrev           = $j->name_abbrev ?? '';
@@ -358,7 +363,17 @@ class Settings extends Component
     public function save(): void
     {
         $this->validate();
-        if (!$this->journal) return;
+
+        // Re-fetch from journalId if Livewire model deserialization failed
+        if (!$this->journal && $this->journalId > 0) {
+            $this->journal = Journal::find($this->journalId);
+        }
+        if (!$this->journal) {
+            $this->dispatch('toast', message: 'Error: Jurnal tidak ditemukan. Coba reload halaman.', type: 'error');
+            return;
+        }
+
+        try {
 
         $updateData = [
             'name'                  => $this->name,
@@ -491,9 +506,17 @@ class Settings extends Component
             'custom_menu_items'       => $this->custom_menu_items,
         ]);
 
-        try {
+            // Save in the journal's primary locale so Spatie Translatable writes
+            // to the correct locale key regardless of the manager's UI locale.
+            \App::setLocale($this->primary_locale ?: 'id');
             $this->journal->update($updateData);
+
         } catch (\Throwable $e) {
+            \Log::error('Settings::save failed', [
+                'journal_id' => $this->journalId,
+                'error'      => $e->getMessage(),
+                'file'       => $e->getFile() . ':' . $e->getLine(),
+            ]);
             $this->dispatch('toast', message: 'Gagal menyimpan: ' . $e->getMessage(), type: 'error');
             return;
         }
