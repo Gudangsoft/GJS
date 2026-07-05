@@ -164,7 +164,6 @@
                             @if($issue->title)<p class="text-xs text-slate-400">{{ $issue->title }}</p>@endif
                         </div>
                     </div>
-                    </div>
                     @if($issue->current)<span class="ml-13 text-xs font-bold text-blue-600">Terkini</span>@endif
                 </td>
                 <td class="px-5 py-3.5 text-slate-600">
