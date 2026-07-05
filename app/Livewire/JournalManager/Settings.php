@@ -279,7 +279,7 @@ class Settings extends Component
             'issn_print'            => 'nullable|string|max:20',
             'issn_online'           => 'nullable|string|max:20',
             'publisher'             => 'nullable|string|max:255',
-            'url'                   => 'nullable|url|max:255',
+            'url'                   => 'nullable|string|max:255',
             'publication_frequency' => 'nullable|string|max:255',
             'primary_locale'        => 'nullable|string|max:10',
             'email'                 => 'nullable|email|max:255',
@@ -338,7 +338,7 @@ class Settings extends Component
             'newCoverImage'         => 'nullable|image|max:2048',
             'newFavicon'            => 'nullable|image|max:512',
             'publication_months'      => 'nullable|array',
-            'publication_months.*'    => 'integer|between:1,12',
+            'publication_months.*'    => 'nullable|integer|between:1,12',
             'publication_freq_count'  => 'nullable|integer|in:1,2,3,4,6,12',
             'newHeaderBanner'       => 'nullable|image|max:4096',
             'new_indexer_logo'      => 'nullable|image|max:2048',
@@ -459,7 +459,7 @@ class Settings extends Component
         $monthNames = [1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',5=>'Mei',6=>'Juni',
                        7=>'Juli',8=>'Agustus',9=>'September',10=>'Oktober',11=>'November',12=>'Desember'];
         $freqLabels = [1=>'Tahunan',2=>'Semesteran',3=>'3x Setahun',4=>'Kuartalan',6=>'2 Bulanan',12=>'Bulanan'];
-        $selectedMonths = array_values(array_filter($this->publication_months));
+        $selectedMonths = array_values(array_filter(array_map('intval', $this->publication_months)));
         sort($selectedMonths);
         // Trim jika melebihi limit yang dipilih
         $selectedMonths = array_slice($selectedMonths, 0, $this->publication_freq_count);
@@ -491,7 +491,12 @@ class Settings extends Component
             'custom_menu_items'       => $this->custom_menu_items,
         ]);
 
-        $this->journal->update($updateData);
+        try {
+            $this->journal->update($updateData);
+        } catch (\Throwable $e) {
+            $this->dispatch('toast', message: 'Gagal menyimpan: ' . $e->getMessage(), type: 'error');
+            return;
+        }
 
         $this->dispatch('toast', message: 'Pengaturan jurnal berhasil disimpan.', type: 'success');
     }
