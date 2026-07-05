@@ -10,7 +10,7 @@
     @livewireStyles
     @vite(["resources/css/app.css", "resources/js/app.js"])
 </head>
-<body class="h-full bg-slate-100 antialiased text-slate-800" x-data="{ sidebarOpen: true, mobileOpen: false }">
+<body class="h-full bg-slate-100 antialiased text-slate-800 overflow-x-hidden" x-data="{ sidebarOpen: true, mobileOpen: false }">
 
 @php
 $user = auth()->user();
@@ -169,7 +169,7 @@ $activeJournal = $managedJournals->firstWhere("id", $activeJournalId) ?? $manage
 </header>
 
 {{-- LAYOUT --}}
-<div class="flex pt-14 min-h-screen">
+<div class="flex pt-14 min-h-screen overflow-x-hidden">
 
     {{-- Mobile overlay --}}
     <div x-show="mobileOpen" @click="mobileOpen = false" x-cloak
