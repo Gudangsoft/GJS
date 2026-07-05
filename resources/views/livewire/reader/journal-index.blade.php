@@ -302,7 +302,7 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
 
 /* ── Journal card hover ─────────────────────────────────────────── */
 .gjs-jcard:hover { transform:translateY(-3px);box-shadow:0 12px 36px rgba(0,0,0,.11) !important; }
-.gjs-jcard:hover .gjs-jcard-img { transform:scale(1.05); }
+.gjs-jcard:hover .gjs-jcard-img { opacity:.95; }
 
 /* ── Recent articles — prevent overflow ────────────────────────── */
 @media(max-width:640px){
@@ -355,7 +355,7 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
             <img src="{{ asset('storage/' . $journal->cover_image) }}"
                  alt="Cover {{ $journal->name }}"
                  class="gjs-jcard-img"
-                 style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s ease;">
+                 style="width:100%;height:100%;object-fit:contain;display:block;transition:transform .4s ease;background:#f8fafc;">
             @elseif($journal->logo)
             {{-- Logo centered on gradient bg --}}
             <div style="width:100%;height:100%;background:linear-gradient(145deg,{{ $clr }}18,{{ $clr }}08);display:flex;align-items:center;justify-content:center;">
@@ -484,7 +484,7 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
 
 <style>
 .gjs-jcard:hover { transform:translateY(-3px);box-shadow:0 12px 36px rgba(0,0,0,.11) !important; }
-.gjs-jcard:hover .gjs-jcard-img { transform:scale(1.05); }
+.gjs-jcard:hover .gjs-jcard-img { opacity:.95; }
 </style>
 
 {{-- ═══ RECENT ARTICLES ═══ --}}
