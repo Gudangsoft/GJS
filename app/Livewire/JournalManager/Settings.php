@@ -536,6 +536,8 @@ class Settings extends Component
 
         $logo = null;
         if ($this->new_indexer_logo) {
+            $scan = app(FileScannerService::class)->scan($this->new_indexer_logo);
+            if (! $scan['ok']) { $this->addError('new_indexer_logo', $scan['reason']); return; }
             $logo = $this->new_indexer_logo->store('journals/indexers', 'public');
             $this->new_indexer_logo = null;
         }
@@ -568,6 +570,8 @@ class Settings extends Component
 
         $logo = null;
         if ($this->new_sponsor_logo) {
+            $scan = app(FileScannerService::class)->scan($this->new_sponsor_logo);
+            if (! $scan['ok']) { $this->addError('new_sponsor_logo', $scan['reason']); return; }
             $logo = $this->new_sponsor_logo->store('journals/sponsors', 'public');
             $this->new_sponsor_logo = null;
         }
