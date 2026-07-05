@@ -273,6 +273,9 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
 
 /* ── Journal grid ───────────────────────────────────────────────── */
 @media(max-width:640px){
+    .ji-jgrid { grid-template-columns:repeat(2,1fr) !important; gap:1rem !important; }
+}
+@media(max-width:360px){
     .ji-jgrid { grid-template-columns:1fr !important; }
 }
 
@@ -349,7 +352,7 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
 
         {{-- ── COVER (full width, portrait feel via background) ─────────── --}}
         <a href="{{ route('journals.home', $journal->slug) }}"
-           style="display:block;position:relative;background:#f0f2f5;overflow:hidden;height:220px;flex-shrink:0;">
+           style="display:block;position:relative;background:#f0f2f5;overflow:hidden;aspect-ratio:3/4;flex-shrink:0;">
 
             @if($journal->cover_image)
             <img src="{{ asset('storage/' . $journal->cover_image) }}"
