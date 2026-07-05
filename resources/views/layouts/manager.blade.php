@@ -9,8 +9,20 @@
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700&display=swap" rel="stylesheet">
     @livewireStyles
     @vite(["resources/css/app.css", "resources/js/app.js"])
+    {{-- Default layout: sidebar open at desktop width. Overridden when body gets .sidebar-collapsed.
+         This ensures correct layout BEFORE Alpine.js initializes (prevents sidebar overlap flash). --}}
+    <style>
+    @media (min-width: 1024px) {
+        #mgr-sidebar { width: 15rem; }
+        #mgr-main   { margin-left: 15rem; }
+    }
+    @media (min-width: 1024px) {
+        body.sidebar-collapsed #mgr-sidebar { width: 4rem !important; }
+        body.sidebar-collapsed #mgr-main   { margin-left: 4rem !important; }
+    }
+    </style>
 </head>
-<body class="h-full bg-slate-100 antialiased text-slate-800 overflow-x-hidden" x-data="{ sidebarOpen: true, mobileOpen: false }">
+<body :class="{ 'sidebar-collapsed': !sidebarOpen }" class="h-full bg-slate-100 antialiased text-slate-800 overflow-x-hidden" x-data="{ sidebarOpen: true, mobileOpen: false }">
 
 @php
 $user = auth()->user();
@@ -176,7 +188,7 @@ $activeJournal = $managedJournals->firstWhere("id", $activeJournalId) ?? $manage
          class="fixed inset-0 bg-black/50 z-30 lg:hidden"></div>
 
     {{-- SIDEBAR DESKTOP --}}
-    <aside :class="sidebarOpen ? `w-60` : `w-16`"
+    <aside id="mgr-sidebar"
            class="fixed top-14 bottom-0 left-0 z-40 flex flex-col flex-shrink-0 overflow-y-auto overflow-x-hidden transition-all duration-200 hidden lg:flex"
            style="background:#1e293b;">
 
@@ -291,7 +303,7 @@ $activeJournal = $managedJournals->firstWhere("id", $activeJournalId) ?? $manage
     </aside>
 
     {{-- MAIN --}}
-    <main :class="sidebarOpen ? `lg:ml-60` : `lg:ml-16`"
+    <main id="mgr-main"
           class="flex-1 min-w-0 transition-all duration-200">
         {{ $slot }}
     </main>
