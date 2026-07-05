@@ -272,7 +272,10 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
 }
 
 /* ── Journal grid ───────────────────────────────────────────────── */
-@media(max-width:640px){
+@media(max-width:1024px){
+    .ji-jgrid { grid-template-columns:repeat(3,1fr) !important; }
+}
+@media(max-width:768px){
     .ji-jgrid { grid-template-columns:repeat(2,1fr) !important; gap:1rem !important; }
 }
 @media(max-width:360px){
@@ -336,8 +339,8 @@ $trustLabel  = \App\Models\Setting::get('hero.trust_bar_label', 'Indexed &amp; L
     </div>
 
 
-    {{-- Journal grid — 2 kolom vertikal --}}
-    <div class="ji-jgrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;align-items:start;">
+    {{-- Journal grid — 4 kolom --}}
+    <div class="ji-jgrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;align-items:start;">
     @forelse($journals as $i => $journal)
     @php
         $clr          = $colors[$i % count($colors)];
