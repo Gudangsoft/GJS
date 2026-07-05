@@ -2,7 +2,7 @@
 
     {{-- Bell button --}}
     <button wire:click="toggle"
-            class="relative flex items-center justify-center w-9 h-9 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+            class="relative flex items-center justify-center w-9 h-9 rounded-lg text-blue-200 hover:text-white hover:bg-blue-800 transition-colors focus:outline-none"
             aria-label="Notifikasi">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -111,7 +111,7 @@
 
         {{-- Footer --}}
         <div class="border-t border-slate-100 px-4 py-2.5">
-            <a href="/notifications"
+            <a href="{{ route('notifications.index') }}"
                class="block text-center text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors">
                 Lihat semua notifikasi
             </a>

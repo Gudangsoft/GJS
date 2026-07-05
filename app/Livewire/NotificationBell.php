@@ -14,7 +14,11 @@ class NotificationBell extends Component
     public function mount(): void
     {
         if (Auth::check()) {
-            $this->unreadCount = Auth::user()->unreadNotifications()->count();
+            try {
+                $this->unreadCount = Auth::user()->unreadNotifications()->count();
+            } catch (\Throwable) {
+                $this->unreadCount = 0;
+            }
         }
     }
 
@@ -68,18 +72,22 @@ class NotificationBell extends Component
             return;
         }
 
-        $this->notifications = Auth::user()
-            ->notifications()
-            ->latest()
-            ->limit(10)
-            ->get()
-            ->map(fn ($n) => [
-                'id'        => $n->id,
-                'data'      => $n->data,
-                'read_at'   => $n->read_at,
-                'read'      => ! is_null($n->read_at),
-                'time'      => $n->created_at->diffForHumans(),
-            ])
-            ->toArray();
+        try {
+            $this->notifications = Auth::user()
+                ->notifications()
+                ->latest()
+                ->limit(10)
+                ->get()
+                ->map(fn ($n) => [
+                    'id'        => $n->id,
+                    'data'      => $n->data,
+                    'read_at'   => $n->read_at,
+                    'read'      => ! is_null($n->read_at),
+                    'time'      => $n->created_at->diffForHumans(),
+                ])
+                ->toArray();
+        } catch (\Throwable) {
+            $this->notifications = [];
+        }
     }
 }
