@@ -376,7 +376,7 @@ $tabErrors = [
                         ['gradient', 'Gradien',        '🌈'],
                         ['image',    'Gambar/Banner',  '🖼️'],
                     ] as [$val, $lbl, $ico])
-                    <button type="button" wire:click="$set('header_bg_type','{{ $val }}')" x-on:click="bgType='{{ $val }}'"
+                    <button type="button" x-on:click="bgType='{{ $val }}'"
                             class="flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-xs font-semibold transition-all"
                             :class="bgType==='{{ $val }}' ? 'border-purple-500 bg-purple-50 text-purple-700' : 'border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50'">
                         <span>{{ $ico }}</span><span>{{ $lbl }}</span>
@@ -393,18 +393,18 @@ $tabErrors = [
                         <span x-show="bgType==='color'">Warna Background</span>
                     </label>
                     <div class="flex gap-2">
-                        <input type="color" wire:model.live="header_bg_color" x-model="bgColor"
+                        <input type="color" x-model="bgColor"
                                class="w-10 h-10 rounded-lg border border-slate-200 cursor-pointer p-0.5 shrink-0">
-                        <input type="text" wire:model.live="header_bg_color" x-model="bgColor" placeholder="#1e3a8a"
+                        <input type="text" x-model="bgColor" placeholder="#1e3a8a"
                                class="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono">
                     </div>
                 </div>
                 <div x-show="bgType==='gradient'">
                     <label class="block text-xs font-semibold text-slate-600 mb-1.5">Warna Akhir</label>
                     <div class="flex gap-2">
-                        <input type="color" wire:model.live="header_bg_color2" x-model="bgColor2"
+                        <input type="color" x-model="bgColor2"
                                class="w-10 h-10 rounded-lg border border-slate-200 cursor-pointer p-0.5 shrink-0">
-                        <input type="text" wire:model.live="header_bg_color2" x-model="bgColor2" placeholder="#4338ca"
+                        <input type="text" x-model="bgColor2" placeholder="#4338ca"
                                class="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono">
                     </div>
                 </div>
@@ -420,7 +420,7 @@ $tabErrors = [
                         ['#1e293b','#334155'],['#000000','#1e293b'],
                     ] as [$c1,$c2])
                     <button type="button"
-                            x-on:click="bgColor='{{ $c1 }}';bgColor2='{{ $c2 }}';$wire.set('header_bg_color','{{ $c1 }}');$wire.set('header_bg_color2','{{ $c2 }}')"
+                            x-on:click="bgColor='{{ $c1 }}';bgColor2='{{ $c2 }}'"
                             class="w-8 h-8 rounded-lg border-2 border-white shadow-sm ring-1 ring-slate-200 hover:scale-110 transition-transform"
                             style="background:linear-gradient(135deg,{{ $c1 }},{{ $c2 }})"></button>
                     @endforeach
@@ -450,7 +450,7 @@ $tabErrors = [
             {{-- Teks Terang --}}
             <div x-show="bgType!=='default'"
                  class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
-                <button type="button" wire:click="$toggle('header_text_light')"
+                <button type="button"
                         x-on:click="textLight=!textLight"
                         class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
                         :class="textLight ? 'bg-purple-500' : 'bg-slate-300'">
@@ -466,7 +466,7 @@ $tabErrors = [
             {{-- Tagline --}}
             <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1">Tagline / Slogan <span class="text-slate-400 font-normal">(opsional)</span></label>
-                <input wire:model.live="header_tagline" x-model="tagline" type="text"
+                <input x-model="tagline" type="text"
                        placeholder="Contoh: Jurnal Ilmiah Bidang Kesehatan Masyarakat"
                        class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
             </div>
@@ -547,7 +547,7 @@ $tabErrors = [
         </div>
         <div class="p-5 space-y-4">
             <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
-                <input wire:model="announcements_enabled" type="checkbox" class="w-4 h-4 rounded text-green-600">
+                <input wire:model.live="announcements_enabled" type="checkbox" class="w-4 h-4 rounded text-green-600">
                 <div>
                     <p class="text-sm font-semibold text-slate-800">Aktifkan Fitur Pengumuman</p>
                     <p class="text-xs text-slate-500">Tampilkan pengumuman di beranda jurnal</p>
@@ -871,7 +871,7 @@ $tabErrors = [
         </div>
         <div class="p-5 space-y-4">
             <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
-                <input wire:model="apc_enabled" type="checkbox" class="w-4 h-4 mt-0.5 rounded text-orange-500">
+                <input wire:model.live="apc_enabled" type="checkbox" class="w-4 h-4 mt-0.5 rounded text-orange-500">
                 <div>
                     <p class="text-sm font-semibold text-slate-800">Article Processing Charge (APC)</p>
                     <p class="text-xs text-slate-500">Aktifkan jika jurnal memungut biaya dari penulis</p>
