@@ -17,11 +17,12 @@ class SecurityHeaders
     {
         $response = $next($request);
 
-        // 'unsafe-eval' removed — Alpine.js + Livewire work without it.
+        // 'unsafe-eval' required — Livewire bundles Alpine.js, which compiles
+        // x-data/@click/x-show expressions via `new Function()` at runtime.
         // 'unsafe-inline' retained for scripts/styles until nonce-based CSP is rolled out.
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' blob:",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:",
             "style-src 'self' 'unsafe-inline' fonts.googleapis.com fonts.bunny.net",
             "font-src 'self' fonts.gstatic.com fonts.bunny.net data:",
             "img-src 'self' data: blob: https:",
