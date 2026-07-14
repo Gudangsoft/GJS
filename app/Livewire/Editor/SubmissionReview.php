@@ -115,7 +115,10 @@ class SubmissionReview extends Component
 
         $this->validateOnly('acceptMessage');
 
-        $this->submission->update(['status' => 'accepted_for_review']);
+        $this->submission->update([
+            'status'            => 'accepted_for_review',
+            'screening_message' => $this->acceptMessage ?: null,
+        ]);
         $this->submission->refresh();
 
         Mail::to($this->submission->submitter->email)

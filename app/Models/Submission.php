@@ -21,7 +21,7 @@ class Submission extends Model
     ];
 
     protected $fillable = [
-        'journal_id', 'section_id', 'user_id', 'status',
+        'journal_id', 'section_id', 'user_id', 'status', 'screening_message',
         'title', 'subtitle', 'abstract', 'keywords',
         'disciplines', 'subjects', 'languages', 'cover_letter_file',
         'locale', 'doi', 'submission_type', 'hide_author',

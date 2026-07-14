@@ -144,6 +144,23 @@ $totalRounds = $submission->reviewRounds->count();
 </div>
 </div>
 
+{{-- ══ Pesan Editor (Skrining Awal) ════════════════════════════════════ --}}
+@if($submission->screening_message)
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+    <div class="rounded-2xl border overflow-hidden" style="border-color:#bae6fd;background:#f0f9ff;">
+        <div class="flex items-start gap-4 p-5">
+            <div class="w-10 h-10 rounded-xl border flex items-center justify-center shrink-0" style="background:#e0f2fe;border-color:#bae6fd;">
+                <svg class="w-5 h-5" style="color:#0369a1;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            </div>
+            <div class="flex-1">
+                <p class="font-bold text-sm" style="color:#0c4a6e;">Pesan </p>
+                <p class="text-sm mt-1 leading-relaxed" style="color:#0369a1;">{{ $submission->screening_message }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 {{-- ══ AKSI MENDESAK (Revisi Required) ═══════════════════════════════ --}}
 @if($submission->status === 'revision_required')
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">

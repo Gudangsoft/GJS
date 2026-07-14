@@ -45,7 +45,7 @@
 
         @if($message)
         <div class="message-box">
-            <strong>Pesan dari Editor:</strong><br>
+            <strong>Pesan:</strong><br>
             {{ $message }}
         </div>
         @endif
