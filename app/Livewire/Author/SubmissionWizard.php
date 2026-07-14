@@ -168,6 +168,7 @@ class SubmissionWizard extends Component
             }
 
             $mime         = $this->manuscriptFile->getMimeType();
+            $size         = $this->manuscriptFile->getSize();
             $originalName = $this->sanitizeFilename($this->manuscriptFile->getClientOriginalName());
             $storedName   = $this->manuscriptFile->hashName();
             $path         = $this->manuscriptFile->storeAs(
@@ -184,7 +185,7 @@ class SubmissionWizard extends Component
                 'stored_file_name'  => $storedName,
                 'path'              => $path,
                 'mime_type'         => $mime,
-                'file_size'         => $this->manuscriptFile->getSize(),
+                'file_size'         => $size,
                 'revision'          => 1,
                 'genre'             => 'Article Text',
                 'viewable'          => true,

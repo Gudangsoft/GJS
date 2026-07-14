@@ -1,4 +1,5 @@
-<div x-data="{ assignModal: false, decisionModal: false, openReview: null }">
+<div x-data="{ assignModal: false, decisionModal: false, openReview: null }"
+     x-on:close-decision-modal.window="decisionModal = false">
 
 {{-- Header --}}
 <div style="background:linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 100%);padding:2rem 1.5rem;">
@@ -545,7 +546,7 @@
                         ['value'=>'declined',          'label'=>'Tolak',         'color'=>'#dc2626','bg'=>'#fff1f2','border'=>'#fca5a5'],
                     ] as $opt)
                     <label class="cursor-pointer">
-                        <input type="radio" wire:model="decision" value="{{ $opt['value'] }}" class="sr-only">
+                        <input type="radio" wire:model.live="decision" value="{{ $opt['value'] }}" class="sr-only">
                         <div class="text-center py-2.5 rounded-xl text-sm font-bold border-2 transition-all"
                              style="{{ $decision === $opt['value'] ? 'background:'.$opt['bg'].';border-color:'.$opt['color'].';color:'.$opt['color'] : 'background:#f8fafc;border-color:#e2e8f0;color:#94a3b8' }}">
                             {{ $opt['label'] }}
