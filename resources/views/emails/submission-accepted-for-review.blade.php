@@ -17,6 +17,7 @@
         .card dt { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-bottom: 3px; }
         .card dd { font-size: 14px; font-weight: 600; color: #1e293b; margin: 0 0 12px; }
         .card dd:last-child { margin-bottom: 0; }
+        .message-box { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 14px 18px; margin: 16px 0; font-size: 14px; color: #0369a1; line-height: 1.6; }
         .footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 18px 32px; font-size: 12px; color: #94a3b8; text-align: center; }
     </style>
 </head>
@@ -41,6 +42,13 @@
                 <dd>{{ $submission->journal->name }}</dd>
             </dl>
         </div>
+
+        @if($message)
+        <div class="message-box">
+            <strong>Pesan dari Editor:</strong><br>
+            {{ $message }}
+        </div>
+        @endif
 
         <p>Anda dapat memantau perkembangan naskah kapan saja melalui Dashboard Penulis.</p>
 

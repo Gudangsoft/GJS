@@ -41,6 +41,10 @@ class SubmissionReview extends Component
     #[Validate('required|min:10')]
     public string $decisionMessage = '';
 
+    // Accept-for-review form
+    #[Validate('nullable|string|max:1000')]
+    public string $acceptMessage = '';
+
     public function mount(Submission $submission): void
     {
         $user = auth()->user();
@@ -109,11 +113,15 @@ class SubmissionReview extends Component
     {
         abort_unless(in_array($this->submission->status, ['submitted', 'queued']), 403);
 
+        $this->validateOnly('acceptMessage');
+
         $this->submission->update(['status' => 'accepted_for_review']);
         $this->submission->refresh();
 
         Mail::to($this->submission->submitter->email)
-            ->queue(new SubmissionAcceptedForReview($this->submission));
+            ->queue(new SubmissionAcceptedForReview($this->submission, $this->acceptMessage));
+
+        $this->acceptMessage = '';
 
         session()->flash('success', 'Naskah diterima dan masuk ke tahap review.');
     }
@@ -127,6 +135,8 @@ class SubmissionReview extends Component
 
     public function makeDecision(): void
     {
+        abort_if(in_array($this->submission->status, ['submitted', 'queued', 'accepted_for_review']), 403);
+
         $this->validateOnly('decision');
         $this->validateOnly('decisionMessage');
 

@@ -251,20 +251,7 @@
             @endif
 
             {{-- Review Assignments --}}
-            @if(in_array($submission->status, ['submitted', 'queued']))
-            <div class="rounded-2xl p-6 text-center" style="background:#fff;border:1px solid #e2e8f0;">
-                <svg class="w-10 h-10 mx-auto mb-3" style="color:#2563eb;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                <h2 class="font-bold text-sm uppercase tracking-wide mb-1" style="color:#64748b;">Skrining Awal</h2>
-                <p class="text-sm mb-4" style="color:#94a3b8;">Naskah ini belum diterima ke tahap review. Tugaskan reviewer baru bisa dilakukan setelah naskah diterima.</p>
-                <button wire:click="acceptForReview"
-                        wire:confirm="Terima naskah ini untuk masuk ke tahap review?"
-                        class="inline-flex items-center gap-1.5 text-sm font-bold rounded-xl px-4 py-2.5 text-white transition-opacity hover:opacity-90"
-                        style="background:linear-gradient(135deg,#2563eb,#059669);">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    Terima Naskah untuk Review
-                </button>
-            </div>
-            @else
+            @if(!in_array($submission->status, ['submitted', 'queued']))
             <div class="rounded-2xl p-6" style="background:#fff;border:1px solid #e2e8f0;">
                 <div class="flex items-center justify-between mb-5">
                     <h2 class="font-bold text-sm uppercase tracking-wide" style="color:#64748b;">Penugasan Reviewer</h2>
@@ -380,11 +367,37 @@
         {{-- Sidebar --}}
         <div class="w-full lg:w-80 shrink-0 space-y-4">
 
+            {{-- Skrining Awal --}}
+            @if(in_array($submission->status, ['submitted', 'queued']))
+            <div class="rounded-2xl p-5 text-center" style="background:#fff;border:1px solid #e2e8f0;">
+                <svg class="w-10 h-10 mx-auto mb-3" style="color:#2563eb;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                <h3 class="font-bold text-sm uppercase tracking-wide mb-1" style="color:#64748b;">Skrining Awal</h3>
+                <p class="text-sm mb-3" style="color:#94a3b8;">Naskah ini belum diterima ke tahap review. Tugaskan reviewer baru bisa dilakukan setelah naskah diterima.</p>
+                <div class="text-left mb-3">
+                    <textarea wire:model="acceptMessage" rows="3" maxlength="1000"
+                              placeholder="Pesan singkat untuk penulis"
+                              class="w-full rounded-lg border px-3 py-2 text-sm resize-none"
+                              style="border-color:#d1d5db;color:#0f172a;"></textarea>
+                    @error('acceptMessage') <p class="text-xs mt-1" style="color:#dc2626;">{{ $message }}</p> @enderror
+                </div>
+                <button wire:click="acceptForReview"
+                        class="w-full inline-flex items-center justify-center gap-1.5 text-sm font-bold rounded-xl px-4 py-2.5 text-white transition-opacity hover:opacity-90"
+                        style="background:linear-gradient(135deg,#2563eb,#059669);">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    Terima Naskah untuk Review
+                </button>
+            </div>
+            @endif
+
             {{-- Decision Card --}}
+            @php
+                $decisionMade = in_array($submission->status, ['accepted','declined','revision_required']);
+                $canDecide    = $decisionMade || !in_array($submission->status, ['submitted','queued','accepted_for_review']);
+            @endphp
             <div class="rounded-2xl p-5" style="background:#fff;border:1px solid #e2e8f0;">
                 <h3 class="font-bold text-sm uppercase tracking-wide mb-4" style="color:#64748b;">Keputusan Editorial</h3>
 
-                @if(in_array($submission->status, ['accepted','declined','revision_required']))
+                @if($decisionMade)
                 @php $dMap = ['accepted'=>['Disetujui','#059669','#f0fdf4'],'declined'=>['Ditolak','#dc2626','#fff1f2'],'revision_required'=>['Perlu Revisi','#d97706','#fffbeb']]; $dm = $dMap[$submission->status]; @endphp
                 <div class="text-center py-4 rounded-xl mb-3" style="background:{{ $dm[2] }};border:1px solid {{ $dm[1] }}22;">
                     <p class="font-bold" style="color:{{ $dm[1] }};">{{ $dm[0] }}</p>
@@ -392,11 +405,15 @@
                 </div>
                 @endif
 
-                <button @click="decisionModal = true"
-                        class="w-full py-2.5 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90"
+                <button @click="{{ $canDecide ? 'decisionModal = true' : '' }}"
+                        @disabled(!$canDecide)
+                        class="w-full py-2.5 rounded-xl text-sm font-bold text-white transition-opacity {{ $canDecide ? 'hover:opacity-90' : 'opacity-40 cursor-not-allowed' }}"
                         style="background:linear-gradient(135deg,#1e40af,#7c3aed);">
-                    {{ in_array($submission->status, ['accepted','declined','revision_required']) ? 'Ubah Keputusan' : 'Buat Keputusan' }}
+                    {{ $decisionMade ? 'Ubah Keputusan' : ($canDecide ? 'Buat Keputusan' : 'Tugaskan Reviewer Dahulu') }}
                 </button>
+                @unless($canDecide)
+                <p class="text-xs mt-2 text-center" style="color:#94a3b8;">Tugaskan minimal satu reviewer sebelum membuat keputusan editorial.</p>
+                @endunless
             </div>
 
             {{-- Timeline --}}

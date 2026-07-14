@@ -16,6 +16,7 @@ class SubmissionAcceptedForReview extends Mailable implements ShouldQueue
 
     public function __construct(
         public Submission $submission,
+        public string $message = '',
     ) {}
 
     public function envelope(): Envelope
