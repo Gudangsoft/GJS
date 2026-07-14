@@ -65,11 +65,12 @@
         $statusMap = [
             'submitted'         => ['label'=>'Submitted',      'color'=>'#2563eb','bg'=>'#eff6ff'],
             'queued'            => ['label'=>'Antrian',        'color'=>'#0891b2','bg'=>'#ecfeff'],
+            'accepted_for_review' => ['label'=>'Diterima',     'color'=>'#059669','bg'=>'#f0fdf4'],
             'assigned'          => ['label'=>'Ditugaskan',     'color'=>'#d97706','bg'=>'#fffbeb'],
             'review'            => ['label'=>'Dalam Review',   'color'=>'#7c3aed','bg'=>'#faf5ff'],
             'revision_required' => ['label'=>'Revisi',         'color'=>'#dc2626','bg'=>'#fff1f2'],
             'resubmit'          => ['label'=>'Resubmit',       'color'=>'#dc2626','bg'=>'#fff1f2'],
-            'accepted'          => ['label'=>'Diterima ✓',     'color'=>'#059669','bg'=>'#f0fdf4'],
+            'accepted'          => ['label'=>'Disetujui ✓',    'color'=>'#059669','bg'=>'#f0fdf4'],
             'declined'          => ['label'=>'Ditolak',        'color'=>'#94a3b8','bg'=>'#f8fafc'],
         ];
         $st = $statusMap[$sub->status] ?? ['label'=>$sub->status,'color'=>'#64748b','bg'=>'#f8fafc'];

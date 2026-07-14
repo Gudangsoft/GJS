@@ -22,7 +22,7 @@ class JournalBreakdownWidget extends BaseWidget
             ->query(
                 Journal::withCount([
                     'submissions as antrian_count' => fn ($q) => $q->whereIn('status', ['submitted', 'queued']),
-                    'submissions as review_count'  => fn ($q) => $q->whereIn('status', ['assigned', 'review', 'revision_required', 'resubmit']),
+                    'submissions as review_count'  => fn ($q) => $q->whereIn('status', ['accepted_for_review', 'assigned', 'review', 'revision_required', 'resubmit']),
                     'submissions as prod_count'    => fn ($q) => $q->whereIn('status', ['accepted', 'copyediting', 'production', 'scheduled']),
                     'submissions as pub_count'     => fn ($q) => $q->where('status', 'published'),
                 ])

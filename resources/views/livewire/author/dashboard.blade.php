@@ -126,7 +126,7 @@
                              style="background:
                                 @if(in_array($sub->status, ['under_review','review'])) #f59e0b
                                 @elseif($sub->status === 'revision_required') #ef4444
-                                @elseif(in_array($sub->status, ['accepted','copyediting','production','galley'])) #10b981
+                                @elseif(in_array($sub->status, ['accepted_for_review','accepted','copyediting','production','galley'])) #10b981
                                 @else #3b82f6
                                 @endif;
                              margin-top:.35rem;"></div>
@@ -141,7 +141,7 @@
                                       style="
                                         @if(in_array($sub->status, ['under_review','review'])) background:#fef3c7;color:#b45309;
                                         @elseif($sub->status === 'revision_required') background:#fee2e2;color:#b91c1c;
-                                        @elseif(in_array($sub->status, ['accepted','copyediting','production','galley'])) background:#d1fae5;color:#065f46;
+                                        @elseif(in_array($sub->status, ['accepted_for_review','accepted','copyediting','production','galley'])) background:#d1fae5;color:#065f46;
                                         @else background:#dbeafe;color:#1e40af;
                                         @endif
                                       ">

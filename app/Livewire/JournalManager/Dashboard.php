@@ -63,7 +63,7 @@ class Dashboard extends Component
 
             $submissions = match ($this->tab) {
                 'pending'  => $base()->whereIn('status', ['submitted','queued'])->latest('submitted_at')->get(),
-                'review'   => $base()->whereIn('status', ['assigned','review'])->latest('submitted_at')->get(),
+                'review'   => $base()->whereIn('status', ['accepted_for_review','assigned','review'])->latest('submitted_at')->get(),
                 'revision' => $base()->whereIn('status', ['revision_required','resubmit'])->latest('submitted_at')->get(),
                 'decided'  => $base()->whereIn('status', ['accepted','declined','copyediting','production','scheduled','published'])->latest('submitted_at')->get(),
                 default    => $base()->whereIn('status', ['submitted','queued'])->latest('submitted_at')->get(),
@@ -77,7 +77,7 @@ class Dashboard extends Component
 
             $counts = [
                 'pending'  => $raw->only(['submitted','queued'])->sum(),
-                'review'   => $raw->only(['assigned','review'])->sum(),
+                'review'   => $raw->only(['accepted_for_review','assigned','review'])->sum(),
                 'revision' => $raw->only(['revision_required','resubmit'])->sum(),
                 'decided'  => $raw->only(['accepted','declined','copyediting','production','scheduled','published'])->sum(),
                 'total'    => $raw->sum(),

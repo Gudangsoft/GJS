@@ -28,7 +28,7 @@ class StatsOverviewWidget extends BaseWidget
             ->toArray();
 
         $pending   = ($statusCounts['submitted'] ?? 0) + ($statusCounts['queued'] ?? 0);
-        $inReview  = ($statusCounts['assigned'] ?? 0) + ($statusCounts['review'] ?? 0);
+        $inReview  = ($statusCounts['accepted_for_review'] ?? 0) + ($statusCounts['assigned'] ?? 0) + ($statusCounts['review'] ?? 0);
         $inProd    = ($statusCounts['accepted'] ?? 0)
                    + ($statusCounts['copyediting'] ?? 0)
                    + ($statusCounts['production'] ?? 0)

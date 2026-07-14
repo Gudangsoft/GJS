@@ -175,11 +175,12 @@
         $statusBadge = [
             'submitted'         => ['Dikirim',      '#2563eb','#eff6ff'],
             'queued'            => ['Antrian',       '#d97706','#fffbeb'],
+            'accepted_for_review' => ['Diterima',    '#16a34a','#f0fdf4'],
             'assigned'          => ['Ditugaskan',    '#d97706','#fffbeb'],
             'review'            => ['Dalam Review',  '#7c3aed','#faf5ff'],
             'revision_required' => ['Perlu Revisi',  '#ea580c','#fff7ed'],
             'resubmit'          => ['Resubmit',      '#ea580c','#fff7ed'],
-            'accepted'          => ['Diterima',      '#16a34a','#f0fdf4'],
+            'accepted'          => ['Disetujui',     '#16a34a','#f0fdf4'],
             'declined'          => ['Ditolak',       '#dc2626','#fef2f2'],
             'copyediting'       => ['Copy Editing',  '#0891b2','#ecfeff'],
             'production'        => ['Produksi',      '#0891b2','#ecfeff'],

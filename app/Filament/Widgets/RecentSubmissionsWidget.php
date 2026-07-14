@@ -54,6 +54,7 @@ class RecentSubmissionsWidget extends BaseWidget
                     ->badge()
                     ->color(fn ($state) => match($state) {
                         'submitted', 'queued'               => 'info',
+                        'accepted_for_review'                => 'success',
                         'assigned'                          => 'primary',
                         'review'                            => 'warning',
                         'revision_required', 'resubmit'     => 'danger',
@@ -64,11 +65,12 @@ class RecentSubmissionsWidget extends BaseWidget
                     ->formatStateUsing(fn ($state) => match($state) {
                         'submitted'         => 'Submitted',
                         'queued'            => 'Antrian',
+                        'accepted_for_review' => 'Diterima',
                         'assigned'          => 'Ditugaskan',
                         'review'            => 'Dalam Review',
                         'revision_required' => 'Revisi Diminta',
                         'resubmit'          => 'Resubmit',
-                        'accepted'          => 'Diterima',
+                        'accepted'          => 'Disetujui',
                         'published'         => 'Terbit',
                         'declined'          => 'Ditolak',
                         default             => $state,

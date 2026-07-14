@@ -4,6 +4,7 @@ namespace App\Livewire\Editor;
 
 use App\Mail\EditorialDecision;
 use App\Mail\ReviewInvitation;
+use App\Mail\SubmissionAcceptedForReview;
 use App\Models\PlagiarismCheck;
 use App\Models\ReviewAssignment;
 use App\Models\ReviewRound;
@@ -102,6 +103,19 @@ class SubmissionReview extends Component
 
         $this->submission->refresh();
         session()->flash('success', 'Penugasan reviewer dibatalkan.');
+    }
+
+    public function acceptForReview(): void
+    {
+        abort_unless(in_array($this->submission->status, ['submitted', 'queued']), 403);
+
+        $this->submission->update(['status' => 'accepted_for_review']);
+        $this->submission->refresh();
+
+        Mail::to($this->submission->submitter->email)
+            ->queue(new SubmissionAcceptedForReview($this->submission));
+
+        session()->flash('success', 'Naskah diterima dan masuk ke tahap review.');
     }
 
     public function runPlagiarismCheck(): void
@@ -237,11 +251,12 @@ class SubmissionReview extends Component
             ->get();
 
         $statusEventLabels = [
-            'accepted'          => ['Keputusan: Diterima',     '#059669'],
-            'declined'          => ['Keputusan: Ditolak',      '#dc2626'],
-            'revision_required' => ['Keputusan: Perlu Revisi', '#d97706'],
-            'review'            => ['Masuk tahap review',      '#7c3aed'],
-            'published'         => ['Diterbitkan',             '#0891b2'],
+            'accepted_for_review' => ['Naskah diterima untuk direview', '#2563eb'],
+            'accepted'            => ['Keputusan: Disetujui',    '#059669'],
+            'declined'            => ['Keputusan: Ditolak',      '#dc2626'],
+            'revision_required'   => ['Keputusan: Perlu Revisi', '#d97706'],
+            'review'              => ['Masuk tahap review',      '#7c3aed'],
+            'published'           => ['Diterbitkan',             '#0891b2'],
         ];
 
         foreach ($logEntries as $log) {

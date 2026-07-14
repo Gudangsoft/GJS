@@ -21,8 +21,9 @@
             @php
             $statusMap = [
                 'submitted'=>['Submitted','#2563eb'],'queued'=>['Antrian','#0891b2'],
+                'accepted_for_review'=>['Diterima','#059669'],
                 'assigned'=>['Ditugaskan','#d97706'],'review'=>['Dalam Review','#7c3aed'],
-                'revision_required'=>['Perlu Revisi','#dc2626'],'accepted'=>['Diterima','#059669'],
+                'revision_required'=>['Perlu Revisi','#dc2626'],'accepted'=>['Disetujui','#059669'],
                 'declined'=>['Ditolak','#94a3b8'],
             ];
             [$stLabel,$stColor] = $statusMap[$submission->status] ?? [$submission->status,'#64748b'];
@@ -250,6 +251,20 @@
             @endif
 
             {{-- Review Assignments --}}
+            @if(in_array($submission->status, ['submitted', 'queued']))
+            <div class="rounded-2xl p-6 text-center" style="background:#fff;border:1px solid #e2e8f0;">
+                <svg class="w-10 h-10 mx-auto mb-3" style="color:#2563eb;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                <h2 class="font-bold text-sm uppercase tracking-wide mb-1" style="color:#64748b;">Skrining Awal</h2>
+                <p class="text-sm mb-4" style="color:#94a3b8;">Naskah ini belum diterima ke tahap review. Tugaskan reviewer baru bisa dilakukan setelah naskah diterima.</p>
+                <button wire:click="acceptForReview"
+                        wire:confirm="Terima naskah ini untuk masuk ke tahap review?"
+                        class="inline-flex items-center gap-1.5 text-sm font-bold rounded-xl px-4 py-2.5 text-white transition-opacity hover:opacity-90"
+                        style="background:linear-gradient(135deg,#2563eb,#059669);">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    Terima Naskah untuk Review
+                </button>
+            </div>
+            @else
             <div class="rounded-2xl p-6" style="background:#fff;border:1px solid #e2e8f0;">
                 <div class="flex items-center justify-between mb-5">
                     <h2 class="font-bold text-sm uppercase tracking-wide" style="color:#64748b;">Penugasan Reviewer</h2>
@@ -359,6 +374,7 @@
                 </div>
                 @endif
             </div>
+            @endif
         </div>
 
         {{-- Sidebar --}}
@@ -369,7 +385,7 @@
                 <h3 class="font-bold text-sm uppercase tracking-wide mb-4" style="color:#64748b;">Keputusan Editorial</h3>
 
                 @if(in_array($submission->status, ['accepted','declined','revision_required']))
-                @php $dMap = ['accepted'=>['Diterima','#059669','#f0fdf4'],'declined'=>['Ditolak','#dc2626','#fff1f2'],'revision_required'=>['Perlu Revisi','#d97706','#fffbeb']]; $dm = $dMap[$submission->status]; @endphp
+                @php $dMap = ['accepted'=>['Disetujui','#059669','#f0fdf4'],'declined'=>['Ditolak','#dc2626','#fff1f2'],'revision_required'=>['Perlu Revisi','#d97706','#fffbeb']]; $dm = $dMap[$submission->status]; @endphp
                 <div class="text-center py-4 rounded-xl mb-3" style="background:{{ $dm[2] }};border:1px solid {{ $dm[1] }}22;">
                     <p class="font-bold" style="color:{{ $dm[1] }};">{{ $dm[0] }}</p>
                     <p class="text-xs mt-0.5" style="color:{{ $dm[1] }};">Keputusan sudah dibuat</p>
@@ -541,7 +557,7 @@
                 <label class="block text-sm font-semibold mb-2" style="color:#374151;">Keputusan</label>
                 <div class="grid grid-cols-3 gap-2">
                     @foreach([
-                        ['value'=>'accepted',          'label'=>'Terima',        'color'=>'#059669','bg'=>'#f0fdf4','border'=>'#86efac'],
+                        ['value'=>'accepted',          'label'=>'Setujui',       'color'=>'#059669','bg'=>'#f0fdf4','border'=>'#86efac'],
                         ['value'=>'revision_required', 'label'=>'Revisi',        'color'=>'#d97706','bg'=>'#fffbeb','border'=>'#fcd34d'],
                         ['value'=>'declined',          'label'=>'Tolak',         'color'=>'#dc2626','bg'=>'#fff1f2','border'=>'#fca5a5'],
                     ] as $opt)

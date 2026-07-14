@@ -21,8 +21,8 @@ class AlertsWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        // Naskah baru (submitted) belum di-assign > 7 hari
-        $unassigned = Submission::where('status', 'submitted')
+        // Naskah baru (submitted/diterima) belum di-assign reviewer > 7 hari
+        $unassigned = Submission::whereIn('status', ['submitted', 'queued', 'accepted_for_review'])
             ->where('submitted_at', '<', now()->subDays(7))
             ->count();
 

@@ -2,30 +2,32 @@
 use Carbon\Carbon;
 
 $statusMap = [
-    'draft'             => ['label'=>'Draft',          'color'=>'#64748b','bg'=>'#f1f5f9','border'=>'#cbd5e1','step'=>0],
-    'submitted'         => ['label'=>'Dikirim',        'color'=>'#2563eb','bg'=>'#eff6ff','border'=>'#bfdbfe','step'=>1],
-    'queued'            => ['label'=>'Antrian Editor', 'color'=>'#d97706','bg'=>'#fffbeb','border'=>'#fde68a','step'=>1],
-    'assigned'          => ['label'=>'Ditugaskan',     'color'=>'#d97706','bg'=>'#fffbeb','border'=>'#fde68a','step'=>2],
-    'review'            => ['label'=>'Dalam Review',   'color'=>'#7c3aed','bg'=>'#faf5ff','border'=>'#ddd6fe','step'=>2],
-    'revision_required' => ['label'=>'Perlu Revisi',   'color'=>'#ea580c','bg'=>'#fff7ed','border'=>'#fed7aa','step'=>3],
-    'resubmit'          => ['label'=>'Resubmit',       'color'=>'#ea580c','bg'=>'#fff7ed','border'=>'#fed7aa','step'=>3],
-    'accepted'          => ['label'=>'Diterima',       'color'=>'#16a34a','bg'=>'#f0fdf4','border'=>'#bbf7d0','step'=>4],
-    'copyediting'       => ['label'=>'Copy Editing',   'color'=>'#0891b2','bg'=>'#ecfeff','border'=>'#a5f3fc','step'=>4],
-    'production'        => ['label'=>'Produksi',       'color'=>'#0891b2','bg'=>'#ecfeff','border'=>'#a5f3fc','step'=>4],
-    'scheduled'         => ['label'=>'Terjadwal',      'color'=>'#16a34a','bg'=>'#f0fdf4','border'=>'#bbf7d0','step'=>5],
-    'published'         => ['label'=>'Diterbitkan',    'color'=>'#15803d','bg'=>'#f0fdf4','border'=>'#86efac','step'=>5],
-    'declined'          => ['label'=>'Ditolak',        'color'=>'#dc2626','bg'=>'#fef2f2','border'=>'#fecaca','step'=>-1],
+    'draft'               => ['label'=>'Draft',          'color'=>'#64748b','bg'=>'#f1f5f9','border'=>'#cbd5e1','step'=>0],
+    'submitted'           => ['label'=>'Dikirim',        'color'=>'#2563eb','bg'=>'#eff6ff','border'=>'#bfdbfe','step'=>1],
+    'queued'              => ['label'=>'Antrian Editor', 'color'=>'#d97706','bg'=>'#fffbeb','border'=>'#fde68a','step'=>1],
+    'accepted_for_review' => ['label'=>'Diterima',       'color'=>'#16a34a','bg'=>'#f0fdf4','border'=>'#bbf7d0','step'=>2],
+    'assigned'            => ['label'=>'Ditugaskan',     'color'=>'#d97706','bg'=>'#fffbeb','border'=>'#fde68a','step'=>3],
+    'review'              => ['label'=>'Dalam Review',   'color'=>'#7c3aed','bg'=>'#faf5ff','border'=>'#ddd6fe','step'=>3],
+    'revision_required'   => ['label'=>'Perlu Revisi',   'color'=>'#ea580c','bg'=>'#fff7ed','border'=>'#fed7aa','step'=>4],
+    'resubmit'            => ['label'=>'Resubmit',       'color'=>'#ea580c','bg'=>'#fff7ed','border'=>'#fed7aa','step'=>4],
+    'accepted'            => ['label'=>'Disetujui',      'color'=>'#16a34a','bg'=>'#f0fdf4','border'=>'#bbf7d0','step'=>5],
+    'copyediting'         => ['label'=>'Copy Editing',   'color'=>'#0891b2','bg'=>'#ecfeff','border'=>'#a5f3fc','step'=>5],
+    'production'          => ['label'=>'Produksi',       'color'=>'#0891b2','bg'=>'#ecfeff','border'=>'#a5f3fc','step'=>5],
+    'scheduled'           => ['label'=>'Terjadwal',      'color'=>'#16a34a','bg'=>'#f0fdf4','border'=>'#bbf7d0','step'=>6],
+    'published'           => ['label'=>'Diterbitkan',    'color'=>'#15803d','bg'=>'#f0fdf4','border'=>'#86efac','step'=>6],
+    'declined'            => ['label'=>'Ditolak',        'color'=>'#dc2626','bg'=>'#fef2f2','border'=>'#fecaca','step'=>-1],
 ];
 $s      = $statusMap[$submission->status] ?? ['label'=>$submission->status,'color'=>'#64748b','bg'=>'#f1f5f9','border'=>'#cbd5e1','step'=>0];
 $step   = $s['step'];
 
 $steps = [
-    ['label'=>'Draft',    'icon'=>'M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z'],
-    ['label'=>'Dikirim',  'icon'=>'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'],
-    ['label'=>'Review',   'icon'=>'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'],
-    ['label'=>'Revisi',   'icon'=>'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'],
-    ['label'=>'Diterima', 'icon'=>'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
-    ['label'=>'Terbit',   'icon'=>'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'],
+    ['label'=>'Draft',     'icon'=>'M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z'],
+    ['label'=>'Dikirim',   'icon'=>'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'],
+    ['label'=>'Diterima',  'icon'=>'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
+    ['label'=>'Review',    'icon'=>'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'],
+    ['label'=>'Revisi',    'icon'=>'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'],
+    ['label'=>'Disetujui', 'icon'=>'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
+    ['label'=>'Terbit',    'icon'=>'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'],
 ];
 
 $recLabels = [
